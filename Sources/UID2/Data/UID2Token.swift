@@ -14,3 +14,19 @@ struct UID2Token: Codable {
     let refreshExpires: TimeInterval
     let refreshResponseKey: String
 }
+
+extension UID2Token {
+    
+    func toData() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return try encoder.encode(self)
+    }
+    
+    static func fromData(_ data: Data) -> UID2Token? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try? decoder.decode(UID2Token.self, from: data)
+    }
+
+}
