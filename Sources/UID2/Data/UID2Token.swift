@@ -6,13 +6,13 @@
 
 import Foundation
 
-struct UID2Token: Codable {
-    let advertisingToken: String
-    let refreshToken: String
-    let identityExpires: TimeInterval
-    let refreshFrom: TimeInterval
-    let refreshExpires: TimeInterval
-    let refreshResponseKey: String
+public struct UID2Token: Codable {
+    public let advertisingToken: String
+    public let refreshToken: String
+    public let identityExpires: TimeInterval
+    public let refreshFrom: TimeInterval
+    public let refreshExpires: TimeInterval
+    public let refreshResponseKey: String
 }
 
 extension UID2Token {

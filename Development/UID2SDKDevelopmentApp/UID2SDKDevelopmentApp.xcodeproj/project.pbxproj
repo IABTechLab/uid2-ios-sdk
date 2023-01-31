@@ -8,19 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */; };
-		E2E19003298833A500FFE8C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19002298833A500FFE8C3 /* ContentView.swift */; };
+		E2E19003298833A500FFE8C3 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19002298833A500FFE8C3 /* RootView.swift */; };
 		E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E2E19004298833A600FFE8C3 /* Assets.xcassets */; };
 		E2E19008298833A600FFE8C3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E2E19007298833A600FFE8C3 /* Preview Assets.xcassets */; };
 		E2E190122988359000FFE8C3 /* UID2 in Frameworks */ = {isa = PBXBuildFile; productRef = E2E190112988359000FFE8C3 /* UID2 */; };
+		E2E1901429883B4600FFE8C3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E1901329883B4600FFE8C3 /* RootViewModel.swift */; };
+		E2E190162988566E00FFE8C3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E2E190152988566E00FFE8C3 /* Localizable.strings */; };
+		E2E190182988574500FFE8C3 /* ErrorListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E190172988574500FFE8C3 /* ErrorListView.swift */; };
+		E2E1901A29885C8600FFE8C3 /* TokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E1901929885C8600FFE8C3 /* TokenListView.swift */; };
+		E2E1901C29885E6600FFE8C3 /* UID2TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E1901B29885E6600FFE8C3 /* UID2TokensView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		E2E18FFD298833A500FFE8C3 /* UID2SDKDevelopmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UID2SDKDevelopmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2SDKDevelopmentAppApp.swift; sourceTree = "<group>"; };
-		E2E19002298833A500FFE8C3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E2E19002298833A500FFE8C3 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		E2E19004298833A600FFE8C3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E2E19007298833A600FFE8C3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E2E1900F2988346700FFE8C3 /* uid2-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "uid2-ios-sdk"; path = ../..; sourceTree = "<group>"; };
+		E2E1901329883B4600FFE8C3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
+		E2E190152988566E00FFE8C3 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		E2E190172988574500FFE8C3 /* ErrorListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorListView.swift; sourceTree = "<group>"; };
+		E2E1901929885C8600FFE8C3 /* TokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListView.swift; sourceTree = "<group>"; };
+		E2E1901B29885E6600FFE8C3 /* UID2TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2TokensView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,9 +67,14 @@
 			isa = PBXGroup;
 			children = (
 				E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */,
-				E2E19002298833A500FFE8C3 /* ContentView.swift */,
+				E2E19002298833A500FFE8C3 /* RootView.swift */,
+				E2E1901329883B4600FFE8C3 /* RootViewModel.swift */,
+				E2E1901929885C8600FFE8C3 /* TokenListView.swift */,
+				E2E1901B29885E6600FFE8C3 /* UID2TokensView.swift */,
+				E2E190172988574500FFE8C3 /* ErrorListView.swift */,
 				E2E19004298833A600FFE8C3 /* Assets.xcassets */,
 				E2E19006298833A600FFE8C3 /* Preview Content */,
+				E2E190152988566E00FFE8C3 /* Localizable.strings */,
 			);
 			path = UID2SDKDevelopmentApp;
 			sourceTree = "<group>";
@@ -149,6 +164,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2E19008298833A600FFE8C3 /* Preview Assets.xcassets in Resources */,
+				E2E190162988566E00FFE8C3 /* Localizable.strings in Resources */,
 				E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,8 +176,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2E19003298833A500FFE8C3 /* ContentView.swift in Sources */,
+				E2E19003298833A500FFE8C3 /* RootView.swift in Sources */,
+				E2E1901429883B4600FFE8C3 /* RootViewModel.swift in Sources */,
+				E2E1901C29885E6600FFE8C3 /* UID2TokensView.swift in Sources */,
 				E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */,
+				E2E1901A29885C8600FFE8C3 /* TokenListView.swift in Sources */,
+				E2E190182988574500FFE8C3 /* ErrorListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

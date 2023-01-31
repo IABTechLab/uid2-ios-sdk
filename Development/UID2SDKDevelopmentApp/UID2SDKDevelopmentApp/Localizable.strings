@@ -1,0 +1,19 @@
+/* 
+  Localizable.strings
+  UID2SDKDevelopmentApp
+
+  Created by Brad Leege on 1/30/23.
+  
+*/
+
+"common.uid2sdk" = "UID2 SDK";
+"common.nil" = "Nil";
+
+"root.title.uid2Token" = "Current UID2 Token";
+
+"root.label.uid2Token.advertisingToken" = "Advertising Token";
+"root.label.uid2Token.refreshToken" = "Refresh Token";
+"root.label.uid2Token.identityExpires" = "Identity Expires";
+"root.label.uid2Token.refreshFrom" = "Refresh From";
+"root.label.uid2Token.refreshExpires" = "Refresh Expires";
+"root.label.uid2Token.refreshResponseKey" = "Refresh Response Key";
