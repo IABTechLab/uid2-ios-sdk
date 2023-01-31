@@ -16,6 +16,4 @@ final class UID2Manager {
     
     private init() {}
     
-    
-    
 }

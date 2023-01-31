@@ -24,10 +24,6 @@ struct RootView: View {
             } else {
                 TokenListView(viewModel)
             }
-        }
-        .onAppear {
-            // TODO - Restore from Disk
-        }
-        
+        }        
     }
 }
