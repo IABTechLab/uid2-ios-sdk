@@ -6,7 +6,7 @@ final class UID2TokenTests: XCTestCase {
     
   func testUID2TokenLoad() throws {
         
-        let data = try loadData(for: "uidtoken", fileExtension: "json")
+        let data = try DataLoader.load(fileName: "uidtoken", fileExtension: "json")
         guard let uid2Token = UID2Token.fromData(data) else {
             XCTFail("Unable to convert Data to UID2Token")
             return
@@ -42,15 +42,5 @@ final class UID2TokenTests: XCTestCase {
         XCTAssertEqual(returnedUID2Token.refreshResponseKey, "refreshResponseKey")
         
     }
-    
-    private func loadData(for fileName: String, fileExtension: String)throws -> Data {
         
-        guard let bundlePath = Bundle.module.path(forResource: fileName, ofType: fileExtension, inDirectory: "TestData"),
-                  let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else {
-                throw "Could not load JSON from file."
-        }
-
-        return jsonData
-    }
-    
 }
