@@ -53,10 +53,6 @@ internal final class UID2Client {
             }
         
             let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: payloadData)
-            
-            if tokenResponse.status == RefreshTokenResponse.Status.optOut.rawValue {
-                throw UID2Error.userOptOut
-            }
         
             guard let uid2Token = tokenResponse.toUID2Token() else {
                 throw UID2Error.refreshResponseToToken

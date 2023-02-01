@@ -45,20 +45,17 @@ extension RefreshTokenResponse {
 extension RefreshTokenResponse {
     
     func toUID2Token() -> UID2Token? {
-        if status != Status.success.rawValue {
+        if status != Status.success.rawValue && status != Status.optOut.rawValue {
             return nil
         }
-        
-        guard let body = body else {
-            return nil
-        }
-        
-        return UID2Token(advertisingToken: body.advertisingToken,
-                         refreshToken: body.refreshToken,
-                         identityExpires: body.identityExpires,
-                         refreshFrom: body.refreshFrom,
-                         refreshExpires: body.refreshExpires,
-                         refreshResponseKey: body.refreshResponseKey)
+                
+        return UID2Token(advertisingToken: body?.advertisingToken,
+                         refreshToken: body?.refreshToken,
+                         identityExpires: body?.identityExpires,
+                         refreshFrom: body?.refreshFrom,
+                         refreshExpires: body?.refreshExpires,
+                         refreshResponseKey: body?.refreshResponseKey,
+                         status: status)
     }
     
 }

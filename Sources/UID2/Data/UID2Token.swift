@@ -7,12 +7,13 @@
 import Foundation
 
 public struct UID2Token: Codable {
-    public let advertisingToken: String
-    public let refreshToken: String
-    public let identityExpires: TimeInterval
-    public let refreshFrom: TimeInterval
-    public let refreshExpires: TimeInterval
-    public let refreshResponseKey: String
+    public var advertisingToken: String?
+    public var refreshToken: String?
+    public var identityExpires: TimeInterval?
+    public var refreshFrom: TimeInterval?
+    public var refreshExpires: TimeInterval?
+    public var refreshResponseKey: String?
+    public let status: String?
 }
 
 extension UID2Token {

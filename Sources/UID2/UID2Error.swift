@@ -23,10 +23,7 @@ enum UID2Error: Error {
     
     /// Unable to convert RefreshTokenResponse to UID2Token
     case refreshResponseToToken
-    
-    /// User has opted out of UID2
-    case userOptOut
-    
+        
     /// Unable to generate an UID2 Server
     case urlGeneration
     
