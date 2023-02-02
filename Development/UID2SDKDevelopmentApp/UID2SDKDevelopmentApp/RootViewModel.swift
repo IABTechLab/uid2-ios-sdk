@@ -9,10 +9,11 @@ import Foundation
 import SwiftUI
 import UID2
 
+@MainActor
 class RootViewModel: ObservableObject {
     
     @Published private(set) var titleText = LocalizedStringKey("common.uid2sdk")
-    @Published private(set) var uid2Token: UID2Token?
+    @Published private(set) var uid2Token = UID2Manager.shared.uid2Token
     @Published private(set) var error: Error?
     
     var advertisingToken: String {

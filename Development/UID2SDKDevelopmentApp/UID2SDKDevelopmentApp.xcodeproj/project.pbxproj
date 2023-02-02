@@ -20,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E291757A298C1CB900500573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E2E18FFD298833A500FFE8C3 /* UID2SDKDevelopmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UID2SDKDevelopmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2SDKDevelopmentAppApp.swift; sourceTree = "<group>"; };
 		E2E19002298833A500FFE8C3 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -66,6 +67,7 @@
 		E2E18FFF298833A500FFE8C3 /* UID2SDKDevelopmentApp */ = {
 			isa = PBXGroup;
 			children = (
+				E291757A298C1CB900500573 /* Info.plist */,
 				E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */,
 				E2E19002298833A500FFE8C3 /* RootView.swift */,
 				E2E1901329883B4600FFE8C3 /* RootViewModel.swift */,
@@ -334,6 +336,7 @@
 				DEVELOPMENT_TEAM = 7HDA78784S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UID2SDKDevelopmentApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -363,6 +366,7 @@
 				DEVELOPMENT_TEAM = 7HDA78784S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UID2SDKDevelopmentApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
