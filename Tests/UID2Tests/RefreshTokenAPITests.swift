@@ -86,5 +86,82 @@ final class RefreshTokenAPITests: XCTestCase {
         
     }
 
+    /// 🟥  `POST /v2/token/refresh` - HTTP 400 - Client Error
+    func testRefreshTokenClientError() async {
+        
+        do {
+            // Load UID2Client Mocked
+            let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-400-client-error", "json", 400))
+            
+            // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
+            let _ = try await client.refreshUID2Token(refreshToken: "token", refreshResponseKey: "key")
+            XCTFail("refreshUID2Token() did not throw an error.")
+        } catch {
+            if let uid2Error = error as? UID2Error {
+                switch uid2Error {
+                case .refreshTokenServer(status: let status, message: let message):
+                    XCTAssertEqual(status, "client_error")
+                    XCTAssertEqual(message, "Client Error")
+                default:
+                    XCTFail("UID2Error was not of expected type")
+                }
+            } else {
+                XCTFail("Error was not a UID2Error")
+            }
+        }
+
+    }
     
+    /// 🟥  `POST /v2/token/refresh` - HTTP 400 - Invalid Token
+    func testRefreshTokenInvalidToken() async {
+        
+        do {
+            // Load UID2Client Mocked
+            let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-400-invalid-token", "json", 400))
+            
+            // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
+            let _ = try await client.refreshUID2Token(refreshToken: "token", refreshResponseKey: "key")
+            XCTFail("refreshUID2Token() did not throw an error.")
+        } catch {
+            if let uid2Error = error as? UID2Error {
+                switch uid2Error {
+                case .refreshTokenServer(status: let status, message: let message):
+                    XCTAssertEqual(status, "invalid_token")
+                    XCTAssertEqual(message, "Invalid Token")
+                default:
+                    XCTFail("UID2Error was not of expected type")
+                }
+            } else {
+                XCTFail("Error was not a UID2Error")
+            }
+        }
+
+    }
+
+    /// 🟥  `POST /v2/token/refresh` - HTTP 401 - Unauthorized
+    func testRefreshTokenUnauthorized() async {
+        
+        do {
+            // Load UID2Client Mocked
+            let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-401-unauthorized", "json", 401))
+            
+            // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
+            let _ = try await client.refreshUID2Token(refreshToken: "token", refreshResponseKey: "key")
+            XCTFail("refreshUID2Token() did not throw an error.")
+        } catch {
+            if let uid2Error = error as? UID2Error {
+                switch uid2Error {
+                case .refreshTokenServer(status: let status, message: let message):
+                    XCTAssertEqual(status, "unauthorized")
+                    XCTAssertNil(message)
+                default:
+                    XCTFail("UID2Error was not of expected type")
+                }
+            } else {
+                XCTFail("Error was not a UID2Error")
+            }
+        }
+
+    }
+
 }
