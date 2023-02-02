@@ -9,7 +9,7 @@ import Foundation
 
 extension URLSession: NetworkSession {
 
-    func loadData(for request: URLRequest) async throws -> (Data , Int)  {
+    func loadData(for request: URLRequest) async throws -> (Data, Int) {
         let (data, response) = try await data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
