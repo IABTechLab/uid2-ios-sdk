@@ -100,7 +100,7 @@ final class RefreshTokenAPITests: XCTestCase {
             if let uid2Error = error as? UID2Error {
                 switch uid2Error {
                 case .refreshTokenServer(status: let status, message: let message):
-                    XCTAssertEqual(status, "client_error")
+                    XCTAssertEqual(status, .clientError)
                     XCTAssertEqual(message, "Client Error")
                 default:
                     XCTFail("UID2Error was not of expected type")
@@ -126,7 +126,7 @@ final class RefreshTokenAPITests: XCTestCase {
             if let uid2Error = error as? UID2Error {
                 switch uid2Error {
                 case .refreshTokenServer(status: let status, message: let message):
-                    XCTAssertEqual(status, "invalid_token")
+                    XCTAssertEqual(status, .invalidToken)
                     XCTAssertEqual(message, "Invalid Token")
                 default:
                     XCTFail("UID2Error was not of expected type")
@@ -152,7 +152,7 @@ final class RefreshTokenAPITests: XCTestCase {
             if let uid2Error = error as? UID2Error {
                 switch uid2Error {
                 case .refreshTokenServer(status: let status, message: let message):
-                    XCTAssertEqual(status, "unauthorized")
+                    XCTAssertEqual(status, .unauthorized)
                     XCTAssertNil(message)
                 default:
                     XCTFail("UID2Error was not of expected type")

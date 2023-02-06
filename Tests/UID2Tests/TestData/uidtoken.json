@@ -4,5 +4,6 @@
     "identity_expires": 1633643601000,
     "refresh_from": 1633643001000,
     "refresh_expires": 1636322000000,
-    "refresh_response_key": "yptCUTBoZm1ffosgCrmuwg=="
+    "refresh_response_key": "yptCUTBoZm1ffosgCrmuwg==",
+    "status": "success"
 }

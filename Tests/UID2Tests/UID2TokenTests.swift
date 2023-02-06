@@ -28,7 +28,7 @@ final class UID2TokenTests: XCTestCase {
                                   refreshFrom: 0002,
                                   refreshExpires: 0003,
                                   refreshResponseKey: "refreshResponseKey",
-                                  status: "success")
+                                  status: .success)
         let data = try uid2Token.toData()
         guard let returnedUID2Token = UID2Token.fromData(data) else {
             XCTFail("Unable to convert Data to UID2Token")

@@ -13,7 +13,19 @@ public struct UID2Token: Codable {
     public var refreshFrom: TimeInterval?
     public var refreshExpires: TimeInterval?
     public var refreshResponseKey: String?
-    public let status: String?
+    public let status: Status
+}
+
+extension UID2Token {
+    
+    public enum Status: String, Codable {
+        case success = "success"
+        case optOut = "optout"
+        case clientError = "client_error"
+        case invalidToken = "invalid_token"
+        case unauthorized = "unauthorized"
+    }
+    
 }
 
 extension UID2Token {

@@ -19,11 +19,17 @@ enum UID2Error: Error {
     case httpURLResponse
     
     /// Server retunred a non HTTP 200 response
-    case refreshTokenServer(status: String, message: String?)
+    case refreshTokenServer(status: UID2Token.Status, message: String?)
     
     /// Unable to convert RefreshTokenResponse to UID2Token
     case refreshResponseToToken
         
+    /// Token has expired
+    case tokenIsExpired
+    
+    /// User has opted out
+    case userHasOptedOut
+    
     /// Unable to generate an UID2 Server
     case urlGeneration
     

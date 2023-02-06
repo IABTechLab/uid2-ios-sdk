@@ -10,7 +10,7 @@ import Security
 internal final class KeychainManager {
     
     /// Singleton access point for KeychainManager
-    public static let main = KeychainManager()
+    public static let shared = KeychainManager()
 
     private let attrAccount = "uid2"
     
