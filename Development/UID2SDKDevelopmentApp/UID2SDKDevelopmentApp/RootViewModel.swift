@@ -5,6 +5,7 @@
 //  Created by Brad Leege on 1/30/23.
 //
 
+import Combine
 import Foundation
 import SwiftUI
 import UID2
@@ -17,6 +18,16 @@ class RootViewModel: ObservableObject {
     @Published private(set) var error: Error?
     
     private let apiClient = AppUID2Client()
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        UID2Manager.shared.$uid2Token
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] uid2Token in
+                self?.uid2Token = uid2Token
+            }).store(in: &cancellables)
+    }
     
     var advertisingToken: String {
         if let token = uid2Token?.advertisingToken {
@@ -68,9 +79,6 @@ class RootViewModel: ObservableObject {
                     return
                 }
                 UID2Manager.shared.setUID2Token(uid2Token)
-                DispatchQueue.main.async {
-                    self?.uid2Token = uid2Token
-                }
             case .failure(let error):
                 DispatchQueue.main.async {
                     self?.error = error

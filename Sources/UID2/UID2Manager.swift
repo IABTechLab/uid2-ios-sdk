@@ -5,6 +5,7 @@
 //  Created by Brad Leege on 1/20/23.
 //
 
+import Combine
 import Foundation
 
 @available(iOS 13.0, *)
@@ -15,7 +16,7 @@ public final class UID2Manager {
     public static let shared = UID2Manager()
     
     /// Current UID2 Token Data
-    public private(set) var uid2Token: UID2Token?
+    @Published public private(set) var uid2Token: UID2Token?
         
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
