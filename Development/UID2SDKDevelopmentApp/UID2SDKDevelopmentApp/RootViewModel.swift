@@ -68,9 +68,13 @@ class RootViewModel: ObservableObject {
                     return
                 }
                 UID2Manager.shared.setUID2Token(uid2Token)
-                self?.uid2Token = uid2Token
+                DispatchQueue.main.async {
+                    self?.uid2Token = uid2Token
+                }
             case .failure(let error):
-                self?.error = error
+                DispatchQueue.main.async {
+                    self?.error = error
+                }
             }
         }
     }

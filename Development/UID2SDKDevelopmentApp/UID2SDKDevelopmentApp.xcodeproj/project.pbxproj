@@ -11,6 +11,7 @@
 		E291757F2991B19F00500573 /* UID2ServerCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291757E2991B19F00500573 /* UID2ServerCredentials.swift */; };
 		E29175812991B22200500573 /* UID2ServerCredentials.json in Resources */ = {isa = PBXBuildFile; fileRef = E29175802991B22200500573 /* UID2ServerCredentials.json */; };
 		E29175832991B74900500573 /* GenerateTokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29175822991B74900500573 /* GenerateTokenResponse.swift */; };
+		E29175852992B15C00500573 /* UID2ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29175842992B15C00500573 /* UID2ClientError.swift */; };
 		E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */; };
 		E2E19003298833A500FFE8C3 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19002298833A500FFE8C3 /* RootView.swift */; };
 		E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E2E19004298833A600FFE8C3 /* Assets.xcassets */; };
@@ -29,6 +30,7 @@
 		E291757E2991B19F00500573 /* UID2ServerCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2ServerCredentials.swift; sourceTree = "<group>"; };
 		E29175802991B22200500573 /* UID2ServerCredentials.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UID2ServerCredentials.json; sourceTree = "<group>"; };
 		E29175822991B74900500573 /* GenerateTokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateTokenResponse.swift; sourceTree = "<group>"; };
+		E29175842992B15C00500573 /* UID2ClientError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2ClientError.swift; sourceTree = "<group>"; };
 		E2E18FFD298833A500FFE8C3 /* UID2SDKDevelopmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UID2SDKDevelopmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2SDKDevelopmentAppApp.swift; sourceTree = "<group>"; };
 		E2E19002298833A500FFE8C3 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				E291757E2991B19F00500573 /* UID2ServerCredentials.swift */,
 				E29175802991B22200500573 /* UID2ServerCredentials.json */,
 				E29175822991B74900500573 /* GenerateTokenResponse.swift */,
+				E29175842992B15C00500573 /* UID2ClientError.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */,
 				E2E1901A29885C8600FFE8C3 /* TokenListView.swift in Sources */,
 				E2E190182988574500FFE8C3 /* ErrorListView.swift in Sources */,
+				E29175852992B15C00500573 /* UID2ClientError.swift in Sources */,
 				E29175832991B74900500573 /* GenerateTokenResponse.swift in Sources */,
 				E291757F2991B19F00500573 /* UID2ServerCredentials.swift in Sources */,
 			);
