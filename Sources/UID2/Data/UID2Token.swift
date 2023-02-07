@@ -14,6 +14,17 @@ public struct UID2Token: Codable {
     public var refreshExpires: TimeInterval?
     public var refreshResponseKey: String?
     public let status: Status
+    
+    public init(advertisingToken: String? = nil, refreshToken: String? = nil, identityExpires: TimeInterval? = nil, refreshFrom: TimeInterval? = nil, refreshExpires: TimeInterval? = nil, refreshResponseKey: String? = nil, status: Status) {
+        self.advertisingToken = advertisingToken
+        self.refreshToken = refreshToken
+        self.identityExpires = identityExpires
+        self.refreshFrom = refreshFrom
+        self.refreshExpires = refreshExpires
+        self.refreshResponseKey = refreshResponseKey
+        self.status = status
+    }
+    
 }
 
 extension UID2Token {

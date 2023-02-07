@@ -13,8 +13,10 @@ import UID2
 class RootViewModel: ObservableObject {
     
     @Published private(set) var titleText = LocalizedStringKey("common.uid2sdk")
-    @Published private(set) var uid2Token = UID2Manager.shared.uid2Token
+    @Published private(set) var uid2Token: UID2Token?
     @Published private(set) var error: Error?
+    
+    private let apiClient = AppUID2Client()
     
     var advertisingToken: String {
         if let token = uid2Token?.advertisingToken {
@@ -58,4 +60,19 @@ class RootViewModel: ObservableObject {
         return NSLocalizedString("common.nil", comment: "")
     }
 
+    func handleEmailEntry(_ emailAddress: String) {
+        apiClient.generateUID2Token(requestString: emailAddress, requestType: .email) { [weak self] result in
+            switch result {
+            case .success(let uid2Token):
+                guard let uid2Token = uid2Token else {
+                    return
+                }
+                UID2Manager.shared.setUID2Token(uid2Token)
+                self?.uid2Token = uid2Token
+            case .failure(let error):
+                self?.error = error
+            }
+        }
+    }
+    
 }

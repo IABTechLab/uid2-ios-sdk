@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E291757C29919C3900500573 /* AppUID2Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291757B29919C3900500573 /* AppUID2Client.swift */; };
+		E291757F2991B19F00500573 /* UID2ServerCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291757E2991B19F00500573 /* UID2ServerCredentials.swift */; };
+		E29175812991B22200500573 /* UID2ServerCredentials.json in Resources */ = {isa = PBXBuildFile; fileRef = E29175802991B22200500573 /* UID2ServerCredentials.json */; };
+		E29175832991B74900500573 /* GenerateTokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29175822991B74900500573 /* GenerateTokenResponse.swift */; };
 		E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */; };
 		E2E19003298833A500FFE8C3 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E19002298833A500FFE8C3 /* RootView.swift */; };
 		E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E2E19004298833A600FFE8C3 /* Assets.xcassets */; };
@@ -21,6 +25,10 @@
 
 /* Begin PBXFileReference section */
 		E291757A298C1CB900500573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E291757B29919C3900500573 /* AppUID2Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUID2Client.swift; sourceTree = "<group>"; };
+		E291757E2991B19F00500573 /* UID2ServerCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2ServerCredentials.swift; sourceTree = "<group>"; };
+		E29175802991B22200500573 /* UID2ServerCredentials.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UID2ServerCredentials.json; sourceTree = "<group>"; };
+		E29175822991B74900500573 /* GenerateTokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateTokenResponse.swift; sourceTree = "<group>"; };
 		E2E18FFD298833A500FFE8C3 /* UID2SDKDevelopmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UID2SDKDevelopmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2SDKDevelopmentAppApp.swift; sourceTree = "<group>"; };
 		E2E19002298833A500FFE8C3 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -46,6 +54,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E291757D2991B18100500573 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				E291757B29919C3900500573 /* AppUID2Client.swift */,
+				E291757E2991B19F00500573 /* UID2ServerCredentials.swift */,
+				E29175802991B22200500573 /* UID2ServerCredentials.json */,
+				E29175822991B74900500573 /* GenerateTokenResponse.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
 		E2E18FF4298833A400FFE8C3 = {
 			isa = PBXGroup;
 			children = (
@@ -67,6 +86,7 @@
 		E2E18FFF298833A500FFE8C3 /* UID2SDKDevelopmentApp */ = {
 			isa = PBXGroup;
 			children = (
+				E291757D2991B18100500573 /* Networking */,
 				E291757A298C1CB900500573 /* Info.plist */,
 				E2E19000298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift */,
 				E2E19002298833A500FFE8C3 /* RootView.swift */,
@@ -169,6 +189,7 @@
 				E2E19008298833A600FFE8C3 /* Preview Assets.xcassets in Resources */,
 				E2E190162988566E00FFE8C3 /* Localizable.strings in Resources */,
 				E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */,
+				E29175812991B22200500573 /* UID2ServerCredentials.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,11 +221,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2E19003298833A500FFE8C3 /* RootView.swift in Sources */,
+				E291757C29919C3900500573 /* AppUID2Client.swift in Sources */,
 				E2E1901429883B4600FFE8C3 /* RootViewModel.swift in Sources */,
 				E2E1901C29885E6600FFE8C3 /* UID2TokensView.swift in Sources */,
 				E2E19001298833A500FFE8C3 /* UID2SDKDevelopmentAppApp.swift in Sources */,
 				E2E1901A29885C8600FFE8C3 /* TokenListView.swift in Sources */,
 				E2E190182988574500FFE8C3 /* ErrorListView.swift in Sources */,
+				E29175832991B74900500573 /* GenerateTokenResponse.swift in Sources */,
+				E291757F2991B19F00500573 /* UID2ServerCredentials.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
