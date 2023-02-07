@@ -26,59 +26,93 @@ public final class UID2Manager {
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
+    private let timer = RepeatingTimer(timeInterval: 3)
+    
     private init() {
         var apiUrl = defaultUid2ApiUrl
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
         }
         uid2Client = UID2Client(uid2APIURL: apiUrl)
+        
+        timer.eventHandler = {
+            print("Timer Fired at \(Date())")
+            self.refreshToken()
+        }
+
+        // Try to load from Keychain if available
+        // Use case for app manually stopped and re-opened
+        reloadUID2Token()
     }
  
     public func setUID2Token(_ uid2Token: UID2Token) {
         self.uid2Token = uid2Token
         KeychainManager.shared.saveUID2TokenToKeychain(uid2Token)
+        
+        // Start Refresh Countdown
+        timer.suspend()
+        timer.resume()
     }
     
-    public func getUID2Token() throws -> UID2Token? {
-        
-        // If null, then look in Keychain
-        if uid2Token == nil {
-            if let token = KeychainManager.shared.getUID2TokenFromKeychain() {
-                self.uid2Token = token
-            }
-            return nil
+    @discardableResult
+    public func reloadUID2Token() -> Bool {
+        if uid2Token != nil {
+            return false
         }
         
-        // Check for opt out
-        if uid2Token?.status == UID2Token.Status.optOut {
-            throw UID2Error.userHasOptedOut
+        guard let uid2Token = KeychainManager.shared.getUID2TokenFromKeychain() else {
+            return false
         }
-
-        // Check for Expired Token
-        if isTokenExpired() {
-            throw UID2Error.tokenIsExpired
-        }
-                
-        let isTokenInRefreshRange = isTokenInRefreshRange()
-        
-        if isTokenInRefreshRange {
-            // Fire non blocking background task to refresh
-            Task(priority: .medium, operation: {
-                await refreshToken()
-            })
-        }
-
-        return uid2Token
+        setUID2Token(uid2Token)
+        return true
     }
+    
+    public func resetUID2Token() {
+        self.uid2Token = nil
+        KeychainManager.shared.deleteUID2TokenFromKeychain()
+        timer.suspend()
+    }
+    
+//    public func getUID2Token() throws -> UID2Token? {
+//
+//        // If null, then look in Keychain
+//        if uid2Token == nil {
+//            if let token = KeychainManager.shared.getUID2TokenFromKeychain() {
+//                self.uid2Token = token
+//            }
+//            return nil
+//        }
+//
+//        // Check for opt out
+//        if uid2Token?.status == UID2Token.Status.optOut {
+//            throw UID2Error.userHasOptedOut
+//        }
+//
+//        // Check for Expired Token
+//        if isTokenExpired() {
+//            throw UID2Error.tokenIsExpired
+//        }
+//
+//        let isTokenInRefreshRange = isTokenInRefreshRange()
+//
+//        if isTokenInRefreshRange {
+//            // Fire non blocking background task to refresh
+//            Task(priority: .medium, operation: {
+//                refreshToken()
+//            })
+//        }
+//
+//        return uid2Token
+//    }
     
     internal func isTokenExpired() -> Bool {
         guard let uid2Token = uid2Token,
-              let refreshTokenExpires = uid2Token.refreshExpires else {
+              let identityExpires = uid2Token.identityExpires else {
             return false
         }
 
         let now = Date().timeIntervalSince1970
-        return now > refreshTokenExpires
+        return now > identityExpires
     }
 
     internal func isTokenInRefreshRange() -> Bool {
@@ -91,7 +125,7 @@ public final class UID2Manager {
         return now >= refreshTokenFrom && !isTokenExpired()
     }
     
-    internal func refreshToken() async {
+    internal func refreshToken() {
 
         guard let uid2Token = uid2Token,
               let refreshToken = uid2Token.refreshToken,
@@ -102,7 +136,7 @@ public final class UID2Manager {
         // See details on refresh logic in Slack
         //  https://thetradedesk.slack.com/archives/G01SS5EQE91/p1675360339678219
 
-        if isTokenInRefreshRange() {
+        Task {
             guard let newUid2Token = try? await uid2Client.refreshUID2Token(refreshToken: refreshToken, refreshResponseKey: refreshResponseKey) else {
                 return
             }
