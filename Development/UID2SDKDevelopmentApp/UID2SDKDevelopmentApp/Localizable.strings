@@ -11,6 +11,7 @@
 
 "root.title.identitypackage" = "Current Identity Package";
 "root.label.error" = "Error Occurred";
+"root.button.reset" = "Reset";
 
 "root.label.identitypackage.advertisingToken" = "Advertising Token";
 "root.label.identitypackage.refreshToken" = "Refresh Token";

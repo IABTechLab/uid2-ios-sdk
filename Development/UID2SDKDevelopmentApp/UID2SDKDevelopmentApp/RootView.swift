@@ -34,6 +34,12 @@ struct RootView: View {
             } else {
                 IdentityPackageListView(viewModel)
             }
-        }        
+            HStack(alignment: .center, spacing: 20.0) {
+                Button(LocalizedStringKey("root.button.reset")) {
+                    viewModel.handleResetButton()
+                    emailTextField = ""
+                }.padding()
+            }
+        }
     }
 }

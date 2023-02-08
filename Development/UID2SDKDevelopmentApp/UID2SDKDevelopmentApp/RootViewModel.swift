@@ -71,6 +71,8 @@ class RootViewModel: ObservableObject {
         return NSLocalizedString("common.nil", comment: "")
     }
 
+    // MARK: - UX Handling Functions
+    
     func handleEmailEntry(_ emailAddress: String) {
         apiClient.generateIdentityPackage(requestString: emailAddress, requestType: .email) { [weak self] result in
             switch result {
@@ -79,6 +81,9 @@ class RootViewModel: ObservableObject {
                     return
                 }
                 UID2Manager.shared.setIdentityPackage(identityPackage)
+                DispatchQueue.main.async {
+                    self?.error = nil
+                }
             case .failure(let error):
                 DispatchQueue.main.async {
                     self?.error = error
@@ -86,5 +91,9 @@ class RootViewModel: ObservableObject {
             }
         }
     }
-    
+ 
+    func handleResetButton() {
+        UID2Manager.shared.resetIdentityPackage()
+        self.error = nil
+    }
 }
