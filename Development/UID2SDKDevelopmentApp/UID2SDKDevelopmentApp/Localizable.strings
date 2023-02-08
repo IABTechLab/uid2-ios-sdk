@@ -10,6 +10,7 @@
 "common.nil" = "Nil";
 
 "root.title.identitypackage" = "Current Identity Package";
+"root.title.identitypackage.notifications" = "Notifications";
 "root.label.error" = "Error Occurred";
 "root.button.reset" = "Reset";
 
@@ -19,3 +20,8 @@
 "root.label.identitypackage.refreshFrom" = "Refresh From";
 "root.label.identitypackage.refreshExpires" = "Refresh Expires";
 "root.label.identitypackage.refreshResponseKey" = "Refresh Response Key";
+
+"root.label.identitypackage.notification.optout" = "User Opted Out";
+"root.label.identitypackage.notification.identityPackageExpired" = "Identity Package Expired";
+"root.label.identitypackage.notification.refreshTokenExpired" = "Refresh Token Expired";
+

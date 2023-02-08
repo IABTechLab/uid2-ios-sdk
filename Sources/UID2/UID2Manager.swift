@@ -15,11 +15,22 @@ public final class UID2Manager {
     /// Singleton access point for UID2Manager
     public static let shared = UID2Manager()
     
-    /// Publishers
+    // MARK: - Publishers
     
     /// Current IdentityPackage Data
     @Published public private(set) var identityPackage: IdentityPackage?
-            
+        
+    /// User Opted Out
+    @Published public var userOptedOut = false
+    
+    /// Identity Package Expired
+    @Published public var identityPackageExpired = false
+
+    /// Refresh Token Expired
+    @Published public var refreshTokenExpired = false
+        
+    // MARK: - Core Components
+    
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
             
@@ -44,15 +55,20 @@ public final class UID2Manager {
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
-//        reloadUID2Token()
+        reloadIdentityPackage()
     }
  
+    // MARK: - Identity Package Lifecycle
+    
     public func setIdentityPackage(_ identityPackage: IdentityPackage) {
-        // Is Token valid check?
-        // If false, then refresh automatically or just throw error?
 
         self.identityPackage = identityPackage
         KeychainManager.shared.saveIdentityPackageToKeychain(identityPackage)
+
+        // Inspect Identity Package for Published States
+        userOptedOut = identityPackage.status == .optOut
+        identityPackageExpired = identityPackage.isIdentityPackageExpired()
+        refreshTokenExpired = identityPackage.isRefreshTokenExpired()
         
         // Start Refresh Countdown
         timer.suspend()
@@ -75,6 +91,9 @@ public final class UID2Manager {
     public func resetIdentityPackage() {
         self.identityPackage = nil
         KeychainManager.shared.deleteIdentityPackageFromKeychain()
+        userOptedOut = false
+        identityPackageExpired = false
+        refreshTokenExpired = false
         timer.suspend()
     }
     
@@ -117,7 +136,7 @@ public final class UID2Manager {
         }
 
         let now = Date().timeIntervalSince1970
-        return now >= refreshTokenFrom && !identityPackage.isTokenExpired()
+        return now >= refreshTokenFrom && !identityPackage.isIdentityPackageExpired()
     }
     
     internal func refreshIdentityPackage() {

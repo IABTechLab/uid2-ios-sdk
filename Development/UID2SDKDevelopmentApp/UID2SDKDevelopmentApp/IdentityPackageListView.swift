@@ -22,6 +22,10 @@ struct IdentityPackageListView: View {
                 .font(Font.system(size: 22, weight: .bold))) {
                     IdentityPackageView(viewModel)
                 }
+            Section(header: Text(LocalizedStringKey("root.title.identitypackage.notifications"))
+                .font(Font.system(size: 22, weight: .bold))) {
+                    IdentityPackageNotificationsView(viewModel)
+            }
         }.listStyle(.plain)
     }
 }

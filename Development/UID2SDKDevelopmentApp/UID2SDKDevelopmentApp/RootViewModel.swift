@@ -16,6 +16,9 @@ class RootViewModel: ObservableObject {
     @Published private(set) var titleText = LocalizedStringKey("common.uid2sdk")
     @Published private(set) var uid2Token: IdentityPackage?
     @Published private(set) var error: Error?
+    @Published private(set) var userOptedOut = ""
+    @Published private(set) var identityPackageExpired = ""
+    @Published private(set) var refreshTokenExpired = ""
     
     private let apiClient = AppUID2Client()
     
@@ -26,6 +29,24 @@ class RootViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] uid2Token in
                 self?.uid2Token = uid2Token
+            }).store(in: &cancellables)
+        
+        UID2Manager.shared.$userOptedOut
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] state in
+                self?.userOptedOut = String(state)
+            }).store(in: &cancellables)
+
+        UID2Manager.shared.$identityPackageExpired
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] state in
+                self?.identityPackageExpired = String(state)
+            }).store(in: &cancellables)
+
+        UID2Manager.shared.$refreshTokenExpired
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] state in
+                self?.refreshTokenExpired = String(state)
             }).store(in: &cancellables)
     }
     

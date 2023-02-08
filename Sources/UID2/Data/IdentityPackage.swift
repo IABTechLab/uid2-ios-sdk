@@ -57,13 +57,23 @@ extension IdentityPackage {
 
 extension IdentityPackage {
     
-    public func isTokenExpired() -> Bool {
+    public func isIdentityPackageExpired() -> Bool {
         guard let identityExpires = identityExpires else {
             return false
         }
         
         let now = Date().timeIntervalSince1970
         return now > identityExpires
+    }
+    
+    public func isRefreshTokenExpired() -> Bool {
+        
+        guard let refreshTokenExpires = refreshExpires else {
+            return false
+        }
+
+        let now = Date().timeIntervalSince1970
+        return now >= refreshTokenExpires
     }
     
 }
