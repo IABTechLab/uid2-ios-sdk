@@ -24,10 +24,11 @@ struct RootView: View {
                 .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             TextField("Email Address", text: $emailTextField)
                 .textFieldStyle(.roundedBorder)
+                .textCase(.lowercase)
                 .textContentType(.emailAddress)
                 .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .onSubmit {
-                    viewModel.handleEmailEntry(emailTextField)
+                    viewModel.handleEmailEntry(emailTextField.lowercased())
                 }
             if viewModel.error != nil {
                 ErrorListView(viewModel)
@@ -38,6 +39,9 @@ struct RootView: View {
                 Button(LocalizedStringKey("root.button.reset")) {
                     viewModel.handleResetButton()
                     emailTextField = ""
+                }.padding()
+                Button(LocalizedStringKey("root.button.refresh")) {
+                    viewModel.handleRefreshButton()
                 }.padding()
             }
         }

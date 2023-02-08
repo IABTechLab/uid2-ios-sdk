@@ -18,6 +18,10 @@ struct IdentityPackageNotificationsView: View {
     
     var body: some View {
         Group {
+            Text(LocalizedStringKey("root.label.identitypackage.notification.refreshSucceed"))
+                .font(Font.system(size: 18, weight: .bold))
+            Text(viewModel.refreshSucceeded)
+                .font(Font.system(size: 16, weight: .regular))
             Text(LocalizedStringKey("root.label.identitypackage.notification.optout"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.userOptedOut)

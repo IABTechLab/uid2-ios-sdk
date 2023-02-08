@@ -28,6 +28,9 @@ public final class UID2Manager {
 
     /// Refresh Token Expired
     @Published public var refreshTokenExpired = false
+    
+    /// Refresh IdentityPackage Succeed
+    @Published public var refreshSucceeded = false
         
     // MARK: - Core Components
     
@@ -39,7 +42,7 @@ public final class UID2Manager {
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
-    private let timer = RepeatingTimer(timeInterval: 3)
+    private let timer = RepeatingTimer(timeInterval: 300)
     
     private init() {
         var apiUrl = defaultUid2ApiUrl
@@ -75,6 +78,45 @@ public final class UID2Manager {
         timer.resume()
     }
     
+    public func refreshIdentityPackage() {
+
+        guard let identityPackage = identityPackage,
+              let refreshToken = identityPackage.refreshToken,
+              let refreshResponseKey = identityPackage.refreshResponseKey else {
+            return
+        }
+        
+        // Check for Expiration
+        userOptedOut = identityPackage.status == .optOut
+        identityPackageExpired = identityPackage.isIdentityPackageExpired()
+        refreshTokenExpired = identityPackage.isRefreshTokenExpired()
+
+        if userOptedOut || identityPackageExpired || refreshTokenExpired {
+            return
+        }
+        
+        // See details on refresh logic in Slack
+        //  https://thetradedesk.slack.com/archives/G01SS5EQE91/p1675360339678219
+        
+        Task {
+            
+            for _ in 0...3 {
+                do {
+                    let newIdentityPackage = try await uid2Client.refreshIdentityPackage(refreshToken: refreshToken,
+                                                                                         refreshResponseKey: refreshResponseKey)
+                    setIdentityPackage(newIdentityPackage)
+                    refreshSucceeded = true
+                    return
+                } catch {
+                    continue
+                }
+            }
+            
+            refreshSucceeded = false
+        }
+        
+    }
+    
     @discardableResult
     public func reloadIdentityPackage() -> Bool {
         if identityPackage != nil {
@@ -94,6 +136,7 @@ public final class UID2Manager {
         userOptedOut = false
         identityPackageExpired = false
         refreshTokenExpired = false
+        refreshSucceeded = false
         timer.suspend()
     }
     
@@ -139,24 +182,4 @@ public final class UID2Manager {
         return now >= refreshTokenFrom && !identityPackage.isIdentityPackageExpired()
     }
     
-    internal func refreshIdentityPackage() {
-
-        guard let identityPackage = identityPackage,
-              let refreshToken = identityPackage.refreshToken,
-              let refreshResponseKey = identityPackage.refreshResponseKey else {
-            return
-        }
-        
-        // See details on refresh logic in Slack
-        //  https://thetradedesk.slack.com/archives/G01SS5EQE91/p1675360339678219
-
-        Task {
-            guard let newIdentityPackage = try? await uid2Client.refreshIdentityPackage(refreshToken: refreshToken,
-                                                                                        refreshResponseKey: refreshResponseKey) else {
-                return
-            }
-            setIdentityPackage(newIdentityPackage)
-        }
-        
-    }
 }

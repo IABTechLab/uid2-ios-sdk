@@ -96,7 +96,7 @@ internal final class AppUID2Client {
                 
                 let responseJSON = try decoder.decode(GenerateTokenResponse.self, from: payloadData)
 
-                if responseJSON.status == "success" {
+                if responseJSON.status == IdentityPackage.Status.success.rawValue {
                     
                     let identityPackage = IdentityPackage(advertisingToken: responseJSON.body?.advertisingToken,
                                         refreshToken: responseJSON.body?.refreshToken,

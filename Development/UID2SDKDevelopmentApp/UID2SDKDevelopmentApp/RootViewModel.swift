@@ -19,6 +19,7 @@ class RootViewModel: ObservableObject {
     @Published private(set) var userOptedOut = ""
     @Published private(set) var identityPackageExpired = ""
     @Published private(set) var refreshTokenExpired = ""
+    @Published private(set) var refreshSucceeded = ""
     
     private let apiClient = AppUID2Client()
     
@@ -47,6 +48,12 @@ class RootViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] state in
                 self?.refreshTokenExpired = String(state)
+            }).store(in: &cancellables)
+        
+        UID2Manager.shared.$refreshSucceeded
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] state in
+                self?.refreshSucceeded = String(state)
             }).store(in: &cancellables)
     }
     
@@ -116,5 +123,9 @@ class RootViewModel: ObservableObject {
     func handleResetButton() {
         UID2Manager.shared.resetIdentityPackage()
         self.error = nil
+    }
+    
+    func handleRefreshButton() {
+        UID2Manager.shared.refreshIdentityPackage()
     }
 }
