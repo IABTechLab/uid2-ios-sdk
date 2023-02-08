@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TokenListView: View {
+struct IdentityPackageListView: View {
     
     @ObservedObject
     private var viewModel: RootViewModel
@@ -18,9 +18,9 @@ struct TokenListView: View {
     
     var body: some View {
         List {
-            Section(header: Text(LocalizedStringKey("root.title.uid2Token"))
+            Section(header: Text(LocalizedStringKey("root.title.identitypackage"))
                 .font(Font.system(size: 22, weight: .bold))) {
-                    UID2TokensView(viewModel)
+                    IdentityPackageView(viewModel)
                 }
         }.listStyle(.plain)
     }

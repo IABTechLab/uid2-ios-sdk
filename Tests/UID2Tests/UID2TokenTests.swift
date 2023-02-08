@@ -7,7 +7,7 @@ final class UID2TokenTests: XCTestCase {
   func testUID2TokenLoad() throws {
         
         let data = try DataLoader.load(fileName: "uidtoken", fileExtension: "json")
-        guard let uid2Token = UID2Token.fromData(data) else {
+        guard let uid2Token = IdentityPackage.fromData(data) else {
             XCTFail("Unable to convert Data to UID2Token")
             return
         }
@@ -22,7 +22,7 @@ final class UID2TokenTests: XCTestCase {
     
     func testUID2RoundTrip() throws {
         
-        let uid2Token = UID2Token(advertisingToken: "advertisingToken",
+        let uid2Token = IdentityPackage(advertisingToken: "advertisingToken",
                                   refreshToken: "refreshToken",
                                   identityExpires: 0001,
                                   refreshFrom: 0002,
@@ -30,7 +30,7 @@ final class UID2TokenTests: XCTestCase {
                                   refreshResponseKey: "refreshResponseKey",
                                   status: .success)
         let data = try uid2Token.toData()
-        guard let returnedUID2Token = UID2Token.fromData(data) else {
+        guard let returnedUID2Token = IdentityPackage.fromData(data) else {
             XCTFail("Unable to convert Data to UID2Token")
             return
         }

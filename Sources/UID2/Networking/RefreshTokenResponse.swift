@@ -12,7 +12,7 @@ import Foundation
 struct RefreshTokenResponse: Codable {
     
     let body: RefreshTokenResponseBody?
-    let status: UID2Token.Status
+    let status: IdentityPackage.Status
     let message: String?
     
 }
@@ -32,13 +32,13 @@ extension RefreshTokenResponse {
 
 extension RefreshTokenResponse {
     
-    func toUID2Token() -> UID2Token? {
+    func toIdentityPackage() -> IdentityPackage? {
                 
-        if status != UID2Token.Status.success && status != UID2Token.Status.optOut {
+        if status != IdentityPackage.Status.success && status != IdentityPackage.Status.optOut {
             return nil
         }
                 
-        return UID2Token(advertisingToken: body?.advertisingToken,
+        return IdentityPackage(advertisingToken: body?.advertisingToken,
                          refreshToken: body?.refreshToken,
                          identityExpires: body?.identityExpires,
                          refreshFrom: body?.refreshFrom,

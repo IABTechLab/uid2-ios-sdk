@@ -6,7 +6,7 @@
 
 import Foundation
 
-public struct UID2Token: Codable {
+public struct IdentityPackage: Codable {
     public var advertisingToken: String?
     public var refreshToken: String?
     public var identityExpires: TimeInterval?
@@ -27,7 +27,7 @@ public struct UID2Token: Codable {
     
 }
 
-extension UID2Token {
+extension IdentityPackage {
     
     public enum Status: String, Codable {
         case success = "success"
@@ -39,7 +39,7 @@ extension UID2Token {
     
 }
 
-extension UID2Token {
+extension IdentityPackage {
     
     func toData() throws -> Data {
         let encoder = JSONEncoder()
@@ -47,10 +47,23 @@ extension UID2Token {
         return try encoder.encode(self)
     }
     
-    static func fromData(_ data: Data) -> UID2Token? {
+    static func fromData(_ data: Data) -> IdentityPackage? {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try? decoder.decode(UID2Token.self, from: data)
+        return try? decoder.decode(IdentityPackage.self, from: data)
     }
 
+}
+
+extension IdentityPackage {
+    
+    public func isTokenExpired() -> Bool {
+        guard let identityExpires = identityExpires else {
+            return false
+        }
+        
+        let now = Date().timeIntervalSince1970
+        return now > identityExpires
+    }
+    
 }

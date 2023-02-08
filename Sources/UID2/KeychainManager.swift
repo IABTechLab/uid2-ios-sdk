@@ -18,7 +18,7 @@ internal final class KeychainManager {
     
     private init() { }
     
-    public func getUID2TokenFromKeychain() -> UID2Token? {
+    public func getIdentityPackageFromKeychain() -> IdentityPackage? {
         let query = [
             String(kSecClass): kSecClassGenericPassword,
             String(kSecAttrAccount): attrAccount,
@@ -30,19 +30,19 @@ internal final class KeychainManager {
         SecItemCopyMatching(query, &result)
             
         if let data = result as? Data {
-            return UID2Token.fromData(data)
+            return IdentityPackage.fromData(data)
         }
         
         return nil
     }
     
     @discardableResult
-    public func saveUID2TokenToKeychain(_ uid2Token: UID2Token) -> Bool {
+    public func saveIdentityPackageToKeychain(_ uid2Token: IdentityPackage) -> Bool {
         
         do {
             let data = try uid2Token.toData()
 
-            if let _ = getUID2TokenFromKeychain() {
+            if let _ = getIdentityPackageFromKeychain() {
                 
                 let query = [
                     String(kSecClass): kSecClassGenericPassword,
@@ -74,7 +74,7 @@ internal final class KeychainManager {
     }
     
     @discardableResult
-    public func deleteUID2TokenFromKeychain() -> Bool {
+    public func deleteIdentityPackageFromKeychain() -> Bool {
         
         let query: [String: Any] = [String(kSecClass): kSecClassGenericPassword,
                                     String(kSecAttrAccount): attrAccount,

@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct UID2TokensView: View {
+struct IdentityPackageView: View {
     
     @ObservedObject
     private var viewModel: RootViewModel
@@ -19,29 +19,29 @@ struct UID2TokensView: View {
 
     var body: some View {
         Group {
-            Text(LocalizedStringKey("root.label.uid2Token.advertisingToken"))
+            Text(LocalizedStringKey("root.label.identitypackage.advertisingToken"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.advertisingToken)
                 .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.uid2Token.refreshToken"))
+            Text(LocalizedStringKey("root.label.identitypackage.refreshToken"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.refreshToken)
                 .font(Font.system(size: 16, weight: .regular))
         }
         Group {
-            Text(LocalizedStringKey("root.label.uid2Token.identityExpires"))
+            Text(LocalizedStringKey("root.label.identitypackage.identityExpires"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.identityExpires)
                 .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.uid2Token.refreshFrom"))
+            Text(LocalizedStringKey("root.label.identitypackage.refreshFrom"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.refreshFrom)
                 .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.uid2Token.refreshExpires"))
+            Text(LocalizedStringKey("root.label.identitypackage.refreshExpires"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.refreshExpires)
                 .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.uid2Token.refreshResponseKey"))
+            Text(LocalizedStringKey("root.label.identitypackage.refreshResponseKey"))
                 .font(Font.system(size: 18, weight: .bold))
             Text(viewModel.refreshResponseKey)
                 .font(Font.system(size: 16, weight: .regular))

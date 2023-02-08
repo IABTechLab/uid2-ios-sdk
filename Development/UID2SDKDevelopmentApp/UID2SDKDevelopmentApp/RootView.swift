@@ -32,7 +32,7 @@ struct RootView: View {
             if viewModel.error != nil {
                 ErrorListView(viewModel)
             } else {
-                TokenListView(viewModel)
+                IdentityPackageListView(viewModel)
             }
         }        
     }

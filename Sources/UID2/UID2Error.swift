@@ -19,13 +19,13 @@ enum UID2Error: Error {
     case httpURLResponse
     
     /// Server retunred a non HTTP 200 response
-    case refreshTokenServer(status: UID2Token.Status, message: String?)
+    case refreshTokenServer(status: IdentityPackage.Status, message: String?)
     
-    /// Unable to convert RefreshTokenResponse to UID2Token
-    case refreshResponseToToken
+    /// Unable to convert RefreshTokenResponse to IdentityPackage
+    case refreshResponseToIdentityPackage
         
     /// Token has expired
-    case tokenIsExpired
+    case identityPackageIsExpired
     
     /// User has opted out
     case userHasOptedOut

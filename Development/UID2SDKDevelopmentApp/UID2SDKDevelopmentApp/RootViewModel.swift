@@ -14,7 +14,7 @@ import UID2
 class RootViewModel: ObservableObject {
     
     @Published private(set) var titleText = LocalizedStringKey("common.uid2sdk")
-    @Published private(set) var uid2Token: UID2Token?
+    @Published private(set) var uid2Token: IdentityPackage?
     @Published private(set) var error: Error?
     
     private let apiClient = AppUID2Client()
@@ -22,7 +22,7 @@ class RootViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        UID2Manager.shared.$uid2Token
+        UID2Manager.shared.$identityPackage
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] uid2Token in
                 self?.uid2Token = uid2Token
@@ -72,13 +72,13 @@ class RootViewModel: ObservableObject {
     }
 
     func handleEmailEntry(_ emailAddress: String) {
-        apiClient.generateUID2Token(requestString: emailAddress, requestType: .email) { [weak self] result in
+        apiClient.generateIdentityPackage(requestString: emailAddress, requestType: .email) { [weak self] result in
             switch result {
-            case .success(let uid2Token):
-                guard let uid2Token = uid2Token else {
+            case .success(let identityPackage):
+                guard let identityPackage = identityPackage else {
                     return
                 }
-                UID2Manager.shared.setUID2Token(uid2Token)
+                UID2Manager.shared.setIdentityPackage(identityPackage)
             case .failure(let error):
                 DispatchQueue.main.async {
                     self?.error = error

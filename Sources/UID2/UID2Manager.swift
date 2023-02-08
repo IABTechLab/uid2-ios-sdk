@@ -15,9 +15,11 @@ public final class UID2Manager {
     /// Singleton access point for UID2Manager
     public static let shared = UID2Manager()
     
-    /// Current UID2 Token Data
-    @Published public private(set) var uid2Token: UID2Token?
-        
+    /// Publishers
+    
+    /// Current IdentityPackage Data
+    @Published public private(set) var identityPackage: IdentityPackage?
+            
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
             
@@ -37,17 +39,20 @@ public final class UID2Manager {
         
         timer.eventHandler = {
             print("Timer Fired at \(Date())")
-            self.refreshToken()
+            self.refreshIdentityPackage()
         }
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
-        reloadUID2Token()
+//        reloadUID2Token()
     }
  
-    public func setUID2Token(_ uid2Token: UID2Token) {
-        self.uid2Token = uid2Token
-        KeychainManager.shared.saveUID2TokenToKeychain(uid2Token)
+    public func setIdentityPackage(_ identityPackage: IdentityPackage) {
+        // Is Token valid check?
+        // If false, then refresh automatically or just throw error?
+
+        self.identityPackage = identityPackage
+        KeychainManager.shared.saveIdentityPackageToKeychain(identityPackage)
         
         // Start Refresh Countdown
         timer.suspend()
@@ -55,21 +60,21 @@ public final class UID2Manager {
     }
     
     @discardableResult
-    public func reloadUID2Token() -> Bool {
-        if uid2Token != nil {
+    public func reloadIdentityPackage() -> Bool {
+        if identityPackage != nil {
             return false
         }
         
-        guard let uid2Token = KeychainManager.shared.getUID2TokenFromKeychain() else {
+        guard let identityPackage = KeychainManager.shared.getIdentityPackageFromKeychain() else {
             return false
         }
-        setUID2Token(uid2Token)
+        setIdentityPackage(identityPackage)
         return true
     }
     
-    public func resetUID2Token() {
-        self.uid2Token = nil
-        KeychainManager.shared.deleteUID2TokenFromKeychain()
+    public func resetIdentityPackage() {
+        self.identityPackage = nil
+        KeychainManager.shared.deleteIdentityPackageFromKeychain()
         timer.suspend()
     }
     
@@ -105,31 +110,21 @@ public final class UID2Manager {
 //        return uid2Token
 //    }
     
-    internal func isTokenExpired() -> Bool {
-        guard let uid2Token = uid2Token,
-              let identityExpires = uid2Token.identityExpires else {
+    internal func isIdentityPackageInRefreshRange() -> Bool {
+        guard let identityPackage = identityPackage,
+              let refreshTokenFrom = identityPackage.refreshFrom else {
             return false
         }
 
         let now = Date().timeIntervalSince1970
-        return now > identityExpires
-    }
-
-    internal func isTokenInRefreshRange() -> Bool {
-        guard let uid2Token = uid2Token,
-              let refreshTokenFrom = uid2Token.refreshFrom else {
-            return false
-        }
-
-        let now = Date().timeIntervalSince1970
-        return now >= refreshTokenFrom && !isTokenExpired()
+        return now >= refreshTokenFrom && !identityPackage.isTokenExpired()
     }
     
-    internal func refreshToken() {
+    internal func refreshIdentityPackage() {
 
-        guard let uid2Token = uid2Token,
-              let refreshToken = uid2Token.refreshToken,
-              let refreshResponseKey = uid2Token.refreshResponseKey else {
+        guard let identityPackage = identityPackage,
+              let refreshToken = identityPackage.refreshToken,
+              let refreshResponseKey = identityPackage.refreshResponseKey else {
             return
         }
         
@@ -137,10 +132,11 @@ public final class UID2Manager {
         //  https://thetradedesk.slack.com/archives/G01SS5EQE91/p1675360339678219
 
         Task {
-            guard let newUid2Token = try? await uid2Client.refreshUID2Token(refreshToken: refreshToken, refreshResponseKey: refreshResponseKey) else {
+            guard let newIdentityPackage = try? await uid2Client.refreshIdentityPackage(refreshToken: refreshToken,
+                                                                                        refreshResponseKey: refreshResponseKey) else {
                 return
             }
-            setUID2Token(newUid2Token)
+            setIdentityPackage(newIdentityPackage)
         }
         
     }

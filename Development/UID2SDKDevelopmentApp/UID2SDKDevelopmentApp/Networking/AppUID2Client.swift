@@ -51,7 +51,7 @@ internal final class AppUID2Client {
     /// - Parameters:
     ///     - requestString: String to be used for generating a UID2 Token
     ///     - requestType: The type of request string date being used
-    func generateUID2Token(requestString: String, requestType: RequestTypes, completion: @escaping (Result<UID2Token?, Error>) -> Void) {
+    func generateIdentityPackage(requestString: String, requestType: RequestTypes, completion: @escaping (Result<IdentityPackage?, Error>) -> Void) {
         let json: [String: String] = [requestType.rawValue: requestString]
         
         let fullUrl = uid2APIURL + "/v2/token/generate"
@@ -98,14 +98,14 @@ internal final class AppUID2Client {
 
                 if responseJSON.status == "success" {
                     
-                    let uid2Token = UID2Token(advertisingToken: responseJSON.body?.advertisingToken,
+                    let identityPackage = IdentityPackage(advertisingToken: responseJSON.body?.advertisingToken,
                                         refreshToken: responseJSON.body?.refreshToken,
                                         identityExpires: responseJSON.body?.identityExpires,
                                         refreshFrom: responseJSON.body?.refreshFrom,
                                         refreshExpires: responseJSON.body?.refreshExpires,
                                         refreshResponseKey: responseJSON.body?.refreshResponseKey,
                                         status: .success)
-                    completion(.success(uid2Token))
+                    completion(.success(identityPackage))
                 } else {
                     completion(.failure(UID2ClientError()))
                 }

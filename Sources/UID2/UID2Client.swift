@@ -18,7 +18,7 @@ internal final class UID2Client {
         self.session = session
     }
     
-    func refreshUID2Token(refreshToken: String, refreshResponseKey: String) async throws -> UID2Token {
+    func refreshIdentityPackage(refreshToken: String, refreshResponseKey: String) async throws -> IdentityPackage {
             
             var components = URLComponents(string: uid2APIURL)
             components?.path = "/v2/token/refresh"
@@ -54,11 +54,11 @@ internal final class UID2Client {
         
             let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: payloadData)
         
-            guard let uid2Token = tokenResponse.toUID2Token() else {
-                throw UID2Error.refreshResponseToToken
+            guard let identityPackage = tokenResponse.toIdentityPackage() else {
+                throw UID2Error.refreshResponseToIdentityPackage
             }
         
-            return uid2Token
+            return identityPackage
         }
     
 }
