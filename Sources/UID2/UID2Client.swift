@@ -43,8 +43,12 @@ internal final class UID2Client {
         
             // Only Decrypt If HTTP Status is 200 (Success or Opt Out)
             if statusCode != 200 {
-                let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
-                throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
+                do {
+                    let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
+                    throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
+                } catch {
+                    throw UID2Error.refreshTokenServerDecoding(httpStatus: statusCode, message: error.localizedDescription)
+                }
             }
         
             // Decrypt Data Envelop

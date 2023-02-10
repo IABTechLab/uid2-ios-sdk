@@ -50,21 +50,21 @@ class RootViewModel: ObservableObject {
     
     var identityExpires: String {
         if let token = uid2Identity?.identityExpires {
-            return String(format: "%.0f", token)
+            return String(token)
         }
         return NSLocalizedString("common.nil", comment: "")
     }
     
     var refreshFrom: String {
         if let token = uid2Identity?.refreshFrom {
-            return String(format: "%.0f", token)
+            return String(token)
         }
         return NSLocalizedString("common.nil", comment: "")
     }
     
     var refreshExpires: String {
         if let token = uid2Identity?.refreshExpires {
-            return String(format: "%.0f", token)
+            return String(token)
         }
         return NSLocalizedString("common.nil", comment: "")
     }

@@ -21,6 +21,9 @@ enum UID2Error: Error {
     /// Server retunred a non HTTP 200 response
     case refreshTokenServer(status: RefreshTokenResponse.Status, message: String?)
     
+    /// Error parsing data / response from server
+    case refreshTokenServerDecoding(httpStatus: Int, message: String)
+    
     /// Unable to convert RefreshTokenResponse to RefreshAPIPackage
     case refreshResponseToRefreshAPIPackage
         
