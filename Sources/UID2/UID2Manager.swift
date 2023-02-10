@@ -5,7 +5,6 @@
 //  Created by Brad Leege on 1/20/23.
 //
 
-import Combine
 import Foundation
 
 @available(iOS 13.0, *)
@@ -16,22 +15,9 @@ public final class UID2Manager {
     public static let shared = UID2Manager()
     
     // MARK: - Publishers
+            
+    @Published public private(set) var identity: UID2Identity?
     
-    /// Current IdentityPackage Data
-    @Published public private(set) var identityPackage: IdentityPackage?
-        
-    /// User Opted Out
-    @Published public var userOptedOut = false
-    
-    /// Identity Package Expired
-    @Published public var identityPackageExpired = false
-
-    /// Refresh Token Expired
-    @Published public var refreshTokenExpired = false
-    
-    /// Refresh IdentityPackage Succeed
-    @Published public var refreshSucceeded = false
-        
     // MARK: - Core Components
     
     /// UID2Client for Network API  requests
@@ -42,7 +28,10 @@ public final class UID2Manager {
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
-    private let timer = RepeatingTimer(timeInterval: 300)
+    /// Default Timer Refresh Period in Seconds
+    private let defaultUid2RefreshRetry: TimeInterval = 5
+    
+    private let timer: RepeatingTimer
     
     private init() {
         var apiUrl = defaultUid2ApiUrl
@@ -50,136 +39,135 @@ public final class UID2Manager {
             apiUrl = apiUrlOverride
         }
         uid2Client = UID2Client(uid2APIURL: apiUrl)
-        
-        timer.eventHandler = {
-            print("Timer Fired at \(Date())")
-            self.refreshIdentityPackage()
+
+        var refreshTime = defaultUid2RefreshRetry
+        if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? TimeInterval {
+            refreshTime = refreshTimeOverride
         }
+        timer = RepeatingTimer(timeInterval: refreshTime)
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
-        reloadIdentityPackage()
+        setRefreshTimer()
     }
  
-    // MARK: - Identity Package Lifecycle
+    // MARK: - Public Identity Lifecycle
     
-    public func setIdentityPackage(_ identityPackage: IdentityPackage) {
+    // iOS Way to Provid Initial Setup from Outside
+    // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
+    public func setIdentity(_ identity: UID2Identity) {
+        validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
+        triggerRefreshOrSetTimer(validIdentity: identity)
+    }
 
-        self.identityPackage = identityPackage
-        KeychainManager.shared.saveIdentityPackageToKeychain(identityPackage)
-
-        // Inspect Identity Package for Published States
-        userOptedOut = identityPackage.status == .optOut
-        identityPackageExpired = identityPackage.isIdentityPackageExpired()
-        refreshTokenExpired = identityPackage.isRefreshTokenExpired()
-        
-        // Start Refresh Countdown
-        timer.suspend()
-        timer.resume()
+    public func resetIdentity() {
+        self.identity = nil
+        KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
-    public func refreshIdentityPackage() {
-
-        guard let identityPackage = identityPackage,
-              let refreshToken = identityPackage.refreshToken,
-              let refreshResponseKey = identityPackage.refreshResponseKey else {
-            return
+    public func refreshIdentity() {
+        setRefreshTimer()
+    }
+    
+    // MARK: - Internal Identity Lifecycle
+    
+    private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) -> Bool {
+        return expiry <= now
+    }
+    
+    private func getIdentityPackage(identity: UID2Identity?) -> IdentityPackage {
+        
+        guard let identity = identity else {
+            return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
         }
         
-        // Check for Expiration
-        userOptedOut = identityPackage.status == .optOut
-        identityPackageExpired = identityPackage.isIdentityPackageExpired()
-        refreshTokenExpired = identityPackage.isRefreshTokenExpired()
-
-        if userOptedOut || identityPackageExpired || refreshTokenExpired {
-            return
+        if identity.advertisingToken.isEmpty {
+            return IdentityPackage(valid: false, errorMessage: "advertising_token is not available or is not valid", identity: nil, status: .invalid)
         }
         
-        // See details on refresh logic in Slack
-        //  https://thetradedesk.slack.com/archives/G01SS5EQE91/p1675360339678219
-        
-        Task {
-            
-            for _ in 0...3 {
-                do {
-                    let newIdentityPackage = try await uid2Client.refreshIdentityPackage(refreshToken: refreshToken,
-                                                                                         refreshResponseKey: refreshResponseKey)
-                    setIdentityPackage(newIdentityPackage)
-                    refreshSucceeded = true
-                    return
-                } catch {
-                    continue
-                }
-            }
-            
-            refreshSucceeded = false
+        if identity.refreshToken.isEmpty {
+            return IdentityPackage(valid: false, errorMessage: "refresh_token is not available or is not valid", identity: nil, status: .invalid)
         }
         
+        if hasExpired(expiry: identity.refreshExpires) {
+            return IdentityPackage(valid: false, errorMessage: "Identity expired, refresh expired", identity: nil, status: .refreshExpired)
+        }
+        
+        if hasExpired(expiry: identity.identityExpires) {
+            return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
+        }
+     
+        if self.identity == nil {
+            return IdentityPackage(valid: true, errorMessage: "Identity established", identity: identity, status: .established)
+        }
+        
+        return IdentityPackage(valid: true, errorMessage: "Identity refreshed", identity: identity, status: .refreshed)
     }
     
     @discardableResult
-    public func reloadIdentityPackage() -> Bool {
-        if identityPackage != nil {
-            return false
+    private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) -> UID2Identity? {
+        
+        let validity = getIdentityPackage(identity: identity)
+        
+        guard let validIdentity = validity.identity else {
+            return nil
         }
         
-        guard let identityPackage = KeychainManager.shared.getIdentityPackageFromKeychain() else {
-            return false
+        if  validIdentity.advertisingToken == self.identity?.advertisingToken {
+            return validIdentity
         }
-        setIdentityPackage(identityPackage)
-        return true
+        
+        self.identity = validIdentity
+        KeychainManager.shared.saveIdentityToKeychain(validIdentity)
+        
+        return validIdentity
     }
-    
-    public func resetIdentityPackage() {
-        self.identityPackage = nil
-        KeychainManager.shared.deleteIdentityPackageFromKeychain()
-        userOptedOut = false
-        identityPackageExpired = false
-        refreshTokenExpired = false
-        refreshSucceeded = false
-        timer.suspend()
-    }
-    
-//    public func getUID2Token() throws -> UID2Token? {
-//
-//        // If null, then look in Keychain
-//        if uid2Token == nil {
-//            if let token = KeychainManager.shared.getUID2TokenFromKeychain() {
-//                self.uid2Token = token
-//            }
-//            return nil
-//        }
-//
-//        // Check for opt out
-//        if uid2Token?.status == UID2Token.Status.optOut {
-//            throw UID2Error.userHasOptedOut
-//        }
-//
-//        // Check for Expired Token
-//        if isTokenExpired() {
-//            throw UID2Error.tokenIsExpired
-//        }
-//
-//        let isTokenInRefreshRange = isTokenInRefreshRange()
-//
-//        if isTokenInRefreshRange {
-//            // Fire non blocking background task to refresh
-//            Task(priority: .medium, operation: {
-//                refreshToken()
-//            })
-//        }
-//
-//        return uid2Token
-//    }
-    
-    internal func isIdentityPackageInRefreshRange() -> Bool {
-        guard let identityPackage = identityPackage,
-              let refreshTokenFrom = identityPackage.refreshFrom else {
-            return false
-        }
 
-        let now = Date().timeIntervalSince1970
-        return now >= refreshTokenFrom && !identityPackage.isIdentityPackageExpired()
+    // MARK: - Refresh and Timer
+    
+    private func refreshToken(identity: UID2Identity) {
+        
+        Task {
+            do {
+                let apiResponse = try await uid2Client.refreshIdentity(refreshToken: identity.refreshToken,
+                                                                       refreshResponseKey: identity.refreshResponseKey)
+                self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
+            } catch {
+                // Queue up automatic retry process
+                self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
+                if !hasExpired(expiry: identity.refreshExpires) {
+                    setRefreshTimer()
+                }
+            }
+        }
+        
+    }
+        
+    private func triggerRefreshOrSetTimer(validIdentity: UID2Identity) {
+
+        if hasExpired(expiry: validIdentity.refreshFrom) {
+            self.refreshToken(identity: validIdentity)
+        } else {
+            self.setRefreshTimer()
+        }
+    }
+    
+    // Refresh Retry Period (Get's called on error)
+    private func setRefreshTimer() {
+
+        timer.suspend()
+
+        // Clear previous handler
+        timer.eventHandler = { }
+        
+        timer.eventHandler = {
+            guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
+                  let validated = self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+                return
+            }
+            self.triggerRefreshOrSetTimer(validIdentity: validated)
+        }
+        timer.resume()
     }
     
 }

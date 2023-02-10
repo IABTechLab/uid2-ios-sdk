@@ -1,32 +1,25 @@
 //
-//  UID2Token.swift
+//  IdentityPackage.swift
 //
 //  Created by Brad Leege on 9/13/22.
 //
 
 import Foundation
 
+// Implementation of internal data, what JS SDK Refers to as `IdentityStatus`
+// https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L174-L186
+// NOTE: JS SDK makes 2 references to `IdentityStatus`, the second being an enum with actual states defined
+// https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/Uid2InitCallbacks.ts#L12-L20
 public struct IdentityPackage: Codable {
-    public var advertisingToken: String?
-    public var refreshToken: String?
-    public var identityExpires: TimeInterval?
-    public var refreshFrom: TimeInterval?
-    public var refreshExpires: TimeInterval?
-    public var refreshResponseKey: String?
-    public let status: Status
-    
-    public init(advertisingToken: String? = nil, refreshToken: String? = nil, identityExpires: TimeInterval? = nil, refreshFrom: TimeInterval? = nil, refreshExpires: TimeInterval? = nil, refreshResponseKey: String? = nil, status: Status) {
-        self.advertisingToken = advertisingToken
-        self.refreshToken = refreshToken
-        self.identityExpires = identityExpires
-        self.refreshFrom = refreshFrom
-        self.refreshExpires = refreshExpires
-        self.refreshResponseKey = refreshResponseKey
-        self.status = status
-    }
+
+    public let valid: Bool
+    public let errorMessage: String?
+    public let identity: UID2Identity?
+    public let status: IdentityStatus
     
 }
 
+/*
 extension IdentityPackage {
     
     public enum Status: String, Codable {
@@ -77,3 +70,4 @@ extension IdentityPackage {
     }
     
 }
+*/

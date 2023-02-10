@@ -19,10 +19,10 @@ enum UID2Error: Error {
     case httpURLResponse
     
     /// Server retunred a non HTTP 200 response
-    case refreshTokenServer(status: IdentityPackage.Status, message: String?)
+    case refreshTokenServer(status: RefreshTokenResponse.Status, message: String?)
     
-    /// Unable to convert RefreshTokenResponse to IdentityPackage
-    case refreshResponseToIdentityPackage
+    /// Unable to convert RefreshTokenResponse to RefreshAPIPackage
+    case refreshResponseToRefreshAPIPackage
         
     /// Token has expired
     case identityPackageIsExpired

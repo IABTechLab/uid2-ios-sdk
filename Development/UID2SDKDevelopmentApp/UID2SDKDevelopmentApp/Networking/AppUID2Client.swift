@@ -51,7 +51,7 @@ internal final class AppUID2Client {
     /// - Parameters:
     ///     - requestString: String to be used for generating a UID2 Token
     ///     - requestType: The type of request string date being used
-    func generateIdentityPackage(requestString: String, requestType: RequestTypes, completion: @escaping (Result<IdentityPackage?, Error>) -> Void) {
+    func generateIdentity(requestString: String, requestType: RequestTypes, completion: @escaping (Result<UID2Identity?, Error>) -> Void) {
         let json: [String: String] = [requestType.rawValue: requestString]
         
         let fullUrl = uid2APIURL + "/v2/token/generate"
@@ -96,16 +96,20 @@ internal final class AppUID2Client {
                 
                 let responseJSON = try decoder.decode(GenerateTokenResponse.self, from: payloadData)
 
-                if responseJSON.status == IdentityPackage.Status.success.rawValue {
+                if responseJSON.status == "success" {
                     
-                    let identityPackage = IdentityPackage(advertisingToken: responseJSON.body?.advertisingToken,
-                                        refreshToken: responseJSON.body?.refreshToken,
-                                        identityExpires: responseJSON.body?.identityExpires,
-                                        refreshFrom: responseJSON.body?.refreshFrom,
-                                        refreshExpires: responseJSON.body?.refreshExpires,
-                                        refreshResponseKey: responseJSON.body?.refreshResponseKey,
-                                        status: .success)
-                    completion(.success(identityPackage))
+                    guard let body = responseJSON.body else {
+                        completion(.failure(UID2ClientError()))
+                        return
+                    }
+                    
+                    let identity = UID2Identity(advertisingToken: body.advertisingToken,
+                                                refreshToken: body.refreshToken,
+                                                identityExpires: body.identityExpires,
+                                                refreshFrom: body.refreshFrom,
+                                                refreshExpires: body.refreshExpires,
+                                                refreshResponseKey: body.refreshResponseKey)
+                    completion(.success(identity))
                 } else {
                     completion(.failure(UID2ClientError()))
                 }

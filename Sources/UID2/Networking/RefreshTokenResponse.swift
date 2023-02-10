@@ -12,7 +12,7 @@ import Foundation
 struct RefreshTokenResponse: Codable {
     
     let body: RefreshTokenResponseBody?
-    let status: IdentityPackage.Status
+    let status: Status
     let message: String?
     
 }
@@ -22,29 +22,51 @@ extension RefreshTokenResponse {
     struct RefreshTokenResponseBody: Codable {
         public let advertisingToken: String
         public let refreshToken: String
-        public let identityExpires: TimeInterval
-        public let refreshFrom: TimeInterval
-        public let refreshExpires: TimeInterval
+        public let identityExpires: Int64
+        public let refreshFrom: Int64
+        public let refreshExpires: Int64
         public let refreshResponseKey: String
     }
-    
+ 
+    enum Status: String, Codable {
+        case success = "success"
+        case optOut = "optout"
+        case expiredToken = "expired_token"
+        case clientError = "client_error"
+        case invalidToken = "invalid_token"
+        case unauthorized = "unauthorized"
+    }
+
 }
 
 extension RefreshTokenResponse {
     
-    func toIdentityPackage() -> IdentityPackage? {
-                
-        if status != IdentityPackage.Status.success && status != IdentityPackage.Status.optOut {
+    func toUID2Identity() -> UID2Identity? {
+        guard let body = body else {
             return nil
         }
-                
-        return IdentityPackage(advertisingToken: body?.advertisingToken,
-                         refreshToken: body?.refreshToken,
-                         identityExpires: body?.identityExpires,
-                         refreshFrom: body?.refreshFrom,
-                         refreshExpires: body?.refreshExpires,
-                         refreshResponseKey: body?.refreshResponseKey,
-                         status: status)
+        
+        return UID2Identity(advertisingToken: body.advertisingToken,
+                            refreshToken: body.refreshToken,
+                            identityExpires: body.identityExpires,
+                            refreshFrom: body.refreshFrom,
+                            refreshExpires: body.refreshExpires,
+                            refreshResponseKey: body.refreshResponseKey)
+    }
+    
+    func toRefreshAPIPackage() -> RefreshAPIPackage? {
+                                
+        switch status {
+        case .success:
+            return RefreshAPIPackage(identity: toUID2Identity(), status: .refreshed, message: "Identity refreshed")
+        case .optOut:
+            return RefreshAPIPackage(identity: nil, status: .optOut, message: "User opted out")
+        case .expiredToken:
+            return RefreshAPIPackage(identity: nil, status: .refreshExpired, message: "Refresh token expired")
+        default:
+            return nil
+        }
+        
     }
     
 }

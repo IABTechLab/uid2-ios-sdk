@@ -12,9 +12,9 @@ struct GenerateTokenResponse: Codable {
     struct Body: Codable {
         var advertisingToken: String
         var refreshToken: String
-        var identityExpires: TimeInterval
-        var refreshFrom: TimeInterval
-        var refreshExpires: TimeInterval
+        var identityExpires: Int64
+        var refreshFrom: Int64
+        var refreshExpires: Int64
         var refreshResponseKey: String
     }
     

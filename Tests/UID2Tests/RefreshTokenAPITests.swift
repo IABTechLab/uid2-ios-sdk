@@ -29,7 +29,7 @@ final class RefreshTokenAPITests: XCTestCase {
         let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-200-success-encrypted", "txt"))
 
         // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
-        let refreshToken = try await client.refreshIdentityPackage(refreshToken: generateToken.refreshToken ?? "",
+        let refreshToken = try await client.refreshIdentity(refreshToken: generateToken.refreshToken ?? "",
                                                              refreshResponseKey: generateToken.refreshResponseKey ?? "")
 
         // Load Local RefreshToken from JSON
@@ -69,7 +69,7 @@ final class RefreshTokenAPITests: XCTestCase {
         let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-200-optout-encrypted", "txt"))
 
         // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
-        let refreshToken = try await client.refreshIdentityPackage(refreshToken: generateToken.refreshToken ?? "",
+        let refreshToken = try await client.refreshIdentity(refreshToken: generateToken.refreshToken ?? "",
                                                                  refreshResponseKey: generateToken.refreshResponseKey ?? "")
 
         // Load Local RefreshToken from JSON
@@ -94,7 +94,7 @@ final class RefreshTokenAPITests: XCTestCase {
             let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-400-client-error", "json", 400))
             
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
-            let _ = try await client.refreshIdentityPackage(refreshToken: "token", refreshResponseKey: "key")
+            let _ = try await client.refreshIdentity(refreshToken: "token", refreshResponseKey: "key")
             XCTFail("refreshUID2Token() did not throw an error.")
         } catch {
             if let uid2Error = error as? UID2Error {
@@ -120,7 +120,7 @@ final class RefreshTokenAPITests: XCTestCase {
             let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-400-invalid-token", "json", 400))
             
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
-            let _ = try await client.refreshIdentityPackage(refreshToken: "token", refreshResponseKey: "key")
+            let _ = try await client.refreshIdentity(refreshToken: "token", refreshResponseKey: "key")
             XCTFail("refreshUID2Token() did not throw an error.")
         } catch {
             if let uid2Error = error as? UID2Error {
@@ -146,7 +146,7 @@ final class RefreshTokenAPITests: XCTestCase {
             let client = UID2Client(uid2APIURL: "", MockNetworkSession("refresh-token-401-unauthorized", "json", 401))
             
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
-            let _ = try await client.refreshIdentityPackage(refreshToken: "token", refreshResponseKey: "key")
+            let _ = try await client.refreshIdentity(refreshToken: "token", refreshResponseKey: "key")
             XCTFail("refreshUID2Token() did not throw an error.")
         } catch {
             if let uid2Error = error as? UID2Error {
