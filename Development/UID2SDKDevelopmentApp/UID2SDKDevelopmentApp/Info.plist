@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>UID2RefreshRetryTime</key>
-	<string>3</string>
+	<string>10000</string>
 	<key>UID2ApiUrl</key>
 	<string>https://operator-integ.uidapi.com</string>
 </dict>

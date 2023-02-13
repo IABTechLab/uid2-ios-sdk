@@ -9,15 +9,15 @@ import Foundation
 
 class RepeatingTimer {
     
-    let timeInterval: TimeInterval
+    let retryTimeInMilliseconds: Int
     
-    init(timeInterval: TimeInterval) {
-        self.timeInterval = timeInterval
+    init(retryTimeInMilliseconds: Int) {
+        self.retryTimeInMilliseconds = retryTimeInMilliseconds
     }
     
     private lazy var timer: DispatchSourceTimer = {
-        let timer = DispatchSource.makeTimerSource()
-        timer.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
+        let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
+        timer.schedule(wallDeadline: .now(), repeating: .milliseconds(retryTimeInMilliseconds))
         timer.setEventHandler(handler: { [weak self] in
             self?.eventHandler?()
         })

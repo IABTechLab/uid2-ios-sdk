@@ -81,11 +81,11 @@ class RootViewModel: ObservableObject {
     func handleEmailEntry(_ emailAddress: String) {
         apiClient.generateIdentity(requestString: emailAddress, requestType: .email) { [weak self] result in
             switch result {
-            case .success(let identityPackage):
-                guard let identityPackage = identityPackage else {
+            case .success(let identity):
+                guard let identity = identity else {
                     return
                 }
-                UID2Manager.shared.setIdentity(identityPackage)
+                UID2Manager.shared.setIdentity(identity)
                 DispatchQueue.main.async {
                     self?.error = nil
                 }

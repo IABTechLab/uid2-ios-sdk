@@ -14,14 +14,30 @@ public final class UID2Manager {
     /// Singleton access point for UID2Manager
     public static let shared = UID2Manager()
     
+    /// Enable or Disable Automatic Refresh via RepeatingTimer
+    public var automaticRefreshEnabled = true {
+        didSet {
+            if automaticRefreshEnabled {
+                timer.resume()
+            } else {
+                timer.suspend()
+            }
+        }
+    }
+    
     // MARK: - Publishers
             
     @Published public private(set) var identity: UID2Identity?
     
-    // MARK: - Core Components
+    // TODO: - Build Public Notification API
+//    @Published public private(set) var uid2Events: Bool
     
+    // MARK: - Core Components
+
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
+    
+    private let timer: RepeatingTimer
             
     /// Default UID2 Server URL
     /// Override default by setting `UID2ApiUrl` in app's Info.plist
@@ -29,10 +45,8 @@ public final class UID2Manager {
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
     /// Default Timer Refresh Period in Seconds
-    private let defaultUid2RefreshRetry: TimeInterval = 5
-    
-    private let timer: RepeatingTimer
-    
+    private let defaultUid2RefreshRetry: Int = 5000
+            
     private init() {
         var apiUrl = defaultUid2ApiUrl
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
@@ -41,14 +55,20 @@ public final class UID2Manager {
         uid2Client = UID2Client(uid2APIURL: apiUrl)
 
         var refreshTime = defaultUid2RefreshRetry
-        if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? TimeInterval {
+        if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {
             refreshTime = refreshTimeOverride
         }
-        timer = RepeatingTimer(timeInterval: refreshTime)
+        self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
+        self.timer.eventHandler = {
+            guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
+                  let validated = self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+                return
+            }
+            self.triggerRefreshOrSetTimer(validIdentity: validated)
+        }
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
-        setRefreshTimer()
     }
  
     // MARK: - Public Identity Lifecycle
@@ -56,8 +76,9 @@ public final class UID2Manager {
     // iOS Way to Provid Initial Setup from Outside
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
     public func setIdentity(_ identity: UID2Identity) {
-        validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
-        triggerRefreshOrSetTimer(validIdentity: identity)
+        if let validatedIdentity = validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
+            triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
+        }
     }
 
     public func resetIdentity() {
@@ -66,7 +87,10 @@ public final class UID2Manager {
     }
     
     public func refreshIdentity() {
-        setRefreshTimer()
+        guard let identity = identity else {
+            return
+        }
+        refreshToken(identity: identity)
     }
     
     // MARK: - Internal Identity Lifecycle
@@ -133,41 +157,24 @@ public final class UID2Manager {
                                                                        refreshResponseKey: identity.refreshResponseKey)
                 self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
             } catch {
-                // Queue up automatic retry process
-                self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
-                if !hasExpired(expiry: identity.refreshExpires) {
-                    setRefreshTimer()
-                }
+                print("Error refreshToken = \(error.localizedDescription)")
+                // No Op
+                // Retry will automatically occur due to timer
             }
         }
-        
+
     }
         
     private func triggerRefreshOrSetTimer(validIdentity: UID2Identity) {
-
+        
         if hasExpired(expiry: validIdentity.refreshFrom) {
             self.refreshToken(identity: validIdentity)
         } else {
-            self.setRefreshTimer()
-        }
-    }
-    
-    // Refresh Retry Period (Get's called on error)
-    private func setRefreshTimer() {
-
-        timer.suspend()
-
-        // Clear previous handler
-        timer.eventHandler = { }
-        
-        timer.eventHandler = {
-            guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
-                  let validated = self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
-                return
+            if automaticRefreshEnabled {
+                timer.resume()
             }
-            self.triggerRefreshOrSetTimer(validIdentity: validated)
         }
-        timer.resume()
+
     }
-    
+
 }
