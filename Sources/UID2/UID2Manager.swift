@@ -97,6 +97,10 @@ public final class UID2Manager {
         refreshToken(identity: identity)
     }
     
+    public func getAdvertisingToken() -> String? {
+        return self.identity?.advertisingToken
+    }
+    
     // MARK: - Internal Identity Lifecycle
     
     private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) -> Bool {
