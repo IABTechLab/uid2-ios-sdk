@@ -5,6 +5,7 @@
 //  Created by Brad Leege on 1/20/23.
 //
 
+import Combine
 import Foundation
 
 @available(iOS 13.0, *)
@@ -44,7 +45,8 @@ public final class UID2Manager {
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
-    /// Default Timer Refresh Period in Seconds
+    /// Default Timer Refresh Period in Milliseconds
+    /// Override default by setting `UID2RefreshRetryTime` in app's Info.plist
     private let defaultUid2RefreshRetry: Int = 5000
             
     private init() {
