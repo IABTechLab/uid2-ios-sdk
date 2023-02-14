@@ -30,6 +30,7 @@ internal final class UID2Client {
                         
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
+            request.addValue("ios-0.1", forHTTPHeaderField: "X-UID2-Client-Version")
             request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpBody = refreshToken.data(using: .utf8)
             
