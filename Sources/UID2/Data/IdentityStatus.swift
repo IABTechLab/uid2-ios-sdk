@@ -19,5 +19,28 @@ public enum IdentityStatus: Int, CaseIterable, Codable {
     case invalid = -2
     case refreshExpired = -3
     case optOut = -4
+        
+}
+
+extension IdentityStatus: CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        switch self {
+        case .established:
+            return "Established"
+        case .refreshed:
+            return "Refreshed"
+        case .expired:
+            return "Expired"
+        case .noIdentity:
+            return "No Identity"
+        case .invalid:
+            return "Invalid"
+        case .refreshExpired:
+            return "Refresh Expired"
+        case .optOut:
+            return "Opt Out"
+        }
+    }
     
 }

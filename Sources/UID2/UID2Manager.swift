@@ -28,10 +28,11 @@ public final class UID2Manager {
     
     // MARK: - Publishers
             
+    /// Current Identity data for the user
     @Published public private(set) var identity: UID2Identity?
     
-    // TODO: - Build Public Notification API
-//    @Published public private(set) var uid2Events: Bool
+    /// Public Identity Status Notifications
+    @Published public private(set) var identityStatus: IdentityStatus?
     
     // MARK: - Core Components
 
@@ -85,6 +86,7 @@ public final class UID2Manager {
 
     public func resetIdentity() {
         self.identity = nil
+        self.identityStatus = nil
         KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
@@ -132,14 +134,26 @@ public final class UID2Manager {
     
     @discardableResult
     private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) -> UID2Identity? {
+
+        // Process Opt Out
+        if let status = status, status == .optOut {
+            self.identity = nil
+            KeychainManager.shared.deleteIdentityFromKeychain()
+            self.identityStatus = .optOut
+            return nil
+        }
         
+        // Process Remaining IdentityStatus Options
         let validity = getIdentityPackage(identity: identity)
+
+        // Notify Subscribers
+        self.identityStatus = validity.status
         
         guard let validIdentity = validity.identity else {
             return nil
         }
         
-        if  validIdentity.advertisingToken == self.identity?.advertisingToken {
+        if validIdentity.advertisingToken == self.identity?.advertisingToken {
             return validIdentity
         }
         

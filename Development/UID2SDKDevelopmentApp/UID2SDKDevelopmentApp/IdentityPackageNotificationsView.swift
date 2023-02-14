@@ -18,21 +18,9 @@ struct IdentityPackageNotificationsView: View {
     
     var body: some View {
         Group {
-            Text(LocalizedStringKey("root.label.identitypackage.notification.refreshSucceed"))
+            Text(LocalizedStringKey("root.label.identitypackage.notification.publishedStatus"))
                 .font(Font.system(size: 18, weight: .bold))
-            Text(viewModel.refreshSucceeded)
-                .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.identitypackage.notification.optout"))
-                .font(Font.system(size: 18, weight: .bold))
-            Text(viewModel.userOptedOut)
-                .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.identitypackage.notification.identityPackageExpired"))
-                .font(Font.system(size: 18, weight: .bold))
-            Text(viewModel.identityPackageExpired)
-                .font(Font.system(size: 16, weight: .regular))
-            Text(LocalizedStringKey("root.label.identitypackage.notification.refreshTokenExpired"))
-                .font(Font.system(size: 18, weight: .bold))
-            Text(viewModel.refreshTokenExpired)
+            Text(viewModel.identityStatus.debugDescription)
                 .font(Font.system(size: 16, weight: .regular))
         }
     }

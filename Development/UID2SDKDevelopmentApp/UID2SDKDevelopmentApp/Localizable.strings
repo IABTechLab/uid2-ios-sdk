@@ -22,8 +22,4 @@
 "root.label.identitypackage.refreshExpires" = "Refresh Expires";
 "root.label.identitypackage.refreshResponseKey" = "Refresh Response Key";
 
-"root.label.identitypackage.notification.refreshSucceed" = "Refresh Succeeded";
-"root.label.identitypackage.notification.optout" = "User Opted Out";
-"root.label.identitypackage.notification.identityPackageExpired" = "Identity Package Expired";
-"root.label.identitypackage.notification.refreshTokenExpired" = "Refresh Token Expired";
-
+"root.label.identitypackage.notification.publishedStatus" = "Published Status";
