@@ -72,6 +72,10 @@ public final class UID2Manager {
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
+        if let identity = KeychainManager.shared.getIdentityFromKeychain() {
+            self.identity = identity
+            self.identityStatus = .established
+        }
     }
  
     // MARK: - Public Identity Lifecycle
