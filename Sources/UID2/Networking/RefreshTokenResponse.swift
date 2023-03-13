@@ -8,7 +8,6 @@
 import Foundation
 
 /// API Response for https://github.com/IABTechLab/uid2docs/blob/main/api/v2/endpoints/post-token-refresh.md#decrypted-json-response-format
-
 struct RefreshTokenResponse: Codable {
     
     let body: RefreshTokenResponseBody?
