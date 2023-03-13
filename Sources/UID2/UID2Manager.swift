@@ -9,8 +9,7 @@ import Combine
 import Foundation
 
 @available(iOS 13.0, *)
-@MainActor
-public final class UID2Manager {
+public final actor UID2Manager {
     
     /// Singleton access point for UID2Manager
     public static let shared = UID2Manager()
@@ -63,18 +62,21 @@ public final class UID2Manager {
         }
         self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
         self.timer.eventHandler = {
-            guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
-                  let validated = self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
-                return
+            Task {
+                guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
+                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+                    return
+                }
+                await self.triggerRefreshOrSetTimer(validIdentity: validated)
             }
-            self.triggerRefreshOrSetTimer(validIdentity: validated)
         }
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
-        if let identity = KeychainManager.shared.getIdentityFromKeychain() {
-            self.identity = identity
-            self.identityStatus = .established
+        Task {
+            if let identity = KeychainManager.shared.getIdentityFromKeychain() {
+                await setIdentity(identity)
+            }
         }
     }
  
@@ -82,19 +84,19 @@ public final class UID2Manager {
     
     // iOS Way to Provid Initial Setup from Outside
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
-    public func setIdentity(_ identity: UID2Identity) {
-        if let validatedIdentity = validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
+    public func setIdentity(_ identity: UID2Identity) async {
+        if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
             triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
         }
     }
 
-    public func resetIdentity() {
+    public func resetIdentity() async {
         self.identity = nil
         self.identityStatus = nil
         KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
-    public func refreshIdentity() {
+    public func refreshIdentity() async {
         guard let identity = identity else {
             return
         }
@@ -141,7 +143,7 @@ public final class UID2Manager {
     }
     
     @discardableResult
-    private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) -> UID2Identity? {
+    private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) async -> UID2Identity? {
 
         // Process Opt Out
         if let status = status, status == .optOut {
@@ -179,9 +181,8 @@ public final class UID2Manager {
             do {
                 let apiResponse = try await uid2Client.refreshIdentity(refreshToken: identity.refreshToken,
                                                                        refreshResponseKey: identity.refreshResponseKey)
-                self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
+                await self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
             } catch {
-                print("Error refreshToken = \(error.localizedDescription)")
                 // No Op
                 // Retry will automatically occur due to timer
             }
