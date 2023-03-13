@@ -23,18 +23,19 @@ class RootViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        UID2Manager.shared.$identity
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] uid2Identity in
-                self?.uid2Identity = uid2Identity
-            }).store(in: &cancellables)
-     
-        UID2Manager.shared.$identityStatus
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] identityStatus in
-                self?.identityStatus = identityStatus
-            }).store(in: &cancellables)
-
+        Task {
+            await UID2Manager.shared.$identity
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] uid2Identity in
+                    self?.uid2Identity = uid2Identity
+                }).store(in: &cancellables)
+         
+            await UID2Manager.shared.$identityStatus
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] identityStatus in
+                    self?.identityStatus = identityStatus
+                }).store(in: &cancellables)
+        }
     }
     
     var advertisingToken: String {
@@ -88,9 +89,11 @@ class RootViewModel: ObservableObject {
                 guard let identity = identity else {
                     return
                 }
-                UID2Manager.shared.setIdentity(identity)
-                DispatchQueue.main.async {
-                    self?.error = nil
+                Task {
+                    await UID2Manager.shared.setIdentity(identity)
+                    DispatchQueue.main.async {
+                        self?.error = nil
+                    }
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -101,11 +104,15 @@ class RootViewModel: ObservableObject {
     }
  
     func handleResetButton() {
-        UID2Manager.shared.resetIdentity()
-        self.error = nil
+        Task {
+            await UID2Manager.shared.resetIdentity()
+            self.error = nil
+        }
     }
     
     func handleRefreshButton() {
-        UID2Manager.shared.refreshIdentity()
+        Task {
+            await UID2Manager.shared.refreshIdentity()
+        }
     }
 }
