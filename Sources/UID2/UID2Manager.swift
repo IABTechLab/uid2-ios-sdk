@@ -135,7 +135,7 @@ public final actor UID2Manager {
             return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
         }
      
-        if self.identity == nil {
+        if self.identity == nil || self.identity?.advertisingToken == identity.advertisingToken {
             return IdentityPackage(valid: true, errorMessage: "Identity established", identity: identity, status: .established)
         }
         
