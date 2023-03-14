@@ -74,14 +74,10 @@ final class RefreshTokenAPITests: XCTestCase {
         // Load Local RefreshToken from JSON
         let localRefreshData = try  DataLoader.load(fileName: "refresh-token-200-optout-decrypted", fileExtension: "json")
         let localTokenResponse = try decoder.decode(RefreshTokenResponse.self, from: localRefreshData)
+        let localResponsePackage = localTokenResponse.toRefreshAPIPackage()
         
-        XCTAssertNil(refreshToken.identity?.advertisingToken)
-        XCTAssertNil(refreshToken.identity?.refreshToken)
-        XCTAssertNil(refreshToken.identity?.identityExpires)
-        XCTAssertNil(refreshToken.identity?.refreshFrom)
-        XCTAssertNil(refreshToken.identity?.refreshExpires)
-        XCTAssertNil(refreshToken.identity?.refreshResponseKey)
-        
+        XCTAssertEqual(refreshToken.status, localResponsePackage?.status)
+        XCTAssertNil(refreshToken.identity)
     }
 
     /// 🟥  `POST /v2/token/refresh` - HTTP 400 - Client Error
