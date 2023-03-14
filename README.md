@@ -37,4 +37,4 @@ The UID2 SDK is a standalone headless library defined and managed by the Swift P
 
 ## License
 
-UID2 is released under the MIT license. [See LICENSE](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/LICENSE.md) for details.
+UID2 is released under the Apache V2 license. [See LICENSE](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/LICENSE.md) for details.
