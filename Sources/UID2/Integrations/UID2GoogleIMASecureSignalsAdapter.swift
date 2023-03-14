@@ -8,7 +8,6 @@
 import Foundation
 #if canImport(GoogleInteractiveMediaAds)
 import GoogleInteractiveMediaAds
-#endif
 
 public class UID2GoogleIMASecureSignalsAdapter: NSObject {
     
@@ -18,7 +17,6 @@ public class UID2GoogleIMASecureSignalsAdapter: NSObject {
     
 }
 
-#if canImport(GoogleInteractiveMediaAds)
 extension UID2GoogleIMASecureSignalsAdapter: IMASecureSignalsAdapter {
     
     public static func adapterVersion() -> IMAVersion {
@@ -39,14 +37,15 @@ extension UID2GoogleIMASecureSignalsAdapter: IMASecureSignalsAdapter {
     
     public func collectSignals(completion: @escaping IMASignalCompletionHandler) {
         
-        DispatchQueue.main.async {
-            guard let advertisingToken = UID2Manager.shared.getAdvertisingToken() else {
+        Task {
+            guard let advertisingToken = await UID2Manager.shared.getAdvertisingToken() else {
                 completion(nil, nil)
                 return
             }
 
             completion(advertisingToken, nil)
         }
+        
     }
     
 }
