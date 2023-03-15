@@ -1,0 +1,21 @@
+name: Test Pull Requests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  # this allows us to manually run this job
+  workflow_dispatch:
+
+jobs:
+
+  # Lint Check
+  swift-lint-check:
+    name: SwiftLint Check
+    runs-on: macos-12
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Lint code
+        run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
