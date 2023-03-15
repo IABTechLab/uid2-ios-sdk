@@ -9,9 +9,8 @@ on:
 
 jobs:
 
-  # Lint Check
-  swift-lint-check:
-    name: SwiftLint Check
+  swift-code-checks:
+    name: Code Tests
     runs-on: macos-latest
 
     steps:
@@ -20,15 +19,8 @@ jobs:
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
 
-  unit-tests:
-    name: SDK Unit Tests
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
       - name: Build
         run: swift build -v -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios16.2-simulator"
 
       - name: Run unit tests
-        run: swift test -v -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios16.2-simulator"
+        run: xcodebuild test -scheme UID2Tests -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
