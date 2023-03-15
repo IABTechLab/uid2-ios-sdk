@@ -27,14 +27,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-         run: swift build -v |
-            -Xswiftc "-sdk" |
-            -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" |
-            -Xswiftc "-target" |
-            -Xswiftc "x86_64-apple-ios16.2-simulator"
+         run: swift build -v -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios16.2-simulator"
       - name: Run tests
-         run: swift test -v |
-            -Xswiftc "-sdk" |
-            -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" |
-            -Xswiftc "-target" |
-            -Xswiftc "x86_64-apple-ios16.2-simulator"
+         run: swift test -v -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios16.2-simulator"
