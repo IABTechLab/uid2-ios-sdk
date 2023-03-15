@@ -20,7 +20,7 @@ jobs:
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
 
       - name: Build
-        run: swift build -v -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios16.2-simulator"
+        run: xcodebuild -scheme UID2 -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
 
       - name: Run unit tests
         run: xcodebuild test -scheme UID2Tests -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
