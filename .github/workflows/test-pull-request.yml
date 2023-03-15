@@ -12,10 +12,31 @@ jobs:
   # Lint Check
   swift-lint-check:
     name: SwiftLint Check
-    runs-on: macos-12
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
+
+  unit-tests:
+    name: SDK Unit Tests
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+         run: |
+         swift build -v |
+          -Xswiftc "-sdk" |
+          -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" |
+          -Xswiftc "-target" |
+          -Xswiftc "x86_64-apple-ios16.2-simulator"
+      - name: Run tests
+         run: |
+         swift test -v |
+          -Xswiftc "-sdk" |
+          -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" |
+          -Xswiftc "-target" |
+          -Xswiftc "x86_64-apple-ios16.2-simulator"
