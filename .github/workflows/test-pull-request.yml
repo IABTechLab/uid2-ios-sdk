@@ -1,0 +1,26 @@
+name: Test Pull Requests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  # this allows us to manually run this job
+  workflow_dispatch:
+
+jobs:
+
+  swift-code-checks:
+    name: Code Tests
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Lint code
+        run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
+
+      - name: Build
+        run: xcodebuild -scheme UID2 -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
+
+      - name: Run unit tests
+        run: xcodebuild test -scheme UID2Tests -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
