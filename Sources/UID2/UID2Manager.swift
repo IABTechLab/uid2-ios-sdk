@@ -59,7 +59,7 @@ public final actor UID2Manager {
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
         }
-        uid2Client = UID2Client(uid2APIURL: apiUrl)
+        uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: properties.uid2Version)
 
         var refreshTime = defaultUid2RefreshRetry
         if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {

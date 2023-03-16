@@ -9,6 +9,10 @@ import Foundation
 
 struct SDKProperties: Codable {
     
-    let UID2Version: String
+    let uid2Version: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case uid2Version = "UID2Version"
+    }
     
 }

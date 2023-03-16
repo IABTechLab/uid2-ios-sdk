@@ -11,10 +11,16 @@ import Foundation
 internal final class UID2Client {
     
     private let uid2APIURL: String
+    private let clientVersion: String
     private let session: NetworkSession
     
-    init(uid2APIURL: String, _ session: NetworkSession = URLSession.shared) {
+    init(uid2APIURL: String, sdkVersion: String?, _ session: NetworkSession = URLSession.shared) {
         self.uid2APIURL = uid2APIURL
+        var version = "ios"
+        if let sdkVersion = sdkVersion {
+            version += "-\(sdkVersion)"
+        }
+        self.clientVersion = version
         self.session = session
     }
     
@@ -30,7 +36,7 @@ internal final class UID2Client {
                         
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.addValue("ios-0.1", forHTTPHeaderField: "X-UID2-Client-Version")
+            request.addValue(clientVersion, forHTTPHeaderField: "X-UID2-Client-Version")
             request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpBody = refreshToken.data(using: .utf8)
             
