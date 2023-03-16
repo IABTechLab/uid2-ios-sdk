@@ -24,7 +24,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "UID2",
-            dependencies: []),
+            dependencies: [],
+            resources: [
+                .copy("Properties/sdk_properties.plist")
+            ]),
         .testTarget(
             name: "UID2Tests",
             dependencies: ["UID2"],

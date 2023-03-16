@@ -50,6 +50,11 @@ public final actor UID2Manager {
     private let defaultUid2RefreshRetry: Int = 5000
             
     private init() {
+        
+        // SDK Supplied Properties
+        let properties = SDKPropertyLoader.load()
+        
+        // App Supplied Properites
         var apiUrl = defaultUid2ApiUrl
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
