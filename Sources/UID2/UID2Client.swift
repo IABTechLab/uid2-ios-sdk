@@ -14,13 +14,9 @@ internal final class UID2Client {
     private let clientVersion: String
     private let session: NetworkSession
     
-    init(uid2APIURL: String, sdkVersion: String?, _ session: NetworkSession = URLSession.shared) {
+    init(uid2APIURL: String, sdkVersion: String, _ session: NetworkSession = URLSession.shared) {
         self.uid2APIURL = uid2APIURL
-        var version = "ios"
-        if let sdkVersion = sdkVersion {
-            version += "-\(sdkVersion)"
-        }
-        self.clientVersion = version
+        self.clientVersion = "ios-\(sdkVersion)"
         self.session = session
     }
     
