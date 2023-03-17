@@ -35,6 +35,9 @@ public final actor UID2Manager {
     
     // MARK: - Core Components
 
+    /// UID2 SDK Version
+    public let sdkVersion: String
+    
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
     
@@ -50,11 +53,21 @@ public final actor UID2Manager {
     private let defaultUid2RefreshRetry: Int = 5000
             
     private init() {
+        
+        // SDK Supplied Properties
+        let properties = SDKPropertyLoader.load()
+        if let uid2Version = properties.uid2Version {
+            sdkVersion = uid2Version
+        } else {
+            sdkVersion = "unknown"
+        }
+        
+        // App Supplied Properites
         var apiUrl = defaultUid2ApiUrl
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
         }
-        uid2Client = UID2Client(uid2APIURL: apiUrl)
+        uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: sdkVersion)
 
         var refreshTime = defaultUid2RefreshRetry
         if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {
