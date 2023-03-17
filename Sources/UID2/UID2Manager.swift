@@ -31,7 +31,7 @@ public final actor UID2Manager {
     @Published public private(set) var identity: UID2Identity?
     
     /// Public Identity Status Notifications
-    @Published public private(set) var identityStatus: IdentityStatus?
+    @Published public private(set) var identityStatus: IdentityStatus = .noIdentity
     
     // MARK: - Core Components
 
@@ -105,7 +105,7 @@ public final actor UID2Manager {
 
     public func resetIdentity() async {
         self.identity = nil
-        self.identityStatus = nil
+        self.identityStatus = .noIdentity
         KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
