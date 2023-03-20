@@ -31,7 +31,7 @@ public final actor UID2Manager {
     @Published public private(set) var identity: UID2Identity?
     
     /// Public Identity Status Notifications
-    @Published public private(set) var identityStatus: IdentityStatus?
+    @Published public private(set) var identityStatus: IdentityStatus = .noIdentity
     
     // MARK: - Core Components
 
@@ -76,7 +76,7 @@ public final actor UID2Manager {
         self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
         self.timer.eventHandler = {
             Task {
-                guard let identity = KeychainManager.shared.getIdentityFromKeychain(),
+                guard let identity = await self.identity,
                       let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
                     return
                 }
@@ -99,13 +99,13 @@ public final actor UID2Manager {
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
     public func setIdentity(_ identity: UID2Identity) async {
         if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
-            triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
+            await triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
         }
     }
 
     public func resetIdentity() async {
         self.identity = nil
-        self.identityStatus = nil
+        self.identityStatus = .noIdentity
         KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
@@ -113,7 +113,7 @@ public final actor UID2Manager {
         guard let identity = identity else {
             return
         }
-        refreshToken(identity: identity)
+        await refreshToken(identity: identity)
     }
     
     public func getAdvertisingToken() -> String? {
@@ -122,11 +122,11 @@ public final actor UID2Manager {
     
     // MARK: - Internal Identity Lifecycle
     
-    private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) -> Bool {
+    private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) async -> Bool {
         return expiry <= now
     }
     
-    private func getIdentityPackage(identity: UID2Identity?) -> IdentityPackage {
+    private func getIdentityPackage(identity: UID2Identity?) async -> IdentityPackage {
         
         guard let identity = identity else {
             return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
@@ -140,11 +140,11 @@ public final actor UID2Manager {
             return IdentityPackage(valid: false, errorMessage: "refresh_token is not available or is not valid", identity: nil, status: .invalid)
         }
         
-        if hasExpired(expiry: identity.refreshExpires) {
+        if await hasExpired(expiry: identity.refreshExpires) {
             return IdentityPackage(valid: false, errorMessage: "Identity expired, refresh expired", identity: nil, status: .refreshExpired)
         }
         
-        if hasExpired(expiry: identity.identityExpires) {
+        if await hasExpired(expiry: identity.identityExpires) {
             return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
         }
      
@@ -167,7 +167,7 @@ public final actor UID2Manager {
         }
         
         // Process Remaining IdentityStatus Options
-        let validity = getIdentityPackage(identity: identity)
+        let validity = await getIdentityPackage(identity: identity)
 
         // Notify Subscribers
         self.identityStatus = validity.status
@@ -188,25 +188,23 @@ public final actor UID2Manager {
 
     // MARK: - Refresh and Timer
     
-    private func refreshToken(identity: UID2Identity) {
+    private func refreshToken(identity: UID2Identity) async {
         
-        Task {
-            do {
-                let apiResponse = try await uid2Client.refreshIdentity(refreshToken: identity.refreshToken,
-                                                                       refreshResponseKey: identity.refreshResponseKey)
-                await self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
-            } catch {
-                // No Op
-                // Retry will automatically occur due to timer
-            }
+        do {
+            let apiResponse = try await uid2Client.refreshIdentity(refreshToken: identity.refreshToken,
+                                                                   refreshResponseKey: identity.refreshResponseKey)
+            await self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
+        } catch {
+            // No Op
+            // Retry will automatically occur due to timer
         }
 
     }
         
-    private func triggerRefreshOrSetTimer(validIdentity: UID2Identity) {
+    private func triggerRefreshOrSetTimer(validIdentity: UID2Identity) async {
         
-        if hasExpired(expiry: validIdentity.refreshFrom) {
-            self.refreshToken(identity: validIdentity)
+        if await hasExpired(expiry: validIdentity.refreshFrom) {
+            await self.refreshToken(identity: validIdentity)
         } else {
             if automaticRefreshEnabled {
                 timer.resume()
