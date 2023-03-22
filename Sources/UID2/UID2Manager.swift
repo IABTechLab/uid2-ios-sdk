@@ -95,7 +95,7 @@ public final actor UID2Manager {
  
     // MARK: - Public Identity Lifecycle
     
-    // iOS Way to Provid Initial Setup from Outside
+    // iOS Way to Provide Initial Setup from Outside
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
     public func setIdentity(_ identity: UID2Identity) async {
         if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
@@ -118,6 +118,12 @@ public final actor UID2Manager {
     
     public func getAdvertisingToken() -> String? {
         return self.identity?.advertisingToken
+    }
+
+    /// Actor Safe way to toggle automaticRefreshEnabled property
+    /// - Parameter enable: True to enable, False to disable
+    public func setAutomaticRefreshEnabled(_ enable: Bool) {
+        self.automaticRefreshEnabled = enable
     }
     
     // MARK: - Internal Identity Lifecycle
