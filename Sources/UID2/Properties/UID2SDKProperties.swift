@@ -9,9 +9,9 @@ import Foundation
 
 public class UID2SDKProperties {
     
-    public static func getUID2SDKVersion() -> (Int, Int, Int) {
+    public static func getUID2SDKVersion() -> (major: Int, minor: Int, patch: Int) {
         
-        let invalidVersion = (0, 0, 0)
+        let invalidVersion = (major: 0, minor: 0, patch: 0)
         
         let properties = SDKPropertyLoader.load()
         guard let version = properties.uid2Version else {
@@ -26,7 +26,7 @@ public class UID2SDKProperties {
                   let patch = Int(versionComponents[2]) else {
                 return invalidVersion
             }
-            return (major, minor, patch)
+            return (major: major, minor: minor, patch: patch)
         }
         
         return invalidVersion

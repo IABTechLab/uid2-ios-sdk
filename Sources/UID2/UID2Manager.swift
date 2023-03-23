@@ -36,7 +36,7 @@ public final actor UID2Manager {
     // MARK: - Core Components
 
     /// UID2 SDK Version
-    public let sdkVersion: (Int, Int, Int)
+    public let sdkVersion: (major: Int, minor: Int, patch: Int)
     
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
@@ -62,7 +62,7 @@ public final actor UID2Manager {
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
         }
-        var clientVersion = "\(sdkVersion.0).\(sdkVersion.1).\(sdkVersion.2)"
+        var clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
         if self.sdkVersion == (0, 0, 0) {
             clientVersion = "unknown"
         }
