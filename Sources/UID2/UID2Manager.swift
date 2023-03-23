@@ -63,7 +63,7 @@ public final actor UID2Manager {
             apiUrl = apiUrlOverride
         }
         var clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
-        if self.sdkVersion == (0, 0, 0) {
+        if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
             clientVersion = "unknown"
         }
         
