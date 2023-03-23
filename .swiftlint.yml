@@ -8,6 +8,9 @@ function_body_length:
     warning: 75
     error: 100
 
+large_tuple:
+    warning: 4
+
 line_length:
     warning: 150
     error: 200

@@ -36,7 +36,7 @@ public final actor UID2Manager {
     // MARK: - Core Components
 
     /// UID2 SDK Version
-    public let sdkVersion: String
+    public let sdkVersion: (major: Int, minor: Int, patch: Int)
     
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
@@ -55,19 +55,19 @@ public final actor UID2Manager {
     private init() {
         
         // SDK Supplied Properties
-        let properties = SDKPropertyLoader.load()
-        if let uid2Version = properties.uid2Version {
-            sdkVersion = uid2Version
-        } else {
-            sdkVersion = "unknown"
-        }
+        self.sdkVersion = UID2SDKProperties.getUID2SDKVersion()
         
         // App Supplied Properites
         var apiUrl = defaultUid2ApiUrl
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
             apiUrl = apiUrlOverride
         }
-        uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: sdkVersion)
+        var clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
+        if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
+            clientVersion = "unknown"
+        }
+        
+        uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: clientVersion)
 
         var refreshTime = defaultUid2RefreshRetry
         if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {
@@ -95,7 +95,7 @@ public final actor UID2Manager {
  
     // MARK: - Public Identity Lifecycle
     
-    // iOS Way to Provid Initial Setup from Outside
+    // iOS Way to Provide Initial Setup from Outside
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
     public func setIdentity(_ identity: UID2Identity) async {
         if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
@@ -118,6 +118,12 @@ public final actor UID2Manager {
     
     public func getAdvertisingToken() -> String? {
         return self.identity?.advertisingToken
+    }
+
+    /// Actor Safe way to toggle automaticRefreshEnabled property
+    /// - Parameter enable: True to enable, False to disable
+    public func setAutomaticRefreshEnabled(_ enable: Bool) {
+        self.automaticRefreshEnabled = enable
     }
     
     // MARK: - Internal Identity Lifecycle
