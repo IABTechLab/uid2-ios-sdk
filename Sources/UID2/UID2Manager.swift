@@ -97,18 +97,23 @@ public final actor UID2Manager {
     
     // iOS Way to Provide Initial Setup from Outside
     // Web Way --> https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L153-L154
+    
+    /// Set UID2 Identity for UID2Manager to manage
+    /// - Parameter identity: UID2 Identity for UID2Manager to manage
     public func setIdentity(_ identity: UID2Identity) async {
         if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
             await triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
         }
     }
-
+    
+    /// Reset UID2 Identity state in UID2Manager
     public func resetIdentity() async {
         self.identity = nil
         self.identityStatus = .noIdentity
         KeychainManager.shared.deleteIdentityFromKeychain()
     }
     
+    /// Manually Refresh UID2 Identity
     public func refreshIdentity() async {
         guard let identity = identity else {
             return
@@ -116,8 +121,24 @@ public final actor UID2Manager {
         await refreshToken(identity: identity)
     }
     
-    public func getAdvertisingToken() -> String? {
-        return self.identity?.advertisingToken
+    /// Get Advertising Token if Valid
+    /// - Returns: Adversting Token if valid, nil if not valid
+    public func getAdvertisingToken() async -> String? {
+        
+        guard let identity = self.identity else {
+            self.identityStatus = .noIdentity
+            return nil
+        }
+
+        let identityPackage = await getIdentityPackage(identity: identity)
+        
+        self.identityStatus = identityPackage.status
+        
+        if identityPackage.status == .established || identityPackage.status == .refreshed {
+            return identity.advertisingToken
+        }
+        
+        return nil
     }
 
     /// Actor Safe way to toggle automaticRefreshEnabled property
