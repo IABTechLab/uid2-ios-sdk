@@ -1,4 +1,4 @@
-# 2. iOS Timer Functionality
+# 4. iOS Timer Functionality
 
 Date: 2023-02-02
 
