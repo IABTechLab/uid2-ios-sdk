@@ -74,15 +74,15 @@ public final actor UID2Manager {
             refreshTime = refreshTimeOverride
         }
         self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
-//        self.timer.eventHandler = {
-//            Task {
-//                guard let identity = await self.identity,
-//                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
-//                    return
-//                }
-//                await self.triggerRefreshOrSetTimer(validIdentity: validated)
-//            }
-//        }
+        self.timer.eventHandler = {
+            Task {
+                guard let identity = await self.identity,
+                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+                    return
+                }
+                await self.triggerRefreshOrSetTimer(validIdentity: validated)
+            }
+        }
         
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
@@ -156,16 +156,13 @@ public final actor UID2Manager {
     }
     
     private func loadStateFromDisk() async {
-        print("1")
         if let identity = KeychainManager.shared.getIdentityFromKeychain() {
-            print("2")
-            print("Reload found idenity = \(identity)")
             // Has Opted Out?
-            // Hass Identity Token Expired with valid RefreshToken
+            //  - Handled by setIdentityPackage() validateAndSetIdentity()
+            // Has Identity Token Expired with valid RefreshToken?
+            //  - Handled by setIdentityPackage() triggerRefreshOrSetTimer()
             await setIdentityPackage(identity)
-            print("3")
         }
-        print("4")
     }
     
     private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) async -> Bool {
