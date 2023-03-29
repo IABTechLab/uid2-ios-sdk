@@ -74,25 +74,23 @@ public final actor UID2Manager {
             refreshTime = refreshTimeOverride
         }
         self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
-        self.timer.eventHandler = {
-            Task {
-                guard let identity = await self.identity,
-                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
-                    return
-                }
-                await self.triggerRefreshOrSetTimer(validIdentity: validated)
-            }
-        }
-
+//        self.timer.eventHandler = {
+//            Task {
+//                guard let identity = await self.identity,
+//                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+//                    return
+//                }
+//                await self.triggerRefreshOrSetTimer(validIdentity: validated)
+//            }
+//        }
+        
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
         Task {
-            if let identity = KeychainManager.shared.getIdentityFromKeychain() {
-                await setIdentity(identity)
-            }
+            await loadStateFromDisk()
         }
     }
- 
+    
     // MARK: - Public Identity Lifecycle
     
     // iOS Way to Provide Initial Setup from Outside
@@ -149,12 +147,33 @@ public final actor UID2Manager {
     
     // MARK: - Internal Identity Lifecycle
     
+    private func setIdentityPackage(_ identity: IdentityPackage) async {
+        if let validatedIdentity = await validateAndSetIdentity(identity: identity.identity,
+                                                                status: identity.status,
+                                                                statusText: identity.errorMessage) {
+            await triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
+        }
+    }
+    
+    private func loadStateFromDisk() async {
+        print("1")
+        if let identity = KeychainManager.shared.getIdentityFromKeychain() {
+            print("2")
+            print("Reload found idenity = \(identity)")
+            // Has Opted Out?
+            // Hass Identity Token Expired with valid RefreshToken
+            await setIdentityPackage(identity)
+            print("3")
+        }
+        print("4")
+    }
+    
     private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) async -> Bool {
         return expiry <= now
     }
     
     private func getIdentityPackage(identity: UID2Identity?) async -> IdentityPackage {
-        
+                
         guard let identity = identity else {
             return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
         }
@@ -188,18 +207,29 @@ public final actor UID2Manager {
         // Process Opt Out
         if let status = status, status == .optOut {
             self.identity = nil
-            KeychainManager.shared.deleteIdentityFromKeychain()
             self.identityStatus = .optOut
+            let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
+            KeychainManager.shared.deleteIdentityFromKeychain()
+            KeychainManager.shared.saveIdentityToKeychain(identityPackageOptOut)
             return nil
         }
         
+        if let status = status, status == .established {
+            self.identity = identity
+            self.identityStatus = .established
+            // Not needed for loadFromDisk, but is needed for initial setting of Identity
+            let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
+            KeychainManager.shared.saveIdentityToKeychain(identityPackage)
+            return identity
+        }
+        
         // Process Remaining IdentityStatus Options
-        let validity = await getIdentityPackage(identity: identity)
+        let validatedIdentityPackage = await getIdentityPackage(identity: identity)
 
         // Notify Subscribers
-        self.identityStatus = validity.status
+        self.identityStatus = validatedIdentityPackage.status
         
-        guard let validIdentity = validity.identity else {
+        guard let validIdentity = validatedIdentityPackage.identity else {
             return nil
         }
         
@@ -208,7 +238,7 @@ public final actor UID2Manager {
         }
         
         self.identity = validIdentity
-        KeychainManager.shared.saveIdentityToKeychain(validity)
+        KeychainManager.shared.saveIdentityToKeychain(validatedIdentityPackage)
         
         return validIdentity
     }
