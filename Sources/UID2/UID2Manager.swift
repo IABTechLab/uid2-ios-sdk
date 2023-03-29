@@ -208,7 +208,7 @@ public final actor UID2Manager {
         }
         
         self.identity = validIdentity
-        KeychainManager.shared.saveIdentityToKeychain(validIdentity)
+        KeychainManager.shared.saveIdentityToKeychain(validity)
         
         return validIdentity
     }

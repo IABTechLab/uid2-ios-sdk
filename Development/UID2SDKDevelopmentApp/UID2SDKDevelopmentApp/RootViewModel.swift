@@ -90,7 +90,8 @@ class RootViewModel: ObservableObject {
                     return
                 }
                 Task {
-                    await UID2Manager.shared.setIdentity(identity)
+                    let identityPackage = IdentityPackage(valid: true, errorMessage: nil, identity: identity, status: .established)
+                    await UID2Manager.shared.setIdentity(identityPackage)
                     DispatchQueue.main.async {
                         self?.error = nil
                     }

@@ -17,6 +17,13 @@ public struct IdentityPackage {
     public let identity: UID2Identity?
     public let status: IdentityStatus
     
+    public init(valid: Bool, errorMessage: String?, identity: UID2Identity?, status: IdentityStatus) {
+        self.valid = valid
+        self.errorMessage = errorMessage
+        self.identity = identity
+        self.status = status
+    }
+    
 }
 
 extension IdentityPackage: Codable {
@@ -29,7 +36,6 @@ extension IdentityPackage: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         // Automatic
-        // TODO Add Try nil check
         self.errorMessage = try container.decode(String?.self, forKey: .errorMessage)
         self.identity = try container.decode(UID2Identity?.self, forKey: .identity)
         
@@ -61,4 +67,20 @@ extension IdentityPackage: Codable {
         try container.encode(statusRaw, forKey: .status)
     }
     
+}
+
+extension IdentityPackage {
+    
+    static func fromData(_ data: Data) -> IdentityPackage? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try? decoder.decode(IdentityPackage.self, from: data)
+    }
+
+    func toData() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return try encoder.encode(self)
+    }
+
 }

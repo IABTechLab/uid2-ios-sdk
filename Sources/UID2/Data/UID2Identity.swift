@@ -26,19 +26,3 @@ public struct UID2Identity: Codable {
     }
     
 }
-
-extension UID2Identity {
-    
-    static func fromData(_ data: Data) -> UID2Identity? {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try? decoder.decode(UID2Identity.self, from: data)
-    }
-
-    func toData() throws -> Data {
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        return try encoder.encode(self)
-    }
-
-}
