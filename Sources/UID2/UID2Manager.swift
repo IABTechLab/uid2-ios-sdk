@@ -40,11 +40,16 @@ public final actor UID2Manager {
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
     
+    /// Background Task for Refreshing UID2 Identity
     private var refreshJob: Task<(), Error>?
+
+    /// Background Task for Checking On UID2 Identity Refresh Token Expiration
     private var checkRefreshExpiresJob: Task<(), Error>?
+
+    /// Background Task for Checking On UID2 Identity Expiration
     private var checkIdentityExpiresJob: Task<(), Error>?
     
-    private let refreshTimeDelay: Int
+    /// Toggle for Expiration Checks Functionality
     private let checkExpiration = true
             
     // MARK: - Defaults
@@ -73,12 +78,6 @@ public final actor UID2Manager {
             clientVersion = "unknown"
         }
         uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: clientVersion)
-
-        var refreshTime = defaultUid2RefreshRetry
-        if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {
-            refreshTime = refreshTimeOverride
-        }
-        self.refreshTimeDelay = refreshTime
         
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
