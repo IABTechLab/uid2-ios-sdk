@@ -77,7 +77,7 @@ public final actor UID2Manager {
         self.timer.eventHandler = {
             Task {
                 guard let identity = await self.identity,
-                      let validated = await self.validateAndSetIdentity(identity: identity, status: nil, statusText: nil) else {
+                      let validated = await self.validateAndSetIdentity(identity: identity, status: self.identityStatus, statusText: nil) else {
                     return
                 }
                 await self.triggerRefreshOrSetTimer(validIdentity: validated)
@@ -191,7 +191,7 @@ public final actor UID2Manager {
             return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
         }
      
-        if self.identity == nil || self.identity?.advertisingToken == identity.advertisingToken {
+        if self.identity == nil || self.identity?.advertisingToken == identity.advertisingToken && self.identityStatus != .refreshed {
             return IdentityPackage(valid: true, errorMessage: "Identity established", identity: identity, status: .established)
         }
         
@@ -213,7 +213,7 @@ public final actor UID2Manager {
         
         if let status = status, status == .established {
             self.identity = identity
-            self.identityStatus = .established
+            self.identityStatus = status
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
             let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
             KeychainManager.shared.saveIdentityToKeychain(identityPackage)
