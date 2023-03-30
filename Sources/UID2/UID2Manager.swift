@@ -18,6 +18,7 @@ public final actor UID2Manager {
     public var automaticRefreshEnabled = true {
         didSet {
             Task {
+                await checkIdentityExpiration()
                 await checkIdentityRefresh()
             }
         }
@@ -233,6 +234,9 @@ public final actor UID2Manager {
         
         self.identity = validIdentity
         KeychainManager.shared.saveIdentityToKeychain(validatedIdentityPackage)
+        
+        await checkIdentityRefresh()
+        await checkIdentityExpiration()
         
         return validIdentity
     }
