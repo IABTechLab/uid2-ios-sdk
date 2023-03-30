@@ -17,10 +17,8 @@ public final actor UID2Manager {
     /// Enable or Disable Automatic Refresh via RepeatingTimer
     public var automaticRefreshEnabled = true {
         didSet {
-            if automaticRefreshEnabled {
-                timer.resume()
-            } else {
-                timer.suspend()
+            Task {
+                await checkIdentityRefresh()
             }
         }
     }
@@ -41,8 +39,15 @@ public final actor UID2Manager {
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
     
-    private let timer: RepeatingTimer
+    private var refreshJob: Task<(), Error>?
+    private var checkRefreshExpiresJob: Task<(), Error>?
+    private var checkIdentityExpiresJob: Task<(), Error>?
+    
+    private let refreshTimeDelay: Int
+    private let checkExpiration = true
             
+    // MARK: - Defaults
+    
     /// Default UID2 Server URL
     /// Override default by setting `UID2ApiUrl` in app's Info.plist
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
@@ -66,23 +71,13 @@ public final actor UID2Manager {
         if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
             clientVersion = "unknown"
         }
-        
         uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: clientVersion)
 
         var refreshTime = defaultUid2RefreshRetry
         if let refreshTimeOverride = Bundle.main.object(forInfoDictionaryKey: "UID2RefreshRetryTime") as? Int {
             refreshTime = refreshTimeOverride
         }
-        self.timer = RepeatingTimer(retryTimeInMilliseconds: refreshTime)
-        self.timer.eventHandler = {
-            Task {
-                guard let identity = await self.identity,
-                      let validated = await self.validateAndSetIdentity(identity: identity, status: self.identityStatus, statusText: nil) else {
-                    return
-                }
-                await self.triggerRefreshOrSetTimer(validIdentity: validated)
-            }
-        }
+        self.refreshTimeDelay = refreshTime
         
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
@@ -99,8 +94,9 @@ public final actor UID2Manager {
     /// Set UID2 Identity for UID2Manager to manage
     /// - Parameter identity: UID2 Identity for UID2Manager to manage
     public func setIdentity(_ identity: UID2Identity) async {
-        if let validatedIdentity = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
-            await triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
+        if let _ = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
+            await checkIdentityExpiration()
+            await checkIdentityRefresh()
         }
     }
     
@@ -109,6 +105,8 @@ public final actor UID2Manager {
         self.identity = nil
         self.identityStatus = .noIdentity
         KeychainManager.shared.deleteIdentityFromKeychain()
+        await checkIdentityExpiration()
+        await checkIdentityRefresh()
     }
     
     /// Manually Refresh UID2 Identity
@@ -117,23 +115,15 @@ public final actor UID2Manager {
             return
         }
         await refreshToken(identity: identity)
+        await checkIdentityRefresh()
     }
     
     /// Get Advertising Token if Valid
     /// - Returns: Adversting Token if valid, nil if not valid
-    public func getAdvertisingToken() async -> String? {
+    public func getAdvertisingToken() -> String? {
         
-        guard let identity = self.identity else {
-            self.identityStatus = .noIdentity
-            return nil
-        }
-
-        let identityPackage = await getIdentityPackage(identity: identity)
-        
-        self.identityStatus = identityPackage.status
-        
-        if identityPackage.status == .established || identityPackage.status == .refreshed {
-            return identity.advertisingToken
+        if identityStatus == .established || identityStatus == .refreshed {
+            return identity?.advertisingToken
         }
         
         return nil
@@ -148,10 +138,17 @@ public final actor UID2Manager {
     // MARK: - Internal Identity Lifecycle
     
     private func setIdentityPackage(_ identity: IdentityPackage) async {
-        if let validatedIdentity = await validateAndSetIdentity(identity: identity.identity,
-                                                                status: identity.status,
-                                                                statusText: identity.errorMessage) {
-            await triggerRefreshOrSetTimer(validIdentity: validatedIdentity)
+        if let _ = await validateAndSetIdentity(identity: identity.identity,
+                                                status: identity.status,
+                                                statusText: identity.errorMessage) {
+            
+            // An identity's status can change based upon the current time and it's expiration. We will schedule some work
+            // to detect when it changes so that we can report it accordingly.
+            await checkIdentityExpiration()
+
+            // After a new identity has been set, we have to work out how we're going to potentially refresh it. If the
+            // identity is null, because it's been reset of the identity has opted out, we don't need to do anything.
+            await checkIdentityRefresh()
         }
     }
     
@@ -242,6 +239,74 @@ public final actor UID2Manager {
 
     // MARK: - Refresh and Timer
     
+    private func checkIdentityRefresh() async {
+        refreshJob?.cancel()
+        refreshJob = nil
+
+        if !automaticRefreshEnabled {
+            return
+        }
+        
+        if let identity = identity {
+            // If the identity is already suitable for a refresh, we can do so immediately. Otherwise, we will work out
+            // how long it is until a refresh is required and schedule it accordingly.
+            if await hasExpired(expiry: identity.refreshFrom) {
+                refreshJob = Task {
+                    await refreshToken(identity: identity)
+                }
+            } else {
+                refreshJob = Task {
+                    let now = Date().millisecondsSince1970
+                    let refreshFrom = identity.refreshFrom
+                    let delayInMilliseconds = refreshFrom - now
+                    let delayInNanoseconds = UInt64(delayInMilliseconds * 1000000)
+                    try await Task.sleep(nanoseconds: delayInNanoseconds)
+                    await refreshToken(identity: identity)
+                }
+            }
+        }
+    }
+    
+    /// The identity status can change as we reach specific time events. We want to observe these and make sure that when
+    /// they are reached, we can report them accordingly to our consumer.
+    private func checkIdentityExpiration() async {
+        checkRefreshExpiresJob?.cancel()
+        checkRefreshExpiresJob = nil
+        
+        checkIdentityExpiresJob?.cancel()
+        checkIdentityExpiresJob = nil
+        
+        if !checkExpiration {
+            return
+        }
+        
+        if let identity = identity {
+            
+            // If the expiration time of being able to refresh is in the future, we will schedule a job to detect if we
+            // pass it. This will allow us to reevaluate our state and update accordingly.
+            if await !hasExpired(expiry: identity.refreshExpires) {
+                checkRefreshExpiresJob = Task {
+                    let now = Date().millisecondsSince1970
+                    let diffToNow = identity.refreshExpires - now
+                    let delayInNanoseconds = UInt64(diffToNow * 1000000)
+                    try await Task.sleep(nanoseconds: delayInNanoseconds)
+                    await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
+                }
+            }
+            
+            if await !hasExpired(expiry: identity.identityExpires) {
+                checkIdentityExpiresJob = Task {
+                    let now = Date().millisecondsSince1970
+                    let diffToNow = identity.identityExpires - now
+                    let delayInNanoseconds = UInt64(diffToNow * 1000000)
+                    try await Task.sleep(nanoseconds: delayInNanoseconds)
+                    await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
+                }
+            }
+            
+        }
+    }
+    
     private func refreshToken(identity: UID2Identity) async {
         
         do {
@@ -251,18 +316,6 @@ public final actor UID2Manager {
         } catch {
             // No Op
             // Retry will automatically occur due to timer
-        }
-
-    }
-        
-    private func triggerRefreshOrSetTimer(validIdentity: UID2Identity) async {
-        
-        if await hasExpired(expiry: validIdentity.refreshFrom) {
-            await self.refreshToken(identity: validIdentity)
-        } else {
-            if automaticRefreshEnabled {
-                timer.resume()
-            }
         }
 
     }
