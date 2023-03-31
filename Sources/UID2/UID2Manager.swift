@@ -256,10 +256,7 @@ public final actor UID2Manager {
                 }
             } else {
                 refreshJob = Task {
-                    let now = Date().millisecondsSince1970
-                    let refreshFrom = identity.refreshFrom
-                    let delayInMilliseconds = refreshFrom - now
-                    let delayInNanoseconds = UInt64(delayInMilliseconds * 1000000)
+                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.refreshFrom)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     await refreshToken(identity: identity)
                 }
@@ -282,9 +279,7 @@ public final actor UID2Manager {
             // pass it. This will allow us to reevaluate our state and update accordingly.
             if await !hasExpired(expiry: identity.refreshExpires) {
                 checkRefreshExpiresJob = Task {
-                    let now = Date().millisecondsSince1970
-                    let diffToNow = identity.refreshExpires - now
-                    let delayInNanoseconds = UInt64(diffToNow * 1000000)
+                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.refreshExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
                 }
@@ -292,9 +287,7 @@ public final actor UID2Manager {
             
             if await !hasExpired(expiry: identity.identityExpires) {
                 checkIdentityExpiresJob = Task {
-                    let now = Date().millisecondsSince1970
-                    let diffToNow = identity.identityExpires - now
-                    let delayInNanoseconds = UInt64(diffToNow * 1000000)
+                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.identityExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
                 }
@@ -303,6 +296,23 @@ public final actor UID2Manager {
         }
     }
     
+    
+    /// Calculate the delay that Identity Checks use
+    /// - Parameter futureCompletionTime: The time in milliseconds to end the
+    /// - Returns: Delay in nanonseconds (UInt64) or 0 if futureCompletionTime is less than now
+    private func calculateDelay(futureCompletionTime: Int64) async -> UInt64 {
+        let now = Date().millisecondsSince1970
+        if futureCompletionTime < now {
+            return UInt64(0)
+        }
+        
+        let diffToNow = futureCompletionTime - now
+        let delayInNanoseconds = UInt64(diffToNow * 1000000)
+        return delayInNanoseconds
+    }
+    
+    /// Calls Refresh API to refresh the UID2 Identity
+    /// - Parameter identity: Current Identity containing Refresh Token and Refresh Response Key
     private func refreshToken(identity: UID2Identity) async {
         
         do {
