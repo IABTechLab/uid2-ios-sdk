@@ -48,10 +48,7 @@ public final actor UID2Manager {
 
     /// Background Task for Checking On UID2 Identity Expiration
     private var checkIdentityExpiresJob: Task<(), Error>?
-    
-    /// Toggle for Expiration Checks Functionality
-    private let checkExpiration = true
-            
+                
     // MARK: - Defaults
     
     /// Default UID2 Server URL
@@ -278,11 +275,7 @@ public final actor UID2Manager {
         
         checkIdentityExpiresJob?.cancel()
         checkIdentityExpiresJob = nil
-        
-        if !checkExpiration {
-            return
-        }
-        
+                
         if let identity = identity {
             
             // If the expiration time of being able to refresh is in the future, we will schedule a job to detect if we
