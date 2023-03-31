@@ -10,11 +10,77 @@ import Foundation
 // https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L174-L186
 // NOTE: JS SDK makes 2 references to `IdentityStatus`, the second being an enum with actual states defined
 // https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/Uid2InitCallbacks.ts#L12-L20
-public struct IdentityPackage: Codable {
-
+public struct IdentityPackage {
+    
     public let valid: Bool
     public let errorMessage: String?
     public let identity: UID2Identity?
     public let status: IdentityStatus
     
+    public init(valid: Bool, errorMessage: String?, identity: UID2Identity?, status: IdentityStatus) {
+        self.valid = valid
+        self.errorMessage = errorMessage
+        self.identity = identity
+        self.status = status
+    }
+    
+}
+
+extension IdentityPackage: Codable {
+    
+    enum CodingKeys: String, CodingKey {
+        case valid, errorMessage, identity, status
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Automatic
+        self.errorMessage = try container.decode(String?.self, forKey: .errorMessage)
+        self.identity = try container.decode(UID2Identity?.self, forKey: .identity)
+        
+        // Manual Translation From Foundational Types
+        let validRaw = try container.decode(Int.self, forKey: .valid)
+        let validReal: Bool = validRaw == 1
+        self.valid = validReal
+        
+        let statusRaw = try container.decode(Int.self, forKey: .status)
+        if let realStatus = IdentityStatus(rawValue: statusRaw) {
+            self.status = realStatus
+        } else {
+            self.status = .invalid
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // Automatic
+        try container.encode(errorMessage, forKey: .errorMessage)
+        try container.encode(identity, forKey: .identity)
+        
+        // Manual Translation To Foundational Types
+        let validRaw: Int = valid == true ? 1 : 0
+        try container.encode(validRaw, forKey: .valid)
+        
+        let statusRaw = status.rawValue
+        try container.encode(statusRaw, forKey: .status)
+    }
+    
+}
+
+extension IdentityPackage {
+    
+    static func fromData(_ data: Data) -> IdentityPackage? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try? decoder.decode(IdentityPackage.self, from: data)
+    }
+
+    func toData() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return try encoder.encode(self)
+    }
+
 }
