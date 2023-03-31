@@ -296,7 +296,6 @@ public final actor UID2Manager {
         }
     }
     
-    
     /// Calculate the delay that Identity Checks use
     /// - Parameter futureCompletionTime: The time in milliseconds to end the
     /// - Returns: Delay in nanonseconds (UInt64) or 0 if futureCompletionTime is less than now
