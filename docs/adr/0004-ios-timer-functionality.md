@@ -17,6 +17,6 @@ The refresh timer functionality has been broken into two options:
 1. Automatic
 2. Manual (aka App managed)
 
-Automatic mode is the default setting for the SDK.  In order to [minimize energy usage](https://developer.apple.com/library/archive/documentation/Performance/Conceptual/EnergyGuide-iOS/MinimizeTimerUse.html) the SDK uses Grand Central Dispatch (GCD) [`DispatchSourceTimer`](https://developer.apple.com/documentation/dispatch/dispatchsourcetimer) and not [`Timer`](https://developer.apple.com/documentation/foundation/timer).  The advantage is that `Timer` prevents the CPU from idling, while the `DispatchSourceTimer` does not.
+Automatic mode is the default setting for the SDK.  In order to [minimize energy usage](https://developer.apple.com/library/archive/documentation/Performance/Conceptual/EnergyGuide-iOS/MinimizeTimerUse.html) the SDK uses [Swift Concurrency](https://developer.apple.com/documentation/swift/concurrency).
 
 Manual mode enables the app to completely manage the refresh lifecycle by disabling the automatic timer mechanism.  This is configured via `UID2Manager.shared.automaticRefreshEnabled`.
