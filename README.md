@@ -35,6 +35,10 @@ A framework for integrating [UID2](https://github.com/IABTechLab/uid2docs) into 
 
 The UID2 SDK is a standalone headless library defined and managed by the Swift Package Manager via `Package.swift`.  As such the `UID2DevelopmentApp` is the primary way for developing the SDK.  Use Xcode to open `Development/UID2SDKDevelopmentApp/UID2SDKDevelopmentApp.xcodeproj` to begin development.
 
+## Release Process
+
+See [RELEASE_PROCESS](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/RELEASE_PROCESS.md).
+
 ## License
 
 UID2 is released under the Apache V2 license. [See LICENSE](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/LICENSE.md) for details.
