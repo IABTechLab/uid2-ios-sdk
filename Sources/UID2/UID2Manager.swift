@@ -56,10 +56,6 @@ public final actor UID2Manager {
     /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
-    /// Default Timer Refresh Period in Milliseconds
-    /// Override default by setting `UID2RefreshRetryTime` in app's Info.plist
-    private let defaultUid2RefreshRetry: Int = 5000
-            
     private init() {
         
         // SDK Supplied Properties
