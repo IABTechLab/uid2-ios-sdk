@@ -21,6 +21,7 @@ line_length:
 disabled_rules:
     - unused_optional_binding
     - trailing_whitespace
+    - file_length
 
 opt_in_rules:
     - sorted_imports
