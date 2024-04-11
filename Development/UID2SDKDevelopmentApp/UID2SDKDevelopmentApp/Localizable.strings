@@ -6,11 +6,10 @@
   
 */
 
-"common.uid2sdk" = "UID2 SDK";
 "common.nil" = "Nil";
 
-"root.title.identitypackage" = "Current Identity Package";
-"root.title.identitypackage.notifications" = "Notifications";
+"root.navigation.title" = "UID2 SDK Dev App";
+"root.title.identitypackage" = "Current Identity";
 "root.label.error" = "Error Occurred";
 "root.button.reset" = "Reset";
 "root.button.refresh" = "Manual Refresh";
@@ -22,4 +21,4 @@
 "root.label.identitypackage.refreshExpires" = "Refresh Expires";
 "root.label.identitypackage.refreshResponseKey" = "Refresh Response Key";
 
-"root.label.identitypackage.notification.publishedStatus" = "Published Status";
+"root.label.identitypackage.notification.publishedStatus" = "Identity Status";

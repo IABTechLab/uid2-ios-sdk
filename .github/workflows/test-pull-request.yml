@@ -25,10 +25,10 @@ jobs:
         run: xcodebuild -scheme UID2 -destination "generic/platform=tvOS"
 
       - name: Run unit tests
-        run: xcodebuild test -scheme UID2Tests -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
+        run: xcodebuild test -scheme UID2 -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
       
       - name: Run unit tests on tvOS
-        run: xcodebuild test -scheme UID2Tests -sdk appletvsimulator16.1 -destination "OS=16.1,name=Apple TV"
+        run: xcodebuild test -scheme UID2 -sdk appletvsimulator16.1 -destination "OS=16.1,name=Apple TV"
 
   vulnerability-scan:
     name: Vulnerability Scan

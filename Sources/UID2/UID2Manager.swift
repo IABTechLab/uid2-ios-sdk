@@ -149,7 +149,38 @@ public final actor UID2Manager {
     public func setAutomaticRefreshEnabled(_ enable: Bool) {
         self.automaticRefreshEnabled = enable
     }
-    
+
+    /// Generates a new identity.
+    ///
+    /// Once set, assuming it's valid, it will be monitored so that we automatically refresh the token(s) when required.
+    /// This will also be persisted locally, so that when the application re-launches, we reload this Identity.
+    /// - Parameters:
+    ///   - identity: The DII or hash to create an identity token from
+    ///   - subscriptionID: The subscription id that was obtained when configuring your account.
+    ///   - serverPublicKey: The public key that was obtained when configuring your account.
+    ///   - appName: The app's identifier. If `nil`, defaults to `Bundle.main.bundleIdentifier` which is appropriate in most cases.
+    public func generateIdentity(
+        _ identity: IdentityType,
+        subscriptionID: String,
+        serverPublicKey: String,
+        appName: String? = nil
+    ) async throws {
+        assert((appName ?? Bundle.main.bundleIdentifier) != nil, "An appName must be provided or a main bundleIdentifier set")
+        guard let appName = appName ?? Bundle.main.bundleIdentifier else {
+            throw UID2Error.configuration(message: "An appName must be provided or a main bundleIdentifier set")
+        }
+        let apiResponse = try await uid2Client.generateIdentity(
+            identity,
+            subscriptionID: subscriptionID,
+            serverPublicKey: serverPublicKey,
+            appName: appName
+        )
+        refreshJob?.cancel()
+        refreshJob = nil
+
+        await self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
+    }
+
     // MARK: - Internal Identity Lifecycle
     
     private func setIdentityPackage(_ identity: IdentityPackage) async {

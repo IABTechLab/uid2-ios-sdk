@@ -5,14 +5,7 @@ import XCTest
 final class UID2TokenTests: XCTestCase {
     
     func testUID2TokenLoad() throws {
-        
-        let data = try DataLoader.load(fileName: "uididentity", fileExtension: "json")
-        
-        guard let uid2Identity = UID2Identity.fromData(data) else {
-            XCTFail("Unable to load UID2Identity data")
-            return
-        }
-                
+        let uid2Identity = try FixtureLoader.decode(UID2Identity.self, fixture: "uididentity")
         XCTAssertEqual(
             uid2Identity,
             .init(

@@ -11,26 +11,12 @@ import XCTest
 final class IdentityPackageTests: XCTestCase {
 
 
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
+    private let decoder = JSONDecoder.apiDecoder()
 
-    private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        return encoder
-    }()
-    
+    private let encoder = JSONEncoder.apiEncoder()
+
     func testRoundTripEncodingDecoding() throws {
-        
-        let data = try DataLoader.load(fileName: "uididentity", fileExtension: "json")
-        
-        guard let uid2Identity = UID2Identity.fromData(data) else {
-            XCTFail("Unable to load UID2Identity data")
-            return
-        }
+        let uid2Identity = try FixtureLoader.decode(UID2Identity.self, fixture: "uididentity")
 
         let identityPackage = IdentityPackage(valid: true, errorMessage: nil, identity: uid2Identity, status: .established)
 

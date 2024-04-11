@@ -7,7 +7,8 @@ let package = Package(
     name: "UID2",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v13),
+        .tvOS(.v13)
     ],
     products: [
         .library(
@@ -15,11 +16,12 @@ let package = Package(
             targets: ["UID2"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-certificates.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(
             name: "UID2",
-            dependencies: [],
+            dependencies: [ .product(name: "X509", package: "swift-certificates") ],
             resources: [
                 .copy("Properties/sdk_properties.plist"),
                 .copy("PrivacyInfo.xcprivacy")
