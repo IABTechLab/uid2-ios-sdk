@@ -1,0 +1,27 @@
+name: Build and Publish
+run-name: ${{ format('Release {0}', inputs.release_type)}} Package by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        description: The type of release
+        options:
+        - Patch
+        - Minor
+        - Major
+      publish_vulnerabilities:
+        type: string
+        default: "true"
+      vulnerability_failure_severity:
+        description: The severity to fail the workflow if such vulnerability is detected. DO NOT override it unless a Jira ticket is raised. Must be one of ['CRITICAL', 'CRITICAL,HIGH' or 'CRITICAL,HIGH,MEDIUM'] (without space in between).
+        type: string
+        default: 'CRITICAL,HIGH'
+  jobs: 
+    build-and-publish:
+        name: Build and publish iOS release
+        uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-ios-version.yaml@cbc-UID2-2326-create-swift-release
+        with:
+          release_type: ${{ inputs.release_type }}
+          publish_vulnerabilities: ${{ inputs.publish_vulnerabilities }}
+        secrets: inherit
