@@ -22,7 +22,6 @@ let package = Package(
             name: "UID2",
             dependencies: [],
             resources: [
-                .copy("Properties/sdk_properties.plist"),
                 .copy("PrivacyInfo.xcprivacy")
             ]),
         .testTarget(
