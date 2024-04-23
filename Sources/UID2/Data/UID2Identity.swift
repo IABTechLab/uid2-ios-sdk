@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct UID2Identity: Codable {
-    
+public struct UID2Identity: Hashable, Sendable, Codable {
+
     public let advertisingToken: String
     public let refreshToken: String
     public let identityExpires: Int64
@@ -16,7 +16,14 @@ public struct UID2Identity: Codable {
     public let refreshExpires: Int64
     public let refreshResponseKey: String
 
-    public init(advertisingToken: String, refreshToken: String, identityExpires: Int64, refreshFrom: Int64, refreshExpires: Int64, refreshResponseKey: String) {
+    public init(
+        advertisingToken: String,
+        refreshToken: String,
+        identityExpires: Int64,
+        refreshFrom: Int64,
+        refreshExpires: Int64,
+        refreshResponseKey: String
+    ) {
         self.advertisingToken = advertisingToken
         self.refreshToken = refreshToken
         self.identityExpires = identityExpires

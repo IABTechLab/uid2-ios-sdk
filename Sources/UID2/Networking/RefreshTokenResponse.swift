@@ -8,8 +8,8 @@
 import Foundation
 
 /// API Response for https://github.com/IABTechLab/uid2docs/blob/main/api/v2/endpoints/post-token-refresh.md#decrypted-json-response-format
-struct RefreshTokenResponse: Codable {
-    
+struct RefreshTokenResponse: Hashable, Sendable, Codable {
+
     let body: RefreshTokenResponseBody?
     let status: Status
     let message: String?
@@ -18,7 +18,7 @@ struct RefreshTokenResponse: Codable {
 
 extension RefreshTokenResponse {
     
-    struct RefreshTokenResponseBody: Codable {
+    struct RefreshTokenResponseBody: Hashable, Sendable, Codable {
         public let advertisingToken: String
         public let refreshToken: String
         public let identityExpires: Int64
@@ -45,12 +45,14 @@ extension RefreshTokenResponse {
             return nil
         }
         
-        return UID2Identity(advertisingToken: body.advertisingToken,
-                            refreshToken: body.refreshToken,
-                            identityExpires: body.identityExpires,
-                            refreshFrom: body.refreshFrom,
-                            refreshExpires: body.refreshExpires,
-                            refreshResponseKey: body.refreshResponseKey)
+        return UID2Identity(
+            advertisingToken: body.advertisingToken,
+            refreshToken: body.refreshToken,
+            identityExpires: body.identityExpires,
+            refreshFrom: body.refreshFrom,
+            refreshExpires: body.refreshExpires,
+            refreshResponseKey: body.refreshResponseKey
+        )
     }
     
     public func toRefreshAPIPackage() -> RefreshAPIPackage? {

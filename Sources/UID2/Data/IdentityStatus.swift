@@ -10,7 +10,7 @@ import Foundation
 // Implementation of Web SDK's `IdentityStatus`
 // https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/Uid2InitCallbacks.ts#L12-L20
 // NOTE: Web SDK makes 2 references to `IdentityStatus`.  See iOS SDK `IdentityPackage` for more details.
-public enum IdentityStatus: Int, CaseIterable, Codable {
+public enum IdentityStatus: Int, CaseIterable, Sendable, Codable {
     
     case established = 0
     case refreshed = 1

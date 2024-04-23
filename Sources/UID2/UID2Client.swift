@@ -8,7 +8,7 @@
 import Foundation
 import OSLog
 
-internal final class UID2Client {
+internal final class UID2Client: Sendable {
     
     private let uid2APIURL: String
     private let clientVersion: String

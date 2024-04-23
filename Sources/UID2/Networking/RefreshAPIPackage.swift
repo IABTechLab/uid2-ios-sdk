@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RefreshAPIPackage: Codable {
+struct RefreshAPIPackage: Hashable, Sendable, Codable {
 
     let identity: UID2Identity?
     let status: IdentityStatus

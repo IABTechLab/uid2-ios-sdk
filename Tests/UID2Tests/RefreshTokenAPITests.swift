@@ -43,13 +43,7 @@ final class RefreshTokenAPITests: XCTestCase {
             throw "Unable to create localRefreshToken"
         }
 
-        XCTAssertEqual(refreshToken.identity?.advertisingToken, localRefreshToken.advertisingToken)
-        XCTAssertEqual(refreshToken.identity?.refreshToken, localRefreshToken.refreshToken)
-        XCTAssertEqual(refreshToken.identity?.identityExpires, localRefreshToken.identityExpires)
-        XCTAssertEqual(refreshToken.identity?.refreshFrom, localRefreshToken.refreshFrom)
-        XCTAssertEqual(refreshToken.identity?.refreshExpires, localRefreshToken.refreshExpires)
-        XCTAssertEqual(refreshToken.identity?.refreshResponseKey, localRefreshToken.refreshResponseKey)
-        
+        XCTAssertEqual(refreshToken.identity, localRefreshToken)
     }
 
     /// 🟩  `POST /v2/token/refresh` - HTTP 200 - OptOut
