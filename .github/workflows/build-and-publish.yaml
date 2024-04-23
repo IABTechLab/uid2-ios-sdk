@@ -1,0 +1,19 @@
+name: Build and Publish
+run-name: ${{ format('Release {0}', inputs.release_type)}} Package by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        description: The type of release
+        options:
+        - Patch
+        - Minor
+        - Major
+jobs: 
+  build-and-publish:
+      name: Build and publish iOS release
+      uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-ios-version.yaml@v2
+      with:
+        release_type: ${{ inputs.release_type }}
+      secrets: inherit
