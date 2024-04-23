@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
