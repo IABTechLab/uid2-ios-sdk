@@ -19,8 +19,14 @@ jobs:
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
 
-      - name: Build
-        run: xcodebuild -scheme UID2 -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
+      - name: Build for iOS
+        run: xcodebuild -scheme UID2 -destination "generic/platform=iOS"
+      
+      - name: Build for tvOS
+        run: xcodebuild -scheme UID2 -destination "generic/platform=tvOS"
 
       - name: Run unit tests
         run: xcodebuild test -scheme UID2Tests -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
+      
+      - name: Run unit tests on tvOS
+        run: xcodebuild test -scheme UID2Tests -sdk appletvsimulator16.1 -destination "OS=16.1,name=Apple TV"

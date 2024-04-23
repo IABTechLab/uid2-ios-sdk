@@ -9,7 +9,6 @@ import Foundation
 
 /// UID2 Specifc Errors
 
-@available(iOS 13.0, *)
 enum UID2Error: Error {
     
     /// Unable to decrypt Payload Data

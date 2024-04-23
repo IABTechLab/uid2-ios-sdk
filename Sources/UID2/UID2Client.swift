@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal final class UID2Client {
     
     private let uid2APIURL: String
@@ -16,7 +15,11 @@ internal final class UID2Client {
     
     init(uid2APIURL: String, sdkVersion: String, _ session: NetworkSession = URLSession.shared) {
         self.uid2APIURL = uid2APIURL
+        #if os(tvOS)
+        self.clientVersion = "tvos-\(sdkVersion)"
+        #else
         self.clientVersion = "ios-\(sdkVersion)"
+        #endif
         self.session = session
     }
     

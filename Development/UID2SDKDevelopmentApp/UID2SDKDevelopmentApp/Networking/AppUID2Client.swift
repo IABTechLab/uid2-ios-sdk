@@ -10,7 +10,6 @@ import Foundation
 import Security
 import UID2
 
-@available(iOS 13.0, *)
 internal final class AppUID2Client {
     
     enum RequestTypes: String, CaseIterable {
