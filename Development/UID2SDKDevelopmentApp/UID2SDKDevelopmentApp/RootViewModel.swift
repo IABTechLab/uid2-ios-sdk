@@ -84,22 +84,17 @@ class RootViewModel: ObservableObject {
     // MARK: - UX Handling Functions
     
     func handleEmailEntry(_ emailAddress: String) {
-        apiClient.generateIdentity(requestString: emailAddress, requestType: .email) { [weak self] result in
-            switch result {
-            case .success(let identity):
-                guard let identity = identity else {
+        Task<Void, Never> {
+            do {
+                guard let identity = try await apiClient.generateIdentity(requestString: emailAddress, requestType: .email) else {
                     return
                 }
-                Task {
-                    await UID2Manager.shared.setIdentity(identity)
-                    DispatchQueue.main.async {
-                        self?.error = nil
-                    }
-                }
-            case .failure(let error):
+                await UID2Manager.shared.setIdentity(identity)
                 DispatchQueue.main.async {
-                    self?.error = error
+                    self.error = nil
                 }
+            } catch {
+                self.error = error
             }
         }
     }

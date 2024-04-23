@@ -6,16 +6,11 @@ import Foundation
 import Security
 
 /// Securely manages data in the Keychain
-internal final class KeychainManager {
-    
-    /// Singleton access point for KeychainManager
-    public static let shared = KeychainManager()
+internal actor KeychainManager {
 
     private let attrAccount = "uid2"
     
     private let attrService = "auth-state"
-    
-    private init() { }
     
     public func getIdentityFromKeychain() -> IdentityPackage? {
         let query = [
@@ -38,38 +33,33 @@ internal final class KeychainManager {
     @discardableResult
     public func saveIdentityToKeychain(_ identityPackage: IdentityPackage) -> Bool {
         
-        do {
-            let data = try identityPackage.toData()
-
-            if let _ = getIdentityFromKeychain() {
-                
-                let query = [
-                    String(kSecClass): kSecClassGenericPassword,
-                    String(kSecAttrService): attrService,
-                    String(kSecAttrAccount): attrAccount
-                ] as [String: Any] as CFDictionary
-                
-                let attributesToUpdate = [String(kSecValueData): data] as CFDictionary
-                
-                let result = SecItemUpdate(query, attributesToUpdate)
-                return result == errSecSuccess
-            } else {
-                let keychainItem: [String: Any] = [
-                    String(kSecClass): kSecClassGenericPassword,
-                    String(kSecAttrAccount): attrAccount,
-                    String(kSecAttrService): attrService,
-                    String(kSecUseDataProtectionKeychain): true,
-                    String(kSecValueData): data
-                ]
-
-                let result = SecItemAdd(keychainItem as CFDictionary, nil)
-                return result == errSecSuccess
-            }
-        } catch {
-            // Fall through to return false
+        guard let data = try? identityPackage.toData() else {
+            return false
         }
 
-        return false
+        if let _ = getIdentityFromKeychain() {
+            let query = [
+                String(kSecClass): kSecClassGenericPassword,
+                String(kSecAttrService): attrService,
+                String(kSecAttrAccount): attrAccount
+            ] as [String: Any] as CFDictionary
+
+            let attributesToUpdate = [String(kSecValueData): data] as CFDictionary
+
+            let result = SecItemUpdate(query, attributesToUpdate)
+            return result == errSecSuccess
+        } else {
+            let keychainItem: [String: Any] = [
+                String(kSecClass): kSecClassGenericPassword,
+                String(kSecAttrAccount): attrAccount,
+                String(kSecAttrService): attrService,
+                String(kSecUseDataProtectionKeychain): true,
+                String(kSecValueData): data
+            ]
+
+            let result = SecItemAdd(keychainItem as CFDictionary, nil)
+            return result == errSecSuccess
+        }
     }
     
     @discardableResult

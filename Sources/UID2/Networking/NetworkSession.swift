@@ -8,7 +8,7 @@
 import Foundation
 
 /// Common interface for networking and unit testing
-protocol NetworkSession {
+protocol NetworkSession: Sendable {
     
     func loadData(for request: URLRequest) async throws -> (Data, Int)
     
