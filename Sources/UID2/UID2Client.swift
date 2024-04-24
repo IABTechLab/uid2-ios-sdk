@@ -25,50 +25,65 @@ internal final class UID2Client {
     
     func refreshIdentity(refreshToken: String, refreshResponseKey: String) async throws -> RefreshAPIPackage {
             
-            var components = URLComponents(string: uid2APIURL)
-            components?.path = "/v2/token/refresh"
-            
-            guard let urlPath = components?.url?.absoluteString,
-                  let url = URL(string: urlPath) else {
-                throw UID2Error.urlGeneration
+        let request = Request.refresh(token: refreshToken)
+        let (data, statusCode) = try await execute(request)
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+    
+        // Only Decrypt If HTTP Status is 200 (Success or Opt Out)
+        if statusCode != 200 {
+            do {
+                let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
+                throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
+            } catch {
+                throw UID2Error.refreshTokenServerDecoding(httpStatus: statusCode, message: error.localizedDescription)
             }
-                        
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.addValue(clientVersion, forHTTPHeaderField: "X-UID2-Client-Version")
-            request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.httpBody = refreshToken.data(using: .utf8)
-            
-            let dataResponse = try await session.loadData(for: request)
-            let data = dataResponse.0
-            let statusCode = dataResponse.1
-        
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-            // Only Decrypt If HTTP Status is 200 (Success or Opt Out)
-            if statusCode != 200 {
-                do {
-                    let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
-                    throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
-                } catch {
-                    throw UID2Error.refreshTokenServerDecoding(httpStatus: statusCode, message: error.localizedDescription)
-                }
-            }
-        
-            // Decrypt Data Envelop
-            // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
-            guard let payloadData = DataEnvelope.decrypt(refreshResponseKey, data, true) else {
-                throw UID2Error.decryptPayloadData
-            }
-        
-            let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: payloadData)
-        
-            guard let refreshAPIPackage = tokenResponse.toRefreshAPIPackage() else {
-                throw UID2Error.refreshResponseToRefreshAPIPackage
-            }
-                        
-            return refreshAPIPackage
         }
     
+        // Decrypt Data Envelop
+        // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
+        guard let payloadData = DataEnvelope.decrypt(refreshResponseKey, data, true) else {
+            throw UID2Error.decryptPayloadData
+        }
+    
+        let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: payloadData)
+    
+        guard let refreshAPIPackage = tokenResponse.toRefreshAPIPackage() else {
+            throw UID2Error.refreshResponseToRefreshAPIPackage
+        }
+                    
+        return refreshAPIPackage
+    }
+
+    // MARK: - Request Execution
+
+    internal func urlRequest(
+        _ request: Request,
+        baseURL: URL
+    ) -> URLRequest {
+        var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)!
+        urlComponents.path = request.path
+        urlComponents.queryItems = request.queryItems.isEmpty ? nil : request.queryItems
+
+        var urlRequest = URLRequest(url: urlComponents.url!)
+        urlRequest.httpMethod = request.method.rawValue
+        if request.method == .post {
+            urlRequest.httpBody = request.body
+        }
+
+        request.headers.forEach { field, value in
+            urlRequest.addValue(value, forHTTPHeaderField: field)
+        }
+        urlRequest.addValue(clientVersion, forHTTPHeaderField: "X-UID2-Client-Version")
+        return urlRequest
+    }
+
+    private func execute(_ request: Request) async throws -> (Data, Int) {
+        let urlRequest = urlRequest(
+            request,
+            baseURL: URL(string: uid2APIURL)!
+        )
+        return try await session.loadData(for: urlRequest)
+    }
 }
