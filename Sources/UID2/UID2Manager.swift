@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import OSLog
 
 public final actor UID2Manager {
     
@@ -47,7 +48,10 @@ public final actor UID2Manager {
 
     /// Background Task for Checking On UID2 Identity Expiration
     private var checkIdentityExpiresJob: Task<(), Error>?
-                
+
+    /// Logger
+    private let log: OSLog
+
     // MARK: - Defaults
     
     /// Default UID2 Server URL
@@ -56,7 +60,7 @@ public final actor UID2Manager {
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
     private init() {
-        
+
         // SDK Supplied Properties
         self.sdkVersion = UID2SDKProperties.getUID2SDKVersion()
         
@@ -69,8 +73,17 @@ public final actor UID2Manager {
         if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
             clientVersion = "unknown"
         }
-        uid2Client = UID2Client(uid2APIURL: apiUrl, sdkVersion: clientVersion)
-        
+
+        let isLoggingEnabled = UID2Settings.isLoggingEnabled
+        self.log = isLoggingEnabled
+            ? .init(subsystem: "com.uid2", category: "UID2Manager")
+            : .disabled
+        uid2Client = UID2Client(
+            uid2APIURL: apiUrl,
+            sdkVersion: clientVersion,
+            isLoggingEnabled: isLoggingEnabled
+        )
+
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
         Task {
@@ -86,6 +99,7 @@ public final actor UID2Manager {
     /// Set UID2 Identity for UID2Manager to manage
     /// - Parameter identity: UID2 Identity for UID2Manager to manage
     public func setIdentity(_ identity: UID2Identity) async {
+        os_log("Setting external identity", log: log, type: .debug)
         if let _ = await validateAndSetIdentity(identity: identity, status: nil, statusText: nil) {
             await checkIdentityExpiration()
             await checkIdentityRefresh()
@@ -94,6 +108,7 @@ public final actor UID2Manager {
     
     /// Reset UID2 Identity state in UID2Manager
     public func resetIdentity() async {
+        os_log("Resetting identity", log: log, type: .debug)
         self.identity = nil
         self.identityStatus = .noIdentity
         KeychainManager.shared.deleteIdentityFromKeychain()
@@ -103,6 +118,7 @@ public final actor UID2Manager {
     
     /// Manually Refresh UID2 Identity
     public func refreshIdentity() async {
+        os_log("Refreshing identity", log: log, type: .debug)
         guard let identity = identity else {
             return
         }
@@ -150,6 +166,7 @@ public final actor UID2Manager {
             //  - Handled by setIdentityPackage() validateAndSetIdentity()
             // Has Identity Token Expired with valid RefreshToken?
             //  - Handled by setIdentityPackage() triggerRefreshOrSetTimer()
+            os_log("Restoring previously persisted identity", log: log, type: .debug)
             await setIdentityPackage(identity)
         }
     }
@@ -192,6 +209,7 @@ public final actor UID2Manager {
 
         // Process Opt Out
         if let status = status, status == .optOut {
+            os_log("User opt-out detected", log: log, type: .debug)
             self.identity = nil
             self.identityStatus = .optOut
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
@@ -199,18 +217,24 @@ public final actor UID2Manager {
             KeychainManager.shared.saveIdentityToKeychain(identityPackageOptOut)
             return nil
         }
-        
+
         if let status = status, status == .established {
             self.identity = identity
             self.identityStatus = status
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
             let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
+            os_log("Updating storage (Status: %@)", log: log, status.debugDescription)
             KeychainManager.shared.saveIdentityToKeychain(identityPackage)
             return identity
         }
         
         // Process Remaining IdentityStatus Options
         let validatedIdentityPackage = await getIdentityPackage(identity: identity)
+
+        os_log("Updating identity (Identity: %@, Status: %@)", log: log,
+               validatedIdentityPackage.identity != nil ? "true" : "false",
+               validatedIdentityPackage.status.debugDescription
+        )
 
         // Notify Subscribers
         self.identityStatus = validatedIdentityPackage.status
@@ -222,7 +246,8 @@ public final actor UID2Manager {
         if validIdentity.advertisingToken == self.identity?.advertisingToken {
             return validIdentity
         }
-        
+
+        os_log("Updating storage (Status: %@)", log: log, validatedIdentityPackage.status.debugDescription)
         self.identity = validIdentity
         KeychainManager.shared.saveIdentityToKeychain(validatedIdentityPackage)
         
@@ -276,6 +301,7 @@ public final actor UID2Manager {
                 checkRefreshExpiresJob = Task {
                     let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.refreshExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
+                    os_log("Detected refresh has expired", log: log, type: .debug)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
                 }
             }
@@ -284,6 +310,7 @@ public final actor UID2Manager {
                 checkIdentityExpiresJob = Task {
                     let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.identityExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
+                    os_log("Detected identity has expired", log: log, type: .debug)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
                 }
             }
@@ -308,12 +335,17 @@ public final actor UID2Manager {
     /// Calls Refresh API to refresh the UID2 Identity
     /// - Parameter identity: Current Identity containing Refresh Token and Refresh Response Key
     private func refreshToken(identity: UID2Identity) async {
-        
+        os_log("Refreshing (Attempt: 1/1)", log: log, type: .debug)
         do {
             let apiResponse = try await uid2Client.refreshIdentity(refreshToken: identity.refreshToken,
                                                                    refreshResponseKey: identity.refreshResponseKey)
+            os_log("Successfully refreshed identity", log: log, type: .debug)
             await self.validateAndSetIdentity(identity: apiResponse.identity, status: apiResponse.status, statusText: apiResponse.message)
         } catch {
+            let nsError = error as NSError
+            if !(nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled) {
+                os_log("Error when trying to refresh identity", log: log, type: .error)
+            }
             // No Op
             // Retry will automatically occur due to timer
         }
