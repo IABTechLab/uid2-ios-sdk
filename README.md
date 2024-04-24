@@ -30,6 +30,7 @@ A framework for integrating [UID2](https://github.com/IABTechLab/uid2docs) into 
 | Platform | Minimum target | Swift Version |
 | --- | --- | --- |
 | iOS | 13.0+ | 5.0+ |
+| tvOS | 13.0+ | 5.0+ |
 
 ## Development
 

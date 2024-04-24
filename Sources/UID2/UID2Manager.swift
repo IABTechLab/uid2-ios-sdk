@@ -8,7 +8,6 @@
 import Combine
 import Foundation
 
-@available(iOS 13.0, *)
 public final actor UID2Manager {
     
     /// Singleton access point for UID2Manager
