@@ -10,8 +10,8 @@ import Foundation
 import Security
 import UID2
 
-internal final class AppUID2Client {
-    
+internal final class AppUID2Client: Sendable {
+
     enum RequestTypes: String, CaseIterable {
         case email = "email"
         case emailHash = "email_hash"
@@ -20,8 +20,8 @@ internal final class AppUID2Client {
     }
     
     private let uid2APIURL: String
-    private var serverCredentials: UID2ServerCredentials?
-    
+    private let serverCredentials: UID2ServerCredentials?
+
     init() {
         
         var apiUrl = "https://operator-integ.uidapi.com"
@@ -33,6 +33,7 @@ internal final class AppUID2Client {
         // Load UID2 Server Credentials
         guard let filePath = Bundle(for: type(of: self)).path(forResource: "UID2ServerCredentials", ofType: "json") else {
             print("Error finding UIDV2Credentials file.  Returning early.")
+            serverCredentials = nil
             return
         }
         do {
@@ -42,6 +43,7 @@ internal final class AppUID2Client {
             serverCredentials = try decoder.decode(UID2ServerCredentials.self, from: data)
         } catch {
             print("Error loading UID2V2Credentials: \(error)")
+            serverCredentials = nil
         }
 
     }
@@ -50,7 +52,7 @@ internal final class AppUID2Client {
     /// - Parameters:
     ///     - requestString: String to be used for generating a UID2 Token
     ///     - requestType: The type of request string date being used
-    func generateIdentity(requestString: String, requestType: RequestTypes, completion: @escaping (Result<UID2Identity?, Error>) -> Void) {
+    func generateIdentity(requestString: String, requestType: RequestTypes) async throws -> UID2Identity? {
         let json: [String: String] = [requestType.rawValue: requestString]
         
         let fullUrl = uid2APIURL + "/v2/token/generate"
@@ -60,7 +62,7 @@ internal final class AppUID2Client {
         request.httpMethod = "POST"
         request.addValue("text/plain", forHTTPHeaderField: "Content-Type")
         guard let key = serverCredentials?.key, let secret = serverCredentials?.secret else {
-            return
+            return nil
         }
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
 
@@ -68,57 +70,47 @@ internal final class AppUID2Client {
         // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
         let encryptedRequest = encryptRequest(secret, json)
         request.httpBody = encryptedRequest
+        let data: Data
+        do {
+            let result = try await URLSession.shared.data(for: request)
+            data = result.0
+        } catch {
+            throw UID2ClientError()
+        }
 
-        let task = URLSession.shared.dataTask(with: request, completionHandler: { [weak self] data, _, error in
-            
-            if let _ = error {
-                completion(.failure(UID2ClientError()))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(UID2ClientError()))
-                return
-            }
-            
-            // Decrypt Data Envelop
-            // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
-            guard let payloadData = self?.decryptResponse(secret, data) else {
-                completion(.failure(UID2ClientError()))
-                return
-            }
-            
-            do {
-                // Decode from JSON
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                let responseJSON = try decoder.decode(GenerateTokenResponse.self, from: payloadData)
+        // Decrypt Data Envelop
+        // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
+        guard let payloadData = decryptResponse(secret, data) else {
+            throw UID2ClientError()
+        }
 
-                if responseJSON.status == "success" {
-                    
-                    guard let body = responseJSON.body else {
-                        completion(.failure(UID2ClientError()))
-                        return
-                    }
-                    
-                    let identity = UID2Identity(advertisingToken: body.advertisingToken,
-                                                refreshToken: body.refreshToken,
-                                                identityExpires: body.identityExpires,
-                                                refreshFrom: body.refreshFrom,
-                                                refreshExpires: body.refreshExpires,
-                                                refreshResponseKey: body.refreshResponseKey)
-                    completion(.success(identity))
-                } else {
-                    completion(.failure(UID2ClientError()))
+        do {
+            // Decode from JSON
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            let responseJSON = try decoder.decode(GenerateTokenResponse.self, from: payloadData)
+
+            if responseJSON.status == "success" {
+
+                guard let body = responseJSON.body else {
+                    throw UID2ClientError()
                 }
-            } catch {
-                completion(.failure(error))
-            }
 
-        })
-        
-        task.resume()
+                return UID2Identity(
+                    advertisingToken: body.advertisingToken,
+                    refreshToken: body.refreshToken,
+                    identityExpires: body.identityExpires,
+                    refreshFrom: body.refreshFrom,
+                    refreshExpires: body.refreshExpires,
+                    refreshResponseKey: body.refreshResponseKey
+                )
+            } else {
+                throw UID2ClientError()
+            }
+        } catch {
+            throw UID2ClientError()
+        }
     }
     
     func encryptRequest(_ b64Secret: String, _ bodyDictionary: [String: String]) -> Data? {

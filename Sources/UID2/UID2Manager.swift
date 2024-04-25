@@ -40,6 +40,8 @@ public final actor UID2Manager {
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
     
+    private let keychainManager = KeychainManager()
+
     /// Background Task for Refreshing UID2 Identity
     private var refreshJob: Task<(), Error>?
 
@@ -74,7 +76,7 @@ public final actor UID2Manager {
             clientVersion = "unknown"
         }
 
-        let isLoggingEnabled = UID2Settings.isLoggingEnabled
+        let isLoggingEnabled = UID2Settings.shared.isLoggingEnabled
         self.log = isLoggingEnabled
             ? .init(subsystem: "com.uid2", category: "UID2Manager")
             : .disabled
@@ -111,7 +113,7 @@ public final actor UID2Manager {
         os_log("Resetting identity", log: log, type: .debug)
         self.identity = nil
         self.identityStatus = .noIdentity
-        KeychainManager.shared.deleteIdentityFromKeychain()
+        await keychainManager.deleteIdentityFromKeychain()
         await checkIdentityExpiration()
         await checkIdentityRefresh()
     }
@@ -161,7 +163,7 @@ public final actor UID2Manager {
     }
     
     private func loadStateFromDisk() async {
-        if let identity = KeychainManager.shared.getIdentityFromKeychain() {
+        if let identity = await keychainManager.getIdentityFromKeychain() {
             // Has Opted Out?
             //  - Handled by setIdentityPackage() validateAndSetIdentity()
             // Has Identity Token Expired with valid RefreshToken?
@@ -213,8 +215,8 @@ public final actor UID2Manager {
             self.identity = nil
             self.identityStatus = .optOut
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
-            KeychainManager.shared.deleteIdentityFromKeychain()
-            KeychainManager.shared.saveIdentityToKeychain(identityPackageOptOut)
+            await keychainManager.deleteIdentityFromKeychain()
+            await keychainManager.saveIdentityToKeychain(identityPackageOptOut)
             return nil
         }
 
@@ -224,7 +226,7 @@ public final actor UID2Manager {
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
             let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
             os_log("Updating storage (Status: %@)", log: log, status.debugDescription)
-            KeychainManager.shared.saveIdentityToKeychain(identityPackage)
+            await keychainManager.saveIdentityToKeychain(identityPackage)
             return identity
         }
         
@@ -249,8 +251,8 @@ public final actor UID2Manager {
 
         os_log("Updating storage (Status: %@)", log: log, validatedIdentityPackage.status.debugDescription)
         self.identity = validIdentity
-        KeychainManager.shared.saveIdentityToKeychain(validatedIdentityPackage)
-        
+        await keychainManager.saveIdentityToKeychain(validatedIdentityPackage)
+
         await checkIdentityRefresh()
         await checkIdentityExpiration()
         

@@ -6,9 +6,14 @@
 //
 
 import Foundation
-import OSLog
 
-internal final class UID2Client {
+// https://forums.developer.apple.com/forums/thread/747816
+#if swift(>=6.0)
+    #warning("Reevaluate whether this @preconcurrency decoration is necessary.")
+#endif
+@preconcurrency import OSLog
+
+internal final class UID2Client: Sendable {
     
     private let uid2APIURL: String
     private let clientVersion: String
