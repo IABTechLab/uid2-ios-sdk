@@ -6,25 +6,35 @@
 //
 
 import Foundation
+import OSLog
 
 internal final class UID2Client {
     
     private let uid2APIURL: String
     private let clientVersion: String
     private let session: NetworkSession
-    
-    init(uid2APIURL: String, sdkVersion: String, _ session: NetworkSession = URLSession.shared) {
+    private let log: OSLog
+
+    init(
+        uid2APIURL: String,
+        sdkVersion: String,
+        isLoggingEnabled: Bool = false,
+        _ session: NetworkSession = URLSession.shared
+    ) {
         self.uid2APIURL = uid2APIURL
         #if os(tvOS)
         self.clientVersion = "tvos-\(sdkVersion)"
         #else
         self.clientVersion = "ios-\(sdkVersion)"
         #endif
+        self.log = isLoggingEnabled
+            ? .init(subsystem: "com.uid2", category: "UID2Client")
+            : .disabled
         self.session = session
     }
     
     func refreshIdentity(refreshToken: String, refreshResponseKey: String) async throws -> RefreshAPIPackage {
-            
+        os_log("Refreshing identity", log: log, type: .debug)
         let request = Request.refresh(token: refreshToken)
         let (data, statusCode) = try await execute(request)
 
@@ -33,6 +43,7 @@ internal final class UID2Client {
     
         // Only Decrypt If HTTP Status is 200 (Success or Opt Out)
         if statusCode != 200 {
+            os_log("Client details failure: %d", log: log, type: .error, statusCode)
             do {
                 let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
                 throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
@@ -44,12 +55,14 @@ internal final class UID2Client {
         // Decrypt Data Envelop
         // https://github.com/UnifiedID2/uid2docs/blob/main/api/v2/encryption-decryption.md
         guard let payloadData = DataEnvelope.decrypt(refreshResponseKey, data, true) else {
+            os_log("Error decrypting response from client details", log: log, type: .error)
             throw UID2Error.decryptPayloadData
         }
     
         let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: payloadData)
     
         guard let refreshAPIPackage = tokenResponse.toRefreshAPIPackage() else {
+            os_log("Error parsing response from client details", log: log, type: .error)
             throw UID2Error.refreshResponseToRefreshAPIPackage
         }
                     
