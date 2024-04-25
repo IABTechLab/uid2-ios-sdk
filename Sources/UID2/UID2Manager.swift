@@ -23,7 +23,7 @@ public final actor UID2Manager {
             }
         }
     }
-    
+
     // MARK: - Publishers
             
     /// Current Identity data for the user
@@ -67,10 +67,15 @@ public final actor UID2Manager {
         self.sdkVersion = UID2SDKProperties.getUID2SDKVersion()
         
         // App Supplied Properites
-        var apiUrl = defaultUid2ApiUrl
-        if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, !apiUrlOverride.isEmpty {
-            apiUrl = apiUrlOverride
+        let environment: Environment
+        if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, 
+            !apiUrlOverride.isEmpty,
+            let apiUrl = URL(string: apiUrlOverride) {
+            environment = Environment(endpoint: apiUrl)
+        } else {
+            environment = UID2Settings.shared.environment
         }
+
         var clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
         if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
             clientVersion = "unknown"
@@ -81,9 +86,9 @@ public final actor UID2Manager {
             ? .init(subsystem: "com.uid2", category: "UID2Manager")
             : .disabled
         uid2Client = UID2Client(
-            uid2APIURL: apiUrl,
             sdkVersion: clientVersion,
-            isLoggingEnabled: isLoggingEnabled
+            isLoggingEnabled: isLoggingEnabled,
+            environment: environment
         )
 
         // Try to load from Keychain if available

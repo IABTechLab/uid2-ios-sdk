@@ -15,18 +15,20 @@ import Foundation
 
 internal final class UID2Client: Sendable {
     
-    private let uid2APIURL: String
+    static let defaultBaseURL = URL(string: "https://prod.uidapi.com")!
+
     private let clientVersion: String
+    private let environment: Environment
     private let session: NetworkSession
     private let log: OSLog
-
+    private var baseURL: URL { environment.endpoint }
+    
     init(
-        uid2APIURL: String,
         sdkVersion: String,
         isLoggingEnabled: Bool = false,
+        environment: Environment = .production,
         _ session: NetworkSession = URLSession.shared
     ) {
-        self.uid2APIURL = uid2APIURL
         #if os(tvOS)
         self.clientVersion = "tvos-\(sdkVersion)"
         #else
@@ -35,6 +37,7 @@ internal final class UID2Client: Sendable {
         self.log = isLoggingEnabled
             ? .init(subsystem: "com.uid2", category: "UID2Client")
             : .disabled
+        self.environment = environment
         self.session = session
     }
     
@@ -77,8 +80,7 @@ internal final class UID2Client: Sendable {
     // MARK: - Request Execution
 
     internal func urlRequest(
-        _ request: Request,
-        baseURL: URL
+        _ request: Request
     ) -> URLRequest {
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)!
         urlComponents.path = request.path
@@ -99,8 +101,7 @@ internal final class UID2Client: Sendable {
 
     private func execute(_ request: Request) async throws -> (Data, Int) {
         let urlRequest = urlRequest(
-            request,
-            baseURL: URL(string: uid2APIURL)!
+            request
         )
         return try await session.loadData(for: urlRequest)
     }

@@ -24,6 +24,7 @@ class RootViewModel: ObservableObject {
     
     init() {
         UID2Settings.shared.isLoggingEnabled = true
+        UID2Settings.shared.environment = .oregon
         Task {
             await UID2Manager.shared.$identity
                 .receive(on: DispatchQueue.main)

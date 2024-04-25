@@ -27,7 +27,6 @@ final class RefreshTokenAPITests: XCTestCase {
 
         // Load UID2Client Mocked
         let client = UID2Client(
-            uid2APIURL: "https://prod.uidapi.com",
             sdkVersion: "TEST",
             MockNetworkSession("refresh-token-200-success-encrypted", "txt")
         )
@@ -64,7 +63,6 @@ final class RefreshTokenAPITests: XCTestCase {
 
         // Load UID2Client Mocked
         let client = UID2Client(
-            uid2APIURL: "https://prod.uidapi.com",
             sdkVersion: "TEST",
             MockNetworkSession("refresh-token-200-optout-encrypted", "txt")
         )
@@ -88,7 +86,6 @@ final class RefreshTokenAPITests: XCTestCase {
         do {
             // Load UID2Client Mocked
             let client = UID2Client(
-                uid2APIURL: "https://prod.uidapi.com",
                 sdkVersion: "TEST",
                 MockNetworkSession("refresh-token-400-client-error", "json", 400)
             )
@@ -118,7 +115,6 @@ final class RefreshTokenAPITests: XCTestCase {
         do {
             // Load UID2Client Mocked
             let client = UID2Client(
-                uid2APIURL: "https://prod.uidapi.com",
                 sdkVersion: "TEST",
                 MockNetworkSession("refresh-token-400-invalid-token", "json", 400)
             )
@@ -148,7 +144,6 @@ final class RefreshTokenAPITests: XCTestCase {
         do {
             // Load UID2Client Mocked
             let client = UID2Client(
-                uid2APIURL: "https://prod.uidapi.com",
                 sdkVersion: "TEST",
                 MockNetworkSession("refresh-token-401-unauthorized", "json", 401)
             )

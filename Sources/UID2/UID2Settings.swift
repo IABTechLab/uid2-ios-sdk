@@ -32,5 +32,21 @@ public final class UID2Settings: @unchecked Sendable {
         }
     }
 
+    private var _environment = Environment.production
+
+    /// API endpoint environment. The default value is `.production`.
+    public var environment: Environment {
+        get {
+            queue.sync {
+                _environment
+            }
+        }
+        set {
+            queue.sync {
+                _environment = newValue
+            }
+        }
+    }
+
     public static let shared = UID2Settings()
 }
