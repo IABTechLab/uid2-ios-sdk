@@ -13,10 +13,9 @@ final class RefreshRequestTests: XCTestCase {
     func testRequest() async throws {
         let request = Request.refresh(token: "im-a-refresh-token")
         let client = UID2Client(
-            uid2APIURL: "https://prod.uidapi.com",
             sdkVersion: "1.2.3"
         )
-        let urlRequest = client.urlRequest(request, baseURL: URL(string: "https://prod.uidapi.com")!)
+        let urlRequest = client.urlRequest(request)
 
         var expected = URLRequest(url: URL(string: "https://prod.uidapi.com/v2/token/refresh")!)
         expected.httpMethod = "POST"
