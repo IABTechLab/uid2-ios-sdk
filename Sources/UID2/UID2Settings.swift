@@ -14,12 +14,12 @@ public final class UID2Settings: @unchecked Sendable {
 
     // A simple synchronization queue.
     // We do not expect settings values to be modified frequently, or after SDK initialization.
-    private static let queue = DispatchQueue(label: "UID2Settings.sync")
+    private let queue = DispatchQueue(label: "UID2Settings.sync")
 
-    private static var _isLoggingEnabled = false
+    private var _isLoggingEnabled = false
 
     /// Enable OS logging. The default value is `false`.
-    public static var isLoggingEnabled: Bool {
+    public var isLoggingEnabled: Bool {
         get {
             queue.sync {
                 _isLoggingEnabled
@@ -31,4 +31,6 @@ public final class UID2Settings: @unchecked Sendable {
             }
         }
     }
+
+    public static let shared = UID2Settings()
 }

@@ -76,7 +76,7 @@ public final actor UID2Manager {
             clientVersion = "unknown"
         }
 
-        let isLoggingEnabled = UID2Settings.isLoggingEnabled
+        let isLoggingEnabled = UID2Settings.shared.isLoggingEnabled
         self.log = isLoggingEnabled
             ? .init(subsystem: "com.uid2", category: "UID2Manager")
             : .disabled

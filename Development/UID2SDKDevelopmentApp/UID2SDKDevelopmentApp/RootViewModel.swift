@@ -23,7 +23,7 @@ class RootViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        UID2Settings.isLoggingEnabled = true
+        UID2Settings.shared.isLoggingEnabled = true
         Task {
             await UID2Manager.shared.$identity
                 .receive(on: DispatchQueue.main)

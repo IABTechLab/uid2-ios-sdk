@@ -6,7 +6,12 @@
 //
 
 import Foundation
-import OSLog
+
+// https://forums.developer.apple.com/forums/thread/747816
+#if swift(>=6.0)
+    #warning("Reevaluate whether this @preconcurrency decoration is necessary.")
+#endif
+@preconcurrency import OSLog
 
 internal final class UID2Client: Sendable {
     
