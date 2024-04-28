@@ -62,6 +62,10 @@ public final actor UID2Manager {
     private let defaultUid2ApiUrl = "https://prod.uidapi.com"
     
     private init() {
+
+        // SDK Supplied Properties
+        self.sdkVersion = UID2SDKProperties.getUID2SDKVersion()
+        
         // App Supplied Properites
         let environment: Environment
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, 
@@ -72,10 +76,11 @@ public final actor UID2Manager {
             environment = UID2Settings.shared.environment
         }
 
-        // SDK Supplied Properties
-        sdkVersion = UID2SDKProperties.getUID2SDKVersion()
-        let clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
-        
+        var clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
+        if self.sdkVersion == (major: 0, minor: 0, patch: 0) {
+            clientVersion = "unknown"
+        }
+
         let isLoggingEnabled = UID2Settings.shared.isLoggingEnabled
         self.log = isLoggingEnabled
             ? .init(subsystem: "com.uid2", category: "UID2Manager")
