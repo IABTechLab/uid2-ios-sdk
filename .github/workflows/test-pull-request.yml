@@ -33,5 +33,11 @@ jobs:
       - name: Lint pod spec
         run: pod lib lint --verbose
 
+  vulnerability-scan:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: [swift-code-checks]
+
+    steps:
       - name: Vulnerability Scan
         uses: IABTechLab/uid2-shared-actions/actions/vulnerability_scan_filesystem@v2
