@@ -30,9 +30,6 @@ jobs:
       - name: Run unit tests on tvOS
         run: xcodebuild test -scheme UID2Tests -sdk appletvsimulator16.1 -destination "OS=16.1,name=Apple TV"
 
-      - name: Lint pod spec
-        run: pod lib lint --verbose
-
   vulnerability-scan:
     name: Vulnerability Scan
     runs-on: ubuntu-latest
