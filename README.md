@@ -9,15 +9,10 @@ The UID 2 Project is subject to the IAB Tech Lab Intellectual Property Rights (I
 
 
 This document includes:
-* [Who Is this SDK for?](#who-is-this-sdk-for)
 * [Repository Structure](#repository-structure)
 * [Requirements](#requirements)
 * [Install and Usage](#install-and-usage)
 * [Development](#development)
-
-## Who Is this SDK for?
-
-This SDK simplifies integration with UID2 for Publishers, as described in [UID2 Integration Guides](https://unifiedid.com/docs/guides/summary-guides#mobile-integrations).
 
 ## Repository Structure
 
