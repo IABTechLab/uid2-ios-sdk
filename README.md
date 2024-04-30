@@ -1,11 +1,23 @@
-# UID2 iOS SDK
+# UID2 SDK for iOS
 
-A framework for integrating [UID2](https://github.com/IABTechLab/uid2docs) into iOS applications.
+The UID 2 Project is subject to the IAB Tech Lab Intellectual Property Rights (IPR) Policy, and is managed by the IAB Tech Lab Addressability Working Group and [Privacy & Rearc Commit Group](https://iabtechlab.com/working-groups/privacy-rearc-commit-group/). Please review the [governance rules](https://github.com/IABTechLab/uid2-core/blob/master/Software%20Development%20and%20Release%20Procedures.md).
 
 
 [![License: Apache](https://img.shields.io/badge/License-Apache-green.svg)](https://www.apache.org/licenses/)
 [![Swift](https://img.shields.io/badge/Swift-5-orange)](https://img.shields.io/badge/Swift-5-orange)
 [![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-blue)](https://img.shields.io/badge/Swift_Package_Manager-compatible-blue)
+
+
+This document includes:
+* [Who Is this SDK for?](#who-is-this-sdk-for)
+* [Repository Structure](#repository-structure)
+* [Requirements](#requirements)
+* [Install and Usage](#install-and-usage)
+* [Development](#development)
+
+## Who Is this SDK for?
+
+This SDK simplifies integration with UID2 for Publishers, as described in [UID2 Integration Guides](https://unifiedid.com/docs/guides/summary-guides#mobile-integrations).
 
 ## Repository Structure
 
@@ -32,14 +44,17 @@ A framework for integrating [UID2](https://github.com/IABTechLab/uid2docs) into 
 | iOS | 13.0+ | 5.0+ |
 | tvOS | 13.0+ | 5.0+ |
 
+## Install and Usage
+
+See the [UID2 SDK for iOS Reference Guide](https://unifiedid.com/docs/sdks/uid2-sdk-ref-ios).
+
 ## Development
 
 The UID2 SDK is a standalone headless library defined and managed by the Swift Package Manager via `Package.swift`.  As such the `UID2DevelopmentApp` is the primary way for developing the SDK.  Use Xcode to open `Development/UID2SDKDevelopmentApp/UID2SDKDevelopmentApp.xcodeproj` to begin development.
 
+<!-- 
 ## Release Process
 
 See [RELEASE_PROCESS](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/RELEASE_PROCESS.md).
+-->
 
-## License
-
-UID2 is released under the Apache V2 license. [See LICENSE](https://github.com/IABTechLab/uid2-ios-sdk/blob/main/LICENSE.md) for details.
