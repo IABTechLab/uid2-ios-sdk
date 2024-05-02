@@ -7,8 +7,8 @@
 
 import Foundation
 
-public class UID2SDKProperties {
-    
+public enum UID2SDKProperties {
+
     public static func getUID2SDKVersion() -> (major: Int, minor: Int, patch: Int) {
         
         let invalidVersion = (major: 0, minor: 0, patch: 0)

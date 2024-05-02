@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SDKPropertyLoader {
+final class SDKPropertyLoader {
     
     static func load() -> SDKProperties {
 

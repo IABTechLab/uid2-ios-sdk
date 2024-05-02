@@ -22,16 +22,7 @@ enum UID2Error: Error {
     
     /// Unable to convert RefreshTokenResponse to RefreshAPIPackage
     case refreshResponseToRefreshAPIPackage
-        
-    /// Token has expired
-    case identityPackageIsExpired
-    
-    /// User has opted out
-    case userHasOptedOut
-    
-    /// Unable to generate an UID2 Server
-    case urlGeneration
-    
+       
     /// Invalid configuration
     case configuration(message: String?)
 }
