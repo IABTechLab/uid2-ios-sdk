@@ -10,13 +10,19 @@ on:
 jobs:
   swift-code-checks:
     name: Code Tests
-    runs-on: macos-12
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: brew install swiftlint
+
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
+
+      - name: Select Xcode 15.3
+        run: sudo xcode-select -s /Applications/Xcode_15.3.app
 
       - name: Build for iOS
         run: xcodebuild -scheme UID2 -destination "generic/platform=iOS"
@@ -25,10 +31,10 @@ jobs:
         run: xcodebuild -scheme UID2 -destination "generic/platform=tvOS"
 
       - name: Run unit tests
-        run: xcodebuild test -scheme UID2 -sdk iphonesimulator16.2 -destination "OS=16.2,name=iPhone 14"
+        run: xcodebuild test -scheme UID2 -sdk iphonesimulator17.4 -destination "OS=17.4,name=iPhone 15"
       
       - name: Run unit tests on tvOS
-        run: xcodebuild test -scheme UID2 -sdk appletvsimulator16.1 -destination "OS=16.1,name=Apple TV"
+        run: xcodebuild test -scheme UID2 -sdk appletvsimulator17.4 -destination "OS=17.4,name=Apple TV"
 
   vulnerability-scan:
     name: Vulnerability Scan

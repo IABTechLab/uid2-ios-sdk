@@ -32,7 +32,7 @@ This document includes:
 
 ## Requirements
 
-* Xcode 14.0+
+* Xcode 15.0+
 
 | Platform | Minimum target | Swift Version |
 | --- | --- | --- |
