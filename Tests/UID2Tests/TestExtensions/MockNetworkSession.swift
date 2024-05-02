@@ -20,9 +20,10 @@ final class MockNetworkSession: NetworkSession {
         self.responseCode = responseCode
     }
     
-    func loadData(for request: URLRequest) throws -> (Data, Int) {
-        let jsonData = try DataLoader.load(fileName: fileName, fileExtension: fileExtension)
-        return (jsonData, responseCode)
+    func loadData(for request: URLRequest) throws -> (Data, HTTPURLResponse) {
+        let jsonData = try FixtureLoader.data(fixture: fileName, withExtension: fileExtension)
+        let response = HTTPURLResponse(url: request.url!, statusCode: responseCode, httpVersion: nil, headerFields: nil)!
+        return (jsonData, response)
     }
     
 }

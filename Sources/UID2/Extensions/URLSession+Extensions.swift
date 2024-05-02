@@ -9,14 +9,12 @@ import Foundation
 
 extension URLSession: NetworkSession {
 
-    func loadData(for request: URLRequest) async throws -> (Data, Int) {
+    func loadData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         let (data, response) = try await data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw UID2Error.httpURLResponse
-        }
-
-        return (data, httpResponse.statusCode)
+        // `URLResponse` is always `HTTPURLResponse` for HTTP requests
+        // https://developer.apple.com/documentation/foundation/urlresponse
+        // swiftlint:disable:next force_cast
+        return (data, response as! HTTPURLResponse)
     }
     
 }

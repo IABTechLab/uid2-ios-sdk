@@ -72,14 +72,12 @@ extension IdentityPackage: Codable {
 extension IdentityPackage {
     
     static func fromData(_ data: Data) -> IdentityPackage? {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let decoder = JSONDecoder.apiDecoder()
         return try? decoder.decode(IdentityPackage.self, from: data)
     }
 
     func toData() throws -> Data {
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        let encoder = JSONEncoder.apiEncoder()
         return try encoder.encode(self)
     }
 

@@ -14,10 +14,7 @@ enum UID2Error: Error {
     /// Unable to decrypt Payload Data
     case decryptPayloadData
     
-    /// URLSession call did not return an HTTPURLResponse
-    case httpURLResponse
-    
-    /// Server retunred a non HTTP 200 response
+    /// Server returned a non HTTP 200 response
     case refreshTokenServer(status: RefreshTokenResponse.Status, message: String?)
     
     /// Error parsing data / response from server
@@ -35,4 +32,6 @@ enum UID2Error: Error {
     /// Unable to generate an UID2 Server
     case urlGeneration
     
+    /// Invalid configuration
+    case configuration(message: String?)
 }

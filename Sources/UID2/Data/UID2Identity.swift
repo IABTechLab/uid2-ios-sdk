@@ -8,7 +8,6 @@
 import Foundation
 
 public struct UID2Identity: Hashable, Sendable, Codable {
-
     public let advertisingToken: String
     public let refreshToken: String
     public let identityExpires: Int64
@@ -37,14 +36,12 @@ public struct UID2Identity: Hashable, Sendable, Codable {
 extension UID2Identity {
     
     static func fromData(_ data: Data) -> UID2Identity? {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let decoder = JSONDecoder.apiDecoder()
         return try? decoder.decode(UID2Identity.self, from: data)
     }
 
     func toData() throws -> Data {
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        let encoder = JSONEncoder.apiEncoder()
         return try encoder.encode(self)
     }
 

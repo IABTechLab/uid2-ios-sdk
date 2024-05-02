@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BFF0F31A2BC6D7E7002646FE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BFF0F3192BC6D7E7002646FE /* README.md */; };
 		E291757C29919C3900500573 /* AppUID2Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291757B29919C3900500573 /* AppUID2Client.swift */; };
 		E291757F2991B19F00500573 /* UID2ServerCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291757E2991B19F00500573 /* UID2ServerCredentials.swift */; };
 		E29175812991B22200500573 /* UID2ServerCredentials.json in Resources */ = {isa = PBXBuildFile; fileRef = E29175802991B22200500573 /* UID2ServerCredentials.json */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BFF0F3192BC6D7E7002646FE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E291757A298C1CB900500573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E291757B29919C3900500573 /* AppUID2Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUID2Client.swift; sourceTree = "<group>"; };
 		E291757E2991B19F00500573 /* UID2ServerCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UID2ServerCredentials.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				E2E19004298833A600FFE8C3 /* Assets.xcassets */,
 				E2E19006298833A600FFE8C3 /* Preview Content */,
 				E2E190152988566E00FFE8C3 /* Localizable.strings */,
+				BFF0F3192BC6D7E7002646FE /* README.md */,
 			);
 			path = UID2SDKDevelopmentApp;
 			sourceTree = "<group>";
@@ -194,6 +197,7 @@
 			files = (
 				E2E19008298833A600FFE8C3 /* Preview Assets.xcassets in Resources */,
 				E2E190162988566E00FFE8C3 /* Localizable.strings in Resources */,
+				BFF0F31A2BC6D7E7002646FE /* README.md in Resources */,
 				E2E19005298833A600FFE8C3 /* Assets.xcassets in Resources */,
 				E29175812991B22200500573 /* UID2ServerCredentials.json in Resources */,
 			);

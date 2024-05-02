@@ -14,13 +14,8 @@ final class RefreshTokenAPITests: XCTestCase {
     /// uid2-iOS-sdk@test.com
     func testRefreshTokenSuccess() async throws {
      
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
         // Load Generate Token
-        let generateData = try DataLoader.load(fileName: "generate-token-200-success", fileExtension: "json")
-        print("generateData = " + String(decoding: generateData, as: UTF8.self))
-        let generateTokenResponse = try decoder.decode(RefreshTokenResponse.self, from: generateData)
+        let generateTokenResponse = try FixtureLoader.decode(RefreshTokenResponse.self, fixture: "generate-token-200-success")
         guard let generateToken = generateTokenResponse.toUID2Identity() else {
             throw "Unable to create generateToken"
         }
@@ -28,7 +23,7 @@ final class RefreshTokenAPITests: XCTestCase {
         // Load UID2Client Mocked
         let client = UID2Client(
             sdkVersion: "TEST",
-            MockNetworkSession("refresh-token-200-success-encrypted", "txt")
+            session: MockNetworkSession("refresh-token-200-success-encrypted", "txt")
         )
 
         // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
@@ -36,12 +31,10 @@ final class RefreshTokenAPITests: XCTestCase {
                                                              refreshResponseKey: generateToken.refreshResponseKey)
 
         // Load Local RefreshToken from JSON
-        let localRefreshData = try  DataLoader.load(fileName: "refresh-token-200-success-decrypted", fileExtension: "json")
-        let localTokenResponse = try decoder.decode(RefreshTokenResponse.self, from: localRefreshData)
+        let localTokenResponse = try FixtureLoader.decode(RefreshTokenResponse.self, fixture: "refresh-token-200-success-decrypted")
         guard let localRefreshToken = localTokenResponse.toUID2Identity() else {
             throw "Unable to create localRefreshToken"
         }
-
         XCTAssertEqual(refreshToken.identity, localRefreshToken)
     }
 
@@ -50,13 +43,8 @@ final class RefreshTokenAPITests: XCTestCase {
     /// https://github.com/IABTechLab/uid2docs/blob/main/api/v2/endpoints/post-token-refresh.md#testing-notes
     func testRefreshTokenOptOut() async throws {
      
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
         // Load Generate Token
-        let generateData = try DataLoader.load(fileName: "generate-token-200-optout", fileExtension: "json")
-        print("generateData = " + String(decoding: generateData, as: UTF8.self))
-        let generateTokenResponse = try decoder.decode(RefreshTokenResponse.self, from: generateData)
+        let generateTokenResponse = try FixtureLoader.decode(RefreshTokenResponse.self, fixture: "generate-token-200-optout")
         guard let generateToken = generateTokenResponse.toUID2Identity() else {
             throw "Unable to create generateToken"
         }
@@ -64,7 +52,7 @@ final class RefreshTokenAPITests: XCTestCase {
         // Load UID2Client Mocked
         let client = UID2Client(
             sdkVersion: "TEST",
-            MockNetworkSession("refresh-token-200-optout-encrypted", "txt")
+            session: MockNetworkSession("refresh-token-200-optout-encrypted", "txt")
         )
 
         // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
@@ -72,8 +60,7 @@ final class RefreshTokenAPITests: XCTestCase {
                                                                  refreshResponseKey: generateToken.refreshResponseKey)
 
         // Load Local RefreshToken from JSON
-        let localRefreshData = try  DataLoader.load(fileName: "refresh-token-200-optout-decrypted", fileExtension: "json")
-        let localTokenResponse = try decoder.decode(RefreshTokenResponse.self, from: localRefreshData)
+        let localTokenResponse = try FixtureLoader.decode(RefreshTokenResponse.self, fixture: "refresh-token-200-optout-decrypted")
         let localResponsePackage = localTokenResponse.toRefreshAPIPackage()
         
         XCTAssertEqual(refreshToken.status, localResponsePackage?.status)
@@ -87,7 +74,7 @@ final class RefreshTokenAPITests: XCTestCase {
             // Load UID2Client Mocked
             let client = UID2Client(
                 sdkVersion: "TEST",
-                MockNetworkSession("refresh-token-400-client-error", "json", 400)
+                session: MockNetworkSession("refresh-token-400-client-error", "json", 400)
             )
 
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
@@ -116,7 +103,7 @@ final class RefreshTokenAPITests: XCTestCase {
             // Load UID2Client Mocked
             let client = UID2Client(
                 sdkVersion: "TEST",
-                MockNetworkSession("refresh-token-400-invalid-token", "json", 400)
+                session: MockNetworkSession("refresh-token-400-invalid-token", "json", 400)
             )
             
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt
@@ -145,7 +132,7 @@ final class RefreshTokenAPITests: XCTestCase {
             // Load UID2Client Mocked
             let client = UID2Client(
                 sdkVersion: "TEST",
-                MockNetworkSession("refresh-token-401-unauthorized", "json", 401)
+                session: MockNetworkSession("refresh-token-401-unauthorized", "json", 401)
             )
             
             // Call RefreshToken using refreshToken and refreshResponseKey from Step 1 to decrypt

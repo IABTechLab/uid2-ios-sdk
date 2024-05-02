@@ -14,36 +14,60 @@ struct RootView: View {
     private var viewModel = RootViewModel()
 
     @State
-    private var emailTextField = ""
-    
+    private var email = ""
+
+    @State
+    private var phone = ""
+
+    @State
+    private var isClientSide = true
+
     var body: some View {
         
         VStack {            
-            Text(viewModel.titleText)
+            Text("root.navigation.title")
                 .font(Font.system(size: 28, weight: .bold))
-                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-            TextField("Email Address", text: $emailTextField)
-                .textFieldStyle(.roundedBorder)
-                .textCase(.lowercase)
-                .textContentType(.emailAddress)
-                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                .onSubmit {
-                    viewModel.handleEmailEntry(emailTextField.lowercased())
+            HStack {
+                TextField("Email Address", text: $email)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .textContentType(.emailAddress)
+                Button("Submit Email", systemImage: "arrow.right.circle.fill") {
+                    viewModel.handleEmailEntry(email, clientSide: isClientSide)
                 }
+                .labelStyle(.iconOnly)
+            }
+            HStack {
+                TextField("Phone", text: $phone)
+                    .keyboardType(.phonePad)
+                    .textContentType(.telephoneNumber)
+                Button("Submit Phone", systemImage: "arrow.right.circle.fill") {
+                    viewModel.handlePhoneEntry(phone, clientSide: isClientSide)
+                }
+                .labelStyle(.iconOnly)
+            }
+            Toggle(isOn: $isClientSide) {
+                Label("Client Side", systemImage: isClientSide ? "circle.fill" : "circle.slash")
+            }
+            .toggleStyle(.button)
+            .frame(height: 32)
             if viewModel.error != nil {
                 ErrorListView(viewModel)
             } else {
                 IdentityPackageListView(viewModel)
             }
             HStack(alignment: .center, spacing: 20.0) {
-                Button(LocalizedStringKey("root.button.reset")) {
-                    viewModel.handleResetButton()
-                    emailTextField = ""
+                Button("root.button.reset") {
+                    viewModel.reset()
                 }.padding()
-                Button(LocalizedStringKey("root.button.refresh")) {
-                    viewModel.handleRefreshButton()
+                Button("root.button.refresh") {
+                    viewModel.refresh()
                 }.padding()
             }
         }
+        .textFieldStyle(.roundedBorder)
+        .autocorrectionDisabled()
+        .imageScale(.large)
+        .padding()
     }
 }
