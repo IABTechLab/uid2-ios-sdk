@@ -38,17 +38,16 @@ extension CryptoUtil {
         // Server public key is provided with a 9 byte prefix. The remainder is base64 encoded.
         let encodedKey = Data(string.utf8.dropFirst(serverPublicKeyPrefixLength))
         guard let decodedSPKI = Data(base64Encoded: encodedKey) else {
-            throw TokenGenerationError.configuration(message: "Invalid server key as base64")
+            throw TokenGenerationError.configuration(message: "Invalid server public key as base64")
         }
 
-        let result = try DER.parse(Array(decodedSPKI))
-        let publicKey = try Certificate.PublicKey(derEncoded: result)
-
-        let privateKeyData = publicKey.subjectPublicKeyInfoBytes
         do {
+            let result = try DER.parse(Array(decodedSPKI))
+            let publicKey = try Certificate.PublicKey(derEncoded: result)
+            let privateKeyData = publicKey.subjectPublicKeyInfoBytes
             return try P256.KeyAgreement.PublicKey(x963Representation: privateKeyData)
         } catch {
-            throw TokenGenerationError.configuration(message: "Invalid server key representation")
+            throw TokenGenerationError.configuration(message: "Invalid server public key representation")
         }
     }
 
