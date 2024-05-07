@@ -92,7 +92,7 @@ final class UID2ClientTests: XCTestCase {
                 XCTFail("Expected UID2Error.configuration, got \(error)")
                 return
             }
-            XCTAssertEqual(message, "Invalid server key as base64")
+            XCTAssertEqual(message, "Invalid server public key as base64")
         }
     }
 
