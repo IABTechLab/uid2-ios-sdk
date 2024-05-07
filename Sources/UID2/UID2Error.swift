@@ -22,7 +22,19 @@ enum UID2Error: Error {
     
     /// Unable to convert RefreshTokenResponse to RefreshAPIPackage
     case refreshResponseToRefreshAPIPackage
-       
+}
+
+public enum TokenGenerationError: Error {
+
+    /// The API request failed
+    case requestFailure(httpStatusCode: Int, response: String?)
+
+    /// Unable to decrypt response data
+    case decryptionFailure
+
     /// Invalid configuration
     case configuration(message: String?)
+
+    /// The request succeeded, but the response is missing required fields or has an invalid status
+    case invalidResponse
 }
