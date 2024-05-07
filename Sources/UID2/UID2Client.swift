@@ -116,21 +116,19 @@ internal final class UID2Client: Sendable {
         let (data, response) = try await execute(request)
         let decoder = JSONDecoder.apiDecoder()
         guard response.statusCode == 200 else {
-            do {
-                let tokenResponse = try decoder.decode(RefreshTokenResponse.self, from: data)
-                throw UID2Error.refreshTokenServer(status: tokenResponse.status, message: tokenResponse.message)
-            } catch {
-                throw UID2Error.refreshTokenServerDecoding(httpStatus: response.statusCode, message: error.localizedDescription)
-            }
+            throw TokenGenerationError.requestFailure(
+                httpStatusCode: response.statusCode, 
+                response: String(data: data, encoding: .utf8)
+            )
         }
         guard let decryptedData = DataEnvelope.decrypt(data, key: symmetricKey) else {
-            throw UID2Error.decryptPayloadData
+            throw TokenGenerationError.decryptionFailure
         }
 
         guard
             let tokenResponse = try? decoder.decode(RefreshTokenResponse.self, from: decryptedData),
             let refreshAPIPackage = tokenResponse.toRefreshAPIPackage() else {
-            throw UID2Error.refreshResponseToRefreshAPIPackage
+            throw TokenGenerationError.invalidResponse
         }
 
         return refreshAPIPackage

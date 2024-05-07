@@ -71,3 +71,26 @@ struct RootView: View {
         .padding()
     }
 }
+
+extension TokenGenerationError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case let .requestFailure(statusCode, message):
+            let formattedMessage: String?
+            if let message,
+                let jsonObject = try? JSONSerialization.jsonObject(with: Data(message.utf8)),
+               let jsonString = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted) {
+                formattedMessage = String(data: jsonString, encoding: .utf8)
+            } else {
+                formattedMessage = message
+            }
+            return "Request failure (\(statusCode)):\n\(formattedMessage ?? "")"
+        case .decryptionFailure:
+            return "Response decryption failed"
+        case .configuration(let message):
+            return "Invalid configuration: \(message ?? "<none>")"
+        case .invalidResponse:
+            return "Invalid response"
+        }
+    }
+}

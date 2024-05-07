@@ -167,7 +167,7 @@ public final actor UID2Manager {
     ) async throws {
         assert((appName ?? Bundle.main.bundleIdentifier) != nil, "An appName must be provided or a main bundleIdentifier set")
         guard let appName = appName ?? Bundle.main.bundleIdentifier else {
-            throw UID2Error.configuration(message: "An appName must be provided or a main bundleIdentifier set")
+            throw TokenGenerationError.configuration(message: "An appName must be provided or a main bundleIdentifier set")
         }
         let apiResponse = try await uid2Client.generateIdentity(
             identity,

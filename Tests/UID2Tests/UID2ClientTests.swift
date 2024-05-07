@@ -87,7 +87,7 @@ final class UID2ClientTests: XCTestCase {
                 appName: "com.example.app"
             )
         ) { error in
-            guard let error = error as? UID2Error,
+            guard let error = error as? TokenGenerationError,
             case let .configuration(message: message) = error else {
                 XCTFail("Expected UID2Error.configuration, got \(error)")
                 return
@@ -115,9 +115,9 @@ final class UID2ClientTests: XCTestCase {
                 appName: "com.example.app"
             )
         ) { error in
-            guard let error = error as? UID2Error,
-            case .decryptPayloadData = error else {
-                XCTFail("Expected UID2Error.decryptPayloadData, got \(error)")
+            guard let error = error as? TokenGenerationError,
+            case .decryptionFailure = error else {
+                XCTFail("Expected TokenGenerationError.decryptionFailure, got \(error)")
                 return
             }
         }
@@ -142,9 +142,9 @@ final class UID2ClientTests: XCTestCase {
                 appName: "com.example.app"
             )
         ) { error in
-            guard let error = error as? UID2Error,
-            case .decryptPayloadData = error else {
-                XCTFail("Expected UID2Error.decryptPayloadData, got \(error)")
+            guard let error = error as? TokenGenerationError,
+            case .decryptionFailure = error else {
+                XCTFail("Expected TokenGenerationError.decryptionFailure, got \(error)")
                 return
             }
         }
@@ -171,9 +171,9 @@ final class UID2ClientTests: XCTestCase {
                 appName: "com.example.app"
             )
         ) { error in
-            guard let error = error as? UID2Error,
-            case .refreshTokenServerDecoding = error else {
-                XCTFail("Expected UID2Error.refreshTokenServerDecoding, got \(error)")
+            guard let error = error as? TokenGenerationError,
+            case .requestFailure = error else {
+                XCTFail("Expected TokenGenerationError.requestFailure, got \(error)")
                 return
             }
         }
