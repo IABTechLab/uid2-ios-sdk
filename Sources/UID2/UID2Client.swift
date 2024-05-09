@@ -90,7 +90,15 @@ internal final class UID2Client: Sendable {
         appName: String
     ) async throws -> RefreshAPIPackage {
         // Parse server key and generate our keys
-        let (symmetricKey, publicKey) = try cryptoUtil.parseKey(serverPublicKey)
+        let (symmetricKey, publicKey): (SymmetricKey, P256.KeyAgreement.PublicKey)
+        do {
+            (symmetricKey, publicKey) = try cryptoUtil.parseKey(serverPublicKey)
+        } catch let error as TokenGenerationError {
+            if case .configuration(let message) = error {
+                os_log("Configuration error: %@", log: log, type: .error, message ?? "<none>")
+            }
+            throw error
+        }
         let payload = ClientGeneratePayload(identity)
         let authenticatedDataPayload = AuthenticatedData(appName: appName)
 
@@ -116,18 +124,23 @@ internal final class UID2Client: Sendable {
         let (data, response) = try await execute(request)
         let decoder = JSONDecoder.apiDecoder()
         guard response.statusCode == 200 else {
+            let statusCode = response.statusCode
+            let responseText = String(data: data, encoding: .utf8) ?? "<none>"
+            os_log("Request failure (%d) %@", log: log, type: .error, statusCode, responseText)
             throw TokenGenerationError.requestFailure(
-                httpStatusCode: response.statusCode, 
-                response: String(data: data, encoding: .utf8)
+                httpStatusCode: statusCode,
+                response: responseText
             )
         }
         guard let decryptedData = DataEnvelope.decrypt(data, key: symmetricKey) else {
+            os_log("Decryption failure", log: log, type: .error)
             throw TokenGenerationError.decryptionFailure
         }
 
         guard
             let tokenResponse = try? decoder.decode(RefreshTokenResponse.self, from: decryptedData),
             let refreshAPIPackage = tokenResponse.toRefreshAPIPackage() else {
+            os_log("Invalid response", log: log, type: .error)
             throw TokenGenerationError.invalidResponse
         }
 
