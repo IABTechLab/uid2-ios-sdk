@@ -7,8 +7,6 @@
 
 import CryptoKit
 import Foundation
-import SwiftASN1
-import X509
 
 // https://forums.developer.apple.com/forums/thread/747816
 #if swift(>=6.0)
