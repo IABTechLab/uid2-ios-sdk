@@ -8,7 +8,6 @@
 import CryptoKit
 import Foundation
 import SwiftASN1
-import X509
 
 struct CryptoUtil: Sendable {
     // Parses a server's public key and returns a newly generated public key and symmetric key.
@@ -43,9 +42,13 @@ extension CryptoUtil {
 
         do {
             let result = try DER.parse(Array(decodedSPKI))
-            let publicKey = try Certificate.PublicKey(derEncoded: result)
-            let privateKeyData = publicKey.subjectPublicKeyInfoBytes
-            return try P256.KeyAgreement.PublicKey(x963Representation: privateKeyData)
+            let spki = try SubjectPublicKeyInfo(derEncoded: result)
+            guard spki.algorithmIdentifier == .p256PublicKey else {
+                throw TokenGenerationError.configuration(message: "Invalid public key algorithm")
+            }
+            return try P256.KeyAgreement.PublicKey(x963Representation: spki.key.bytes)
+        } catch let error as TokenGenerationError {
+            throw error
         } catch {
             throw TokenGenerationError.configuration(message: "Invalid server public key representation")
         }

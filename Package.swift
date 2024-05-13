@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -16,16 +16,20 @@ let package = Package(
             targets: ["UID2"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-certificates.git", .upToNextMajor(from: "1.0.0"))
+        .package(url: "https://github.com/apple/swift-asn1.git", .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .target(
             name: "UID2",
-            dependencies: [ .product(name: "X509", package: "swift-certificates") ],
+            dependencies: [ .product(name: "SwiftASN1", package: "swift-asn1") ],
             resources: [
                 .copy("Properties/sdk_properties.plist"),
                 .copy("PrivacyInfo.xcprivacy")
-            ]),
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency=complete")
+            ]
+        ),
         .testTarget(
             name: "UID2Tests",
             dependencies: ["UID2"],

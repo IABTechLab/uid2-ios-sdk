@@ -8,18 +8,17 @@
 import CryptoKit
 import Foundation
 import SwiftASN1
-import X509
 
 extension P256.KeyAgreement.PublicKey {
     // CryptoKit's implementation is only available in iOS 14
     var derRepresentation: Data {
         get throws {
-            // Signing and KeyAgreement keys are just keys – `but swift-certificates` only supports
-            // encoding a `P256.Signing.PublicKey`. Convert the key type, and encode.
-            let signingKey = try P256.Signing.PublicKey(rawRepresentation: self.rawRepresentation)
-            let publicKey = Certificate.PublicKey(signingKey)
+            let spki = SubjectPublicKeyInfo(
+                algorithmIdentifier: .p256PublicKey,
+                key: ASN1BitString(bytes: ArraySlice(self.x963Representation))
+            )
             var serializer = DER.Serializer()
-            try serializer.serialize(publicKey)
+            try serializer.serialize(spki)
             return Data(serializer.serializedBytes)
         }
     }
