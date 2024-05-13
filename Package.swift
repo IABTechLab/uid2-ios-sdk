@@ -23,7 +23,6 @@ let package = Package(
             name: "UID2",
             dependencies: [ .product(name: "SwiftASN1", package: "swift-asn1") ],
             resources: [
-                .copy("Properties/sdk_properties.plist"),
                 .copy("PrivacyInfo.xcprivacy")
             ],
             swiftSettings: [
