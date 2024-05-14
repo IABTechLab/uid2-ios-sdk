@@ -11,8 +11,8 @@ Version Numbering follows [Semantic Versioning](https://semver.org) standards.  
 ### Release Checklist
 
 1. Create a Release PR
-    * Update / Confirm `UID2Version` in `sdk_properties.plist` is set to 
-      * https://github.com/IABTechLab/uid2-ios-sdk/blob/9706cbc8959593a81e5aea82926bc41ac9bbb9d3/Sources/UID2/Properties/sdk_properties.plist#L6
+    * Update / Confirm `UID2Version` in `UID2SDKProperties.swift` is set to 
+      * https://github.com/IABTechLab/uid2-ios-sdk/blob/b725a503093d9984740b3b7e3f4325588bf7fbcd/Sources/UID2/Properties/UID2SDKProperties.swift#L13
     * Add and / or Edit any ADRs that support this release
 2. Merge Release PR
 3. Use GitHub Releases to Publish the release
@@ -20,6 +20,5 @@ Version Numbering follows [Semantic Versioning](https://semver.org) standards.  
     * Create tag on `main` for the commit created by merge of the Release PR
     * Document any Release Notes
 4. Create a Next Release PR
-    * Set `UID2Version` in `sdk_properties.plist` to the expected next (likely minor) release version of the SDK.
+    * Set `UID2Version` in `UID2SDKProperties.swift` to the expected next (likely minor) release version of the SDK.
 5. Merge Next Release PR **BEFORE ANY CODE FOR NEXT RELEASE IS MERGED**
-
