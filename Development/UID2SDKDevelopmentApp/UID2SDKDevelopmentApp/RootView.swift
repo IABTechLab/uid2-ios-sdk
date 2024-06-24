@@ -47,7 +47,7 @@ struct RootView: View {
                 .labelStyle(.iconOnly)
             }
             Toggle(isOn: $isClientSide) {
-                Label("Client Side", systemImage: isClientSide ? "circle.fill" : "circle.slash")
+                Label("Client Side", systemImage: isClientSide ? "checkmark.square" : "square")
             }
             .toggleStyle(.button)
             .frame(height: 32)
