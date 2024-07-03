@@ -15,9 +15,6 @@ import Foundation
 @preconcurrency import OSLog
 
 internal final class UID2Client: Sendable {
-    
-    static let defaultBaseURL = URL(string: "https://prod.uidapi.com")!
-
     private let clientVersion: String
     private let environment: Environment
     private let session: NetworkSession
@@ -125,6 +122,9 @@ internal final class UID2Client: Sendable {
             let statusCode = response.statusCode
             let responseText = String(data: data, encoding: .utf8) ?? "<none>"
             os_log("Request failure (%d) %@", log: log, type: .error, statusCode, responseText)
+            if environment != .production {
+                os_log("Failed request is using non-production API endpoint %@, is this intentional?", log: log, type: .error, baseURL.description)
+            }
             throw TokenGenerationError.requestFailure(
                 httpStatusCode: statusCode,
                 response: responseText
