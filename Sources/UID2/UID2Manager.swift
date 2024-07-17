@@ -56,11 +56,6 @@ public final actor UID2Manager {
 
     // MARK: - Defaults
     
-    /// Default UID2 Server URL
-    /// Override default by setting `UID2ApiUrl` in app's Info.plist
-    /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
-    private let defaultUid2ApiUrl = "https://prod.uidapi.com"
-    
     private init() {
         // App Supplied Properites
         let environment: Environment
@@ -240,17 +235,17 @@ public final actor UID2Manager {
     private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) async -> UID2Identity? {
 
         // Process Opt Out
-        if let status = status, status == .optOut {
+        if let status, status == .optOut {
             os_log("User opt-out detected", log: log, type: .debug)
             self.identity = nil
-            self.identityStatus = .optOut
+            self.identityStatus = status
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
             await keychainManager.deleteIdentityFromKeychain()
             await keychainManager.saveIdentityToKeychain(identityPackageOptOut)
             return nil
         }
 
-        if let status = status, status == .established {
+        if let status, status == .established {
             self.identity = identity
             self.identityStatus = status
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
