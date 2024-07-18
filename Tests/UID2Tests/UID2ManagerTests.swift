@@ -32,16 +32,7 @@ final class UID2ManagerTests: XCTestCase {
     }
 
     func testClientGenerateServerOptout() async throws {
-        let testCrypto = TestCryptoUtil()
-        HTTPStub.shared.stubs = { request in
-            XCTAssertEqual(request.url?.path, "/v2/token/client-generate")
-            let responseData = try! FixtureLoader.data(fixture: "refresh-token-200-optout-decrypted")
-            let box = try! AES.GCM.seal(responseData, using: testCrypto.symmetricKey!)
-            let data = box.combined!.base64EncodedData()
-            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return .success((data, response))
-        }
-
+        let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-optout-decrypted")
         let manager = UID2Manager(
             uid2Client: UID2Client(
                 sdkVersion: "1.0",
@@ -73,15 +64,7 @@ final class UID2ManagerTests: XCTestCase {
     }
 
     func testClientGenerateRefreshExpired() async throws {
-        let testCrypto = TestCryptoUtil()
-        HTTPStub.shared.stubs = { request in
-            XCTAssertEqual(request.url?.path, "/v2/token/client-generate")
-            let responseData = try! FixtureLoader.data(fixture: "refresh-token-200-success-decrypted")
-            let box = try! AES.GCM.seal(responseData, using: testCrypto.symmetricKey!)
-            let data = box.combined!.base64EncodedData()
-            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return .success((data, response))
-        }
+        let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-success-decrypted")
 
         let manager = UID2Manager(
             uid2Client: UID2Client(
@@ -111,5 +94,52 @@ final class UID2ManagerTests: XCTestCase {
         let identityStatus = await manager.identityStatus
         XCTAssertNil(identity)
         XCTAssertEqual(identityStatus, .refreshExpired)
+    }
+
+    func testClientGenerateSuccess() async throws {
+        let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-success-decrypted")
+
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0",
+                cryptoUtil: testCrypto.cryptoUtil
+            ),
+            sdkVersion: (1, 0, 0),
+            log: .disabled,
+            dateGenerator: .init({ Date(timeIntervalSince1970: 5) })
+        )
+
+        let expectation = XCTestExpectation(description: "identityStatus == .established")
+        await manager.$identityStatus.sink { identityStatus in
+            if identityStatus == .established {
+                expectation.fulfill()
+            }
+        }.store(in: &cancellables)
+
+        try await manager.generateIdentity(
+            .emailHash("tMmiiTI7IaAcPpQPFQ65uMVCWH8av9jw4cwf/F5HVRQ="),
+            subscriptionID: "test",
+            serverPublicKey: serverPublicKeyString,
+            appName: "com.example.app"
+        )
+        await fulfillment(of: [expectation], timeout: 1)
+
+        let identity = await manager.identity
+        let identityStatus = await manager.identityStatus
+        XCTAssertNotNil(identity)
+        XCTAssertEqual(identityStatus, .established)
+    }
+
+    private func stubEncrypted(_ path: String, fixture: String) -> TestCryptoUtil {
+        let testCrypto = TestCryptoUtil()
+        HTTPStub.shared.stubs = { request in
+            XCTAssertEqual(request.url?.path, path)
+            let responseData = try! FixtureLoader.data(fixture: fixture)
+            let box = try! AES.GCM.seal(responseData, using: testCrypto.symmetricKey!)
+            let data = box.combined!.base64EncodedData()
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return .success((data, response))
+        }
+        return testCrypto
     }
 }

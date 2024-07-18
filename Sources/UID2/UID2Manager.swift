@@ -54,6 +54,8 @@ public final actor UID2Manager {
     /// Logger
     private let log: OSLog
 
+    private let dateGenerator: DateGenerator
+
     // MARK: - Defaults
     
     internal init() {
@@ -89,11 +91,13 @@ public final actor UID2Manager {
     internal init(
         uid2Client: UID2Client,
         sdkVersion: (major: Int, minor: Int, patch: Int),
-        log: OSLog
+        log: OSLog,
+        dateGenerator: DateGenerator = .init { Date() }
     ) {
         self.uid2Client = uid2Client
         self.sdkVersion = sdkVersion
         self.log = log
+        self.dateGenerator = dateGenerator
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
@@ -213,8 +217,8 @@ public final actor UID2Manager {
         }
     }
     
-    private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) async -> Bool {
-        return expiry <= now
+    private func hasExpired(expiry: Int64) async -> Bool {
+        return expiry <= dateGenerator.now.millisecondsSince1970
     }
     
     private func getIdentityPackage(identity: UID2Identity?) async -> IdentityPackage {
@@ -364,7 +368,7 @@ public final actor UID2Manager {
     /// - Parameter futureCompletionTime: The time in milliseconds to end the
     /// - Returns: Delay in nanonseconds (UInt64) or 0 if futureCompletionTime is less than now
     private func calculateDelay(futureCompletionTime: Int64) async -> UInt64 {
-        let now = Date().millisecondsSince1970
+        let now = dateGenerator.now.millisecondsSince1970
         if futureCompletionTime < now {
             return UInt64(0)
         }
@@ -393,5 +397,21 @@ public final actor UID2Manager {
         }
 
     }
+}
 
+internal struct DateGenerator {
+    private var generate: () -> Date
+
+    init(_ generate: @escaping () -> Date) {
+        self.generate = generate
+    }
+
+    var now: Date {
+        get {
+            generate()
+        }
+        set {
+            generate = { newValue }
+        }
+    }
 }
