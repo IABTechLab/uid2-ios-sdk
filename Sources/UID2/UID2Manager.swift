@@ -56,8 +56,8 @@ public final actor UID2Manager {
 
     // MARK: - Defaults
     
-    private init() {
-        // App Supplied Properites
+    internal init() {
+        // App Supplied Properties
         let environment: Environment
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, 
             !apiUrlOverride.isEmpty,
@@ -67,18 +67,33 @@ public final actor UID2Manager {
             environment = UID2Settings.shared.environment
         }
 
-        sdkVersion = UID2SDKProperties.getUID2SDKVersion()
+        let sdkVersion = UID2SDKProperties.getUID2SDKVersion()
         let clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
 
         let isLoggingEnabled = UID2Settings.shared.isLoggingEnabled
-        self.log = isLoggingEnabled
-            ? .init(subsystem: "com.uid2", category: "UID2Manager")
+        let log = isLoggingEnabled
+            ? OSLog(subsystem: "com.uid2", category: "UID2Manager")
             : .disabled
-        uid2Client = UID2Client(
-            sdkVersion: clientVersion,
-            isLoggingEnabled: isLoggingEnabled,
-            environment: environment
+
+        self.init(
+            uid2Client: UID2Client(
+                sdkVersion: clientVersion,
+                isLoggingEnabled: isLoggingEnabled,
+                environment: environment
+            ),
+            sdkVersion: sdkVersion,
+            log: log
         )
+    }
+
+    internal init(
+        uid2Client: UID2Client,
+        sdkVersion: (major: Int, minor: Int, patch: Int),
+        log: OSLog
+    ) {
+        self.uid2Client = uid2Client
+        self.sdkVersion = sdkVersion
+        self.log = log
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
@@ -86,7 +101,7 @@ public final actor UID2Manager {
             await loadStateFromDisk()
         }
     }
-    
+
     // MARK: - Public Identity Lifecycle
     
     // iOS Way to Provide Initial Setup from Outside
