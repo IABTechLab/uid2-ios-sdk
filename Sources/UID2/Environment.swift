@@ -29,6 +29,6 @@ public struct Environment: Hashable, Sendable {
 
     /// A custom endpoint
     public static func custom(url: URL) -> Self {
-        Self.init(endpoint: url)
+        Self(endpoint: url)
     }
 }

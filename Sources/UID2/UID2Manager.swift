@@ -54,15 +54,12 @@ public final actor UID2Manager {
     /// Logger
     private let log: OSLog
 
+    private let dateGenerator: DateGenerator
+
     // MARK: - Defaults
     
-    /// Default UID2 Server URL
-    /// Override default by setting `UID2ApiUrl` in app's Info.plist
-    /// https://github.com/IABTechLab/uid2docs/tree/main/api/v2#environments
-    private let defaultUid2ApiUrl = "https://prod.uidapi.com"
-    
-    private init() {
-        // App Supplied Properites
+    internal init() {
+        // App Supplied Properties
         let environment: Environment
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, 
             !apiUrlOverride.isEmpty,
@@ -72,18 +69,35 @@ public final actor UID2Manager {
             environment = UID2Settings.shared.environment
         }
 
-        sdkVersion = UID2SDKProperties.getUID2SDKVersion()
+        let sdkVersion = UID2SDKProperties.getUID2SDKVersion()
         let clientVersion = "\(sdkVersion.major).\(sdkVersion.minor).\(sdkVersion.patch)"
 
         let isLoggingEnabled = UID2Settings.shared.isLoggingEnabled
-        self.log = isLoggingEnabled
-            ? .init(subsystem: "com.uid2", category: "UID2Manager")
+        let log = isLoggingEnabled
+            ? OSLog(subsystem: "com.uid2", category: "UID2Manager")
             : .disabled
-        uid2Client = UID2Client(
-            sdkVersion: clientVersion,
-            isLoggingEnabled: isLoggingEnabled,
-            environment: environment
+
+        self.init(
+            uid2Client: UID2Client(
+                sdkVersion: clientVersion,
+                isLoggingEnabled: isLoggingEnabled,
+                environment: environment
+            ),
+            sdkVersion: sdkVersion,
+            log: log
         )
+    }
+
+    internal init(
+        uid2Client: UID2Client,
+        sdkVersion: (major: Int, minor: Int, patch: Int),
+        log: OSLog,
+        dateGenerator: DateGenerator = .init { Date() }
+    ) {
+        self.uid2Client = uid2Client
+        self.sdkVersion = sdkVersion
+        self.log = log
+        self.dateGenerator = dateGenerator
 
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
@@ -91,7 +105,7 @@ public final actor UID2Manager {
             await loadStateFromDisk()
         }
     }
-    
+
     // MARK: - Public Identity Lifecycle
     
     // iOS Way to Provide Initial Setup from Outside
@@ -203,8 +217,8 @@ public final actor UID2Manager {
         }
     }
     
-    private func hasExpired(expiry: Int64, now: Int64 = Date().millisecondsSince1970) async -> Bool {
-        return expiry <= now
+    private func hasExpired(expiry: Int64) async -> Bool {
+        return expiry <= dateGenerator.now.millisecondsSince1970
     }
     
     private func getIdentityPackage(identity: UID2Identity?) async -> IdentityPackage {
@@ -240,17 +254,17 @@ public final actor UID2Manager {
     private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) async -> UID2Identity? {
 
         // Process Opt Out
-        if let status = status, status == .optOut {
+        if let status, status == .optOut {
             os_log("User opt-out detected", log: log, type: .debug)
             self.identity = nil
-            self.identityStatus = .optOut
+            self.identityStatus = status
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
             await keychainManager.deleteIdentityFromKeychain()
             await keychainManager.saveIdentityToKeychain(identityPackageOptOut)
             return nil
         }
 
-        if let status = status, status == .established {
+        if let status, status == .established {
             self.identity = identity
             self.identityStatus = status
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
@@ -354,7 +368,7 @@ public final actor UID2Manager {
     /// - Parameter futureCompletionTime: The time in milliseconds to end the
     /// - Returns: Delay in nanonseconds (UInt64) or 0 if futureCompletionTime is less than now
     private func calculateDelay(futureCompletionTime: Int64) async -> UInt64 {
-        let now = Date().millisecondsSince1970
+        let now = dateGenerator.now.millisecondsSince1970
         if futureCompletionTime < now {
             return UInt64(0)
         }
@@ -383,5 +397,21 @@ public final actor UID2Manager {
         }
 
     }
+}
 
+internal struct DateGenerator {
+    private var generate: () -> Date
+
+    init(_ generate: @escaping () -> Date) {
+        self.generate = generate
+    }
+
+    var now: Date {
+        get {
+            generate()
+        }
+        set {
+            generate = { newValue }
+        }
+    }
 }
