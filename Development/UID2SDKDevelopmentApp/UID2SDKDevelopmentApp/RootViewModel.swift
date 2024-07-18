@@ -27,7 +27,13 @@ class RootViewModel: ObservableObject {
     
     init() {
         UID2Settings.shared.isLoggingEnabled = true
-        
+        // Only the development app should use the integration environment.
+        // If you have copied the dev app for testing, you probably want to use the default
+        // environment, which is production.
+        if Bundle.main.bundleIdentifier == "com.uid2.UID2SDKDevelopmentApp" {
+            UID2Settings.shared.environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
+        }
+
         Task {
             await UID2Manager.shared.$identity
                 .receive(on: DispatchQueue.main)
