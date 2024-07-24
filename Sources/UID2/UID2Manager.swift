@@ -221,8 +221,8 @@ public final actor UID2Manager {
         return expiry <= dateGenerator.now.millisecondsSince1970
     }
     
-    private func getIdentityPackage(identity: UID2Identity?) -> IdentityPackage {
-                
+    private func getIdentityPackage(identity: UID2Identity?, newIdentity: Bool) -> IdentityPackage {
+
         guard let identity = identity else {
             return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
         }
@@ -243,7 +243,7 @@ public final actor UID2Manager {
             return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
         }
      
-        if self.identity == nil || self.identity?.advertisingToken == identity.advertisingToken && self.identityStatus != .refreshed {
+        if newIdentity {
             return IdentityPackage(valid: true, errorMessage: "Identity established", identity: identity, status: .established)
         }
         
@@ -275,7 +275,7 @@ public final actor UID2Manager {
         }
         
         // Process Remaining IdentityStatus Options
-        let validatedIdentityPackage = getIdentityPackage(identity: identity)
+        let validatedIdentityPackage = getIdentityPackage(identity: identity, newIdentity: self.identity == nil)
 
         os_log("Updating identity (Identity: %@, Status: %@)", log: log,
                validatedIdentityPackage.identity != nil ? "true" : "false",
