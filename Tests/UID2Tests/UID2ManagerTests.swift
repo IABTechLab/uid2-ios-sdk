@@ -25,6 +25,9 @@ final class UID2ManagerTests: XCTestCase {
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
+        let state = await manager.state
+        XCTAssertEqual(state, .none)
+
         let identity = await manager.identity
         let identityStatus = await manager.identityStatus
         XCTAssertNil(identity)
@@ -56,6 +59,9 @@ final class UID2ManagerTests: XCTestCase {
             appName: "com.example.app"
         )
         await fulfillment(of: [expectation], timeout: 1)
+
+        let state = await manager.state
+        XCTAssertEqual(state, .optout)
 
         let identity = await manager.identity
         let identityStatus = await manager.identityStatus
@@ -90,6 +96,9 @@ final class UID2ManagerTests: XCTestCase {
         )
         await fulfillment(of: [expectation], timeout: 1)
 
+        let state = await manager.state
+        XCTAssertEqual(state, .refreshExpired)
+
         let identity = await manager.identity
         let identityStatus = await manager.identityStatus
         XCTAssertNil(identity)
@@ -123,6 +132,21 @@ final class UID2ManagerTests: XCTestCase {
             appName: "com.example.app"
         )
         await fulfillment(of: [expectation], timeout: 1)
+
+        let state = await manager.state
+        XCTAssertEqual(
+            state,
+            .established(
+                .init(
+                    advertisingToken: "AgAAAnojG9KCix9paKGDw4cyFWj6TC6JcXxkwaJHWbq9e9sBL6ENzlabgtas04zjHxkFCCKAPppamsWt+PISfsmz7o3jrjRZuUmYo9htdDgZLNQSXLxwabHJKvXm4RVJN5gGtVUOUyYzx9ybLMSf2wrdLGZqTBxZIEmO8y/k2jL9ZYq74A==",
+                    refreshToken: "AAAAAntKHPHFFDsLKy3LngnBg/A4d25Sw1P+evWqRdnVlFKLi5OgQLJq2lAfRtHD2YTaCx7G9VaQkg3dx5gusxUs8rSD0bOR6/aZS70v0mft/qfol4aNxdzCE9BOVTC8EP/Z/vlIcS8DnHMkOgIEk6KD0M782+JpHrjLwXXmt+tMnKDybnZK6X5zjuFYl9OT6aogIEUEUQIMqenP9y4ctu/b3UALvyx6se0zlGKb1wzu1ilnxbND5I42n3MYn2Nqs4eVtuDBRdDT6L8+ElVTHVfVzS02mG+OYWiyVZyAbQP1iyBWmybkP8PcJsTUmDZE2WPzgvtV5+6/deZ/s+taMJo8FMJbP3oVkq5985MYHdXaSTiaT8sBc0JwHgqW9vaUgLsb",
+                    identityExpires: 1675272748539,
+                    refreshFrom: 1675272148539,
+                    refreshExpires: 1677863848539,
+                    refreshResponseKey: "ZsLNtb55Kr9vGEDj2nTiYN4rqL6ofXcnvXKyI0oVdyM="
+                )
+            )
+        )
 
         let identity = await manager.identity
         let identityStatus = await manager.identityStatus
