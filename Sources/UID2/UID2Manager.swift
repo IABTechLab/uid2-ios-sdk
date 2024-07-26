@@ -217,12 +217,12 @@ public final actor UID2Manager {
         }
     }
     
-    private func hasExpired(expiry: Int64) async -> Bool {
+    private func hasExpired(expiry: Int64) -> Bool {
         return expiry <= dateGenerator.now.millisecondsSince1970
     }
     
-    private func getIdentityPackage(identity: UID2Identity?) async -> IdentityPackage {
-                
+    private func getIdentityPackage(identity: UID2Identity?, newIdentity: Bool) -> IdentityPackage {
+
         guard let identity = identity else {
             return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
         }
@@ -235,15 +235,15 @@ public final actor UID2Manager {
             return IdentityPackage(valid: false, errorMessage: "refresh_token is not available or is not valid", identity: nil, status: .invalid)
         }
         
-        if await hasExpired(expiry: identity.refreshExpires) {
+        if hasExpired(expiry: identity.refreshExpires) {
             return IdentityPackage(valid: false, errorMessage: "Identity expired, refresh expired", identity: nil, status: .refreshExpired)
         }
         
-        if await hasExpired(expiry: identity.identityExpires) {
+        if hasExpired(expiry: identity.identityExpires) {
             return IdentityPackage(valid: true, errorMessage: "Identity expired, refresh still valid", identity: identity, status: .expired)
         }
      
-        if self.identity == nil || self.identity?.advertisingToken == identity.advertisingToken && self.identityStatus != .refreshed {
+        if newIdentity {
             return IdentityPackage(valid: true, errorMessage: "Identity established", identity: identity, status: .established)
         }
         
@@ -275,7 +275,7 @@ public final actor UID2Manager {
         }
         
         // Process Remaining IdentityStatus Options
-        let validatedIdentityPackage = await getIdentityPackage(identity: identity)
+        let validatedIdentityPackage = getIdentityPackage(identity: identity, newIdentity: self.identity == nil)
 
         os_log("Updating identity (Identity: %@, Status: %@)", log: log,
                validatedIdentityPackage.identity != nil ? "true" : "false",
@@ -316,13 +316,13 @@ public final actor UID2Manager {
         if let identity = identity {
             // If the identity is already suitable for a refresh, we can do so immediately. Otherwise, we will work out
             // how long it is until a refresh is required and schedule it accordingly.
-            if await hasExpired(expiry: identity.refreshFrom) {
+            if hasExpired(expiry: identity.refreshFrom) {
                 refreshJob = Task {
                     await refreshToken(identity: identity)
                 }
             } else {
                 refreshJob = Task {
-                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.refreshFrom)
+                    let delayInNanoseconds = calculateDelay(futureCompletionTime: identity.refreshFrom)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     await refreshToken(identity: identity)
                 }
@@ -343,18 +343,18 @@ public final actor UID2Manager {
             
             // If the expiration time of being able to refresh is in the future, we will schedule a job to detect if we
             // pass it. This will allow us to reevaluate our state and update accordingly.
-            if await !hasExpired(expiry: identity.refreshExpires) {
+            if !hasExpired(expiry: identity.refreshExpires) {
                 checkRefreshExpiresJob = Task {
-                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.refreshExpires)
+                    let delayInNanoseconds = calculateDelay(futureCompletionTime: identity.refreshExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     os_log("Detected refresh has expired", log: log, type: .debug)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
                 }
             }
             
-            if await !hasExpired(expiry: identity.identityExpires) {
+            if !hasExpired(expiry: identity.identityExpires) {
                 checkIdentityExpiresJob = Task {
-                    let delayInNanoseconds = await calculateDelay(futureCompletionTime: identity.identityExpires)
+                    let delayInNanoseconds = calculateDelay(futureCompletionTime: identity.identityExpires)
                     try await Task.sleep(nanoseconds: delayInNanoseconds)
                     os_log("Detected identity has expired", log: log, type: .debug)
                     await validateAndSetIdentity(identity: identity, status: nil, statusText: nil)
@@ -367,7 +367,7 @@ public final actor UID2Manager {
     /// Calculate the delay that Identity Checks use
     /// - Parameter futureCompletionTime: The time in milliseconds to end the
     /// - Returns: Delay in nanonseconds (UInt64) or 0 if futureCompletionTime is less than now
-    private func calculateDelay(futureCompletionTime: Int64) async -> UInt64 {
+    private func calculateDelay(futureCompletionTime: Int64) -> UInt64 {
         let now = dateGenerator.now.millisecondsSince1970
         if futureCompletionTime < now {
             return UInt64(0)

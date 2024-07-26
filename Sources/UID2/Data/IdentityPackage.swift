@@ -10,20 +10,12 @@ import Foundation
 // https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/uid2Sdk.ts#L174-L186
 // NOTE: JS SDK makes 2 references to `IdentityStatus`, the second being an enum with actual states defined
 // https://github.com/IABTechLab/uid2-web-integrations/blob/5a8295c47697cdb1fe36997bc2eb2e39ae143f8b/src/Uid2InitCallbacks.ts#L12-L20
-public struct IdentityPackage: Hashable, Sendable {
+struct IdentityPackage: Hashable, Sendable {
     
-    public let valid: Bool
-    public let errorMessage: String?
-    public let identity: UID2Identity?
-    public let status: IdentityStatus
-    
-    public init(valid: Bool, errorMessage: String?, identity: UID2Identity?, status: IdentityStatus) {
-        self.valid = valid
-        self.errorMessage = errorMessage
-        self.identity = identity
-        self.status = status
-    }
-    
+    let valid: Bool
+    let errorMessage: String?
+    let identity: UID2Identity?
+    let status: IdentityStatus
 }
 
 extension IdentityPackage: Codable {
@@ -32,7 +24,7 @@ extension IdentityPackage: Codable {
         case valid, errorMessage, identity, status
     }
     
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         // Automatic
@@ -52,7 +44,7 @@ extension IdentityPackage: Codable {
         }
     }
     
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // Automatic

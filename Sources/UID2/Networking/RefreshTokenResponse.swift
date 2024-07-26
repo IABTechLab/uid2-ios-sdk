@@ -40,7 +40,7 @@ extension RefreshTokenResponse {
 
 extension RefreshTokenResponse {
     
-    public func toUID2Identity() -> UID2Identity? {
+    func toUID2Identity() -> UID2Identity? {
         guard let body = body else {
             return nil
         }
@@ -55,7 +55,7 @@ extension RefreshTokenResponse {
         )
     }
     
-    public func toRefreshAPIPackage() -> RefreshAPIPackage? {
+    func toRefreshAPIPackage() -> RefreshAPIPackage? {
                                 
         switch status {
         case .success:

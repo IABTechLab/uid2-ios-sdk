@@ -6,13 +6,13 @@ import Foundation
 import Security
 
 /// Securely manages data in the Keychain
-internal actor KeychainManager {
+actor KeychainManager {
 
     private let attrAccount = "uid2"
     
     private let attrService = "auth-state"
     
-    public func getIdentityFromKeychain() -> IdentityPackage? {
+    func getIdentityFromKeychain() -> IdentityPackage? {
         let query = [
             String(kSecClass): kSecClassGenericPassword,
             String(kSecAttrAccount): attrAccount,
@@ -31,7 +31,7 @@ internal actor KeychainManager {
     }
     
     @discardableResult
-    public func saveIdentityToKeychain(_ identityPackage: IdentityPackage) -> Bool {
+    func saveIdentityToKeychain(_ identityPackage: IdentityPackage) -> Bool {
         
         guard let data = try? identityPackage.toData() else {
             return false
@@ -63,7 +63,7 @@ internal actor KeychainManager {
     }
     
     @discardableResult
-    public func deleteIdentityFromKeychain() -> Bool {
+    func deleteIdentityFromKeychain() -> Bool {
         
         let query: [String: Any] = [String(kSecClass): kSecClassGenericPassword,
                                     String(kSecAttrAccount): attrAccount,
