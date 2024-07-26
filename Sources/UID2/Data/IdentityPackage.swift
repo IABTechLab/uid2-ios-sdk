@@ -16,14 +16,6 @@ struct IdentityPackage: Hashable, Sendable {
     let errorMessage: String?
     let identity: UID2Identity?
     let status: IdentityStatus
-    
-    init(valid: Bool, errorMessage: String?, identity: UID2Identity?, status: IdentityStatus) {
-        self.valid = valid
-        self.errorMessage = errorMessage
-        self.identity = identity
-        self.status = status
-    }
-    
 }
 
 extension IdentityPackage: Codable {
