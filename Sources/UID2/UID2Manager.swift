@@ -207,31 +207,19 @@ public final actor UID2Manager {
     }
 
     // MARK: - Internal Identity Lifecycle
-    
-    private func setIdentityPackage(_ identity: IdentityPackage) async {
-        if let _ = await validateAndSetIdentity(identity: identity.identity,
-                                                status: identity.status,
-                                                statusText: identity.errorMessage) {
-            
-            // An identity's status can change based upon the current time and it's expiration. We will schedule some work
-            // to detect when it changes so that we can report it accordingly.
-            await checkIdentityExpiration()
 
-            // After a new identity has been set, we have to work out how we're going to potentially refresh it. If the
-            // identity is null, because it's been reset of the identity has opted out, we don't need to do anything.
-            await checkIdentityRefresh()
-        }
-    }
-    
     private func loadStateFromDisk() async {
-        if let identity = await keychainManager.getIdentityFromKeychain() {
-            // Has Opted Out?
-            //  - Handled by setIdentityPackage() validateAndSetIdentity()
-            // Has Identity Token Expired with valid RefreshToken?
-            //  - Handled by setIdentityPackage() triggerRefreshOrSetTimer()
-            os_log("Restoring previously persisted identity", log: log, type: .debug)
-            await setIdentityPackage(identity)
+        guard let identity = await keychainManager.getIdentityFromKeychain() else {
+            return
         }
+        os_log("Restoring previously persisted identity", log: log, type: .debug)
+
+        // Existing token optout and expiry are handled by validateAndSetIdentity()
+        await validateAndSetIdentity(
+            identity: identity.identity,
+            status: identity.status,
+            statusText: identity.errorMessage
+        )
     }
     
     private func hasExpired(expiry: Int64) -> Bool {
