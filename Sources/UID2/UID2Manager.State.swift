@@ -16,7 +16,8 @@ extension UID2Manager {
 }
 
 extension UID2Manager.State {
-    var identityStatus: IdentityStatus {
+    /// A 'case path' returning the current `IdentityStatus`.
+    public var identityStatus: IdentityStatus {
         switch self {
         case .optout:
             return .optOut
@@ -33,7 +34,8 @@ extension UID2Manager.State {
         }
     }
 
-    var identity: UID2Identity? {
+    /// A 'case path' returning the current `UID2Identity`.
+    public var identity: UID2Identity? {
         switch self {
         case .optout,
              .refreshExpired,

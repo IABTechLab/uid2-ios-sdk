@@ -23,9 +23,7 @@ class RootViewModel: ObservableObject {
     
     private let apiClient = AppUID2Client()
     
-    private var cancellables = Set<AnyCancellable>()
-    
-    init() {
+    private let manager: UID2Manager = {
         UID2Settings.shared.isLoggingEnabled = true
         // Only the development app should use the integration environment.
         // If you have copied the dev app for testing, you probably want to use the default
@@ -34,18 +32,15 @@ class RootViewModel: ObservableObject {
             UID2Settings.shared.environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
         }
 
+        return UID2Manager.shared
+    }()
+
+    init() {
         Task {
-            await UID2Manager.shared.$identity
-                .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] uid2Identity in
-                    self?.uid2Identity = uid2Identity
-                }).store(in: &cancellables)
-         
-            await UID2Manager.shared.$identityStatus
-                .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] identityStatus in
-                    self?.identityStatus = identityStatus
-                }).store(in: &cancellables)
+            for await state in await manager.stateValues() {
+                self.uid2Identity = state?.identity
+                self.identityStatus = state?.identityStatus
+            }
         }
     }
     
@@ -134,7 +129,7 @@ class RootViewModel: ObservableObject {
         
         Task<Void, Never> {
             do {
-                try await UID2Manager.shared.generateIdentity(
+                try await manager.generateIdentity(
                     identity,
                     subscriptionID: subscriptionID,
                     serverPublicKey: serverPublicKeyString,
@@ -152,7 +147,7 @@ class RootViewModel: ObservableObject {
                 guard let identity = try await apiClient.generateIdentity(requestString: identity, requestType: requestType) else {
                     return
                 }
-                await UID2Manager.shared.setIdentity(identity)
+                await manager.setIdentity(identity)
             } catch {
                 self.error = error
             }
@@ -161,13 +156,13 @@ class RootViewModel: ObservableObject {
 
     func reset() {
         Task {
-            await UID2Manager.shared.resetIdentity()
+            await manager.resetIdentity()
         }
     }
     
     func refresh() {
         Task {
-            await UID2Manager.shared.refreshIdentity()
+            await manager.refreshIdentity()
         }
     }
 }

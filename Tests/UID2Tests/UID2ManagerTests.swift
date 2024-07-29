@@ -18,6 +18,15 @@ final class UID2ManagerTests: XCTestCase {
     // swiftlint:disable:next line_length
     private let serverPublicKeyString = "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw=="
 
+    override func setUp() async throws {
+        struct UnexpectedRequest: Error {
+            let request: URLRequest
+        }
+        HTTPStub.shared.stubs = { request in
+            .failure(UnexpectedRequest(request: request))
+        }
+    }
+
     func testInitialState() async throws {
         let manager = UID2Manager(
             uid2Client: UID2Client(
@@ -155,10 +164,105 @@ final class UID2ManagerTests: XCTestCase {
         XCTAssertEqual(identityStatus, .established)
     }
 
-    private func stubEncrypted(_ path: String, fixture: String) -> TestCryptoUtil {
+    // MARK: State Observation
+
+    @MainActor
+    func testStateValuesObservation() async throws {
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0"
+            ),
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        var values: [UID2Manager.State?] = []
+        let task = Task {
+            for await state in await manager.stateValues() {
+                values.append(state)
+            }
+        }
+
+        let establishedIdentity = UID2Identity(
+            advertisingToken: "a",
+            refreshToken: "r",
+            identityExpires: Date().millisecondsSince1970 + 100000,
+            refreshFrom: Date().millisecondsSince1970 + 100000,
+            refreshExpires: Date().millisecondsSince1970 + 100000,
+            refreshResponseKey: ""
+        )
+
+        // Emit state changes
+        await manager.resetIdentity()
+        await manager.setIdentity(establishedIdentity)
+        await manager.resetIdentity()
+        task.cancel()
+
+        XCTAssertEqual(values, [
+            nil,
+            .established(establishedIdentity),
+            nil,
+        ])
+    }
+
+    @MainActor
+    func testStateValuesMultipleObservers() async throws {
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0"
+            ),
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        var values: [UID2Manager.State?] = []
+        let task = Task {
+            for await state in await manager.stateValues() {
+                values.append(state)
+            }
+        }
+
+        let establishedIdentity = UID2Identity.established()
+        let expiredIdentity = UID2Identity.expired()
+
+        // Emit a state change
+        await manager.resetIdentity()
+
+        // Start observing after one value emitted
+        var values1: [UID2Manager.State?] = []
+        let task1 = Task {
+            for await state in await manager.stateValues() {
+                values1.append(state)
+            }
+        }
+
+        // Emit three more state changes
+        await manager.setIdentity(establishedIdentity)
+        await manager.resetIdentity()
+        await manager.setIdentity(expiredIdentity)
+        task.cancel()
+        task1.cancel()
+
+        XCTAssertEqual(values, [
+            nil,
+            .established(establishedIdentity),
+            nil,
+            .refreshExpired
+        ])
+
+        // All observers see all values.
+        XCTAssertEqual(Array(values.dropFirst()), values1)
+    }
+
+    // MARK: Internal
+
+    private func stubEncrypted(
+        _ path: String,
+        fixture: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> TestCryptoUtil {
         let testCrypto = TestCryptoUtil()
         HTTPStub.shared.stubs = { request in
-            XCTAssertEqual(request.url?.path, path)
+            XCTAssertEqual(request.url?.path, path, file: file, line: line)
             let responseData = try! FixtureLoader.data(fixture: fixture)
             let box = try! AES.GCM.seal(responseData, using: testCrypto.symmetricKey!)
             let data = box.combined!.base64EncodedData()
@@ -166,5 +270,28 @@ final class UID2ManagerTests: XCTestCase {
             return .success((data, response))
         }
         return testCrypto
+    }
+}
+
+private extension UID2Identity {
+    static func established() -> UID2Identity {
+        .init(
+            advertisingToken: "a",
+            refreshToken: "r",
+            identityExpires: Date().millisecondsSince1970 + 100000,
+            refreshFrom: Date().millisecondsSince1970 + 100000,
+            refreshExpires: Date().millisecondsSince1970 + 100000,
+            refreshResponseKey: ""
+        )
+    }
+    static func expired() -> UID2Identity {
+        .init(
+            advertisingToken: "e",
+            refreshToken: "r",
+            identityExpires: Date().millisecondsSince1970 - 100000,
+            refreshFrom: Date().millisecondsSince1970 - 100000,
+            refreshExpires: Date().millisecondsSince1970 - 100000,
+            refreshResponseKey: ""
+        )
     }
 }

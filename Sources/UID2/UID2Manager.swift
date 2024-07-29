@@ -9,8 +9,28 @@ import Combine
 import Foundation
 import OSLog
 
+// swiftlint:disable:next type_body_length
 public final actor UID2Manager {
-    
+    private enum InitializationState {
+        case pending
+        case complete
+    }
+
+    public typealias OnInitialized = @Sendable () async -> Void
+    private var initializationListeners: [OnInitialized] = []
+    private var initializationState = InitializationState.pending
+
+    public func addInitializationListener(_ listener: @escaping OnInitialized) {
+        guard initializationState != .complete else {
+            Task {
+                await listener()
+            }
+            return
+        }
+
+        initializationListeners.append(listener)
+    }
+
     /// Singleton access point for UID2Manager
     public static let shared = UID2Manager()
     
@@ -26,25 +46,36 @@ public final actor UID2Manager {
 
     // MARK: - Publishers
 
+    private let broadcaster = Broadcaster<State?>()
+    private let queue = Queue()
+
     /// Source of truth for both `identity` and `identityStatus` values.
     public private(set) var state: State? {
         didSet {
-            guard let state else {
+            if let state {
+                identity = state.identity
+                identityStatus = state.identityStatus
+            } else {
                 identity = nil
                 identityStatus = .noIdentity
-                return
             }
-            identity = state.identity
-            identityStatus = state.identityStatus
+
+            queue.enqueue {
+                await self.broadcaster.send(self.state)
+            }
         }
     }
 
-    /// Current Identity data for the user
+    public func stateValues() async -> AsyncStream<State?> {
+        await broadcaster.values()
+    }
+
+    /// Current Identity data for the user. Derived from `state.identity`.
     @Published public private(set) var identity: UID2Identity?
-    
-    /// Public Identity Status Notifications
+
+    /// Public Identity Status Notifications. Derived from `state.identityStatus`.
     @Published public private(set) var identityStatus: IdentityStatus = .noIdentity
-    
+
     // MARK: - Core Components
 
     /// UID2 SDK Version
@@ -116,6 +147,7 @@ public final actor UID2Manager {
         // Use case for app manually stopped and re-opened
         Task {
             await loadStateFromDisk()
+            await notifyInitializationListeners()
         }
     }
 
@@ -222,6 +254,18 @@ public final actor UID2Manager {
         )
     }
     
+    private func notifyInitializationListeners() async {
+        await withTaskGroup(of: Void.self) { taskGroup in
+            initializationListeners.forEach { listener in
+                taskGroup.addTask {
+                    await listener()
+                }
+            }
+        }
+        initializationState = .complete
+        initializationListeners = []
+    }
+
     private func hasExpired(expiry: Int64) -> Bool {
         return expiry <= dateGenerator.now.millisecondsSince1970
     }
