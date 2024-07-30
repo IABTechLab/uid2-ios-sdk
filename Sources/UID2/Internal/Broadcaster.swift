@@ -1,6 +1,7 @@
 import Foundation
 
 /// Send a value to multiple observers
+@available(iOS 13, tvOS 13, *)
 actor Broadcaster<Element: Sendable> {
     typealias Identifier = UUID
     private var continuations: [Identifier: AsyncStream<Element>.Continuation] = [:]

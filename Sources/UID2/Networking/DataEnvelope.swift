@@ -8,6 +8,7 @@
 import CryptoKit
 import Foundation
 
+@available(iOS 13, tvOS 13, *)
 internal enum DataEnvelope {
 
     /// Decrypts raw response envelope data, which is expected to be a base64 encoded string.

@@ -6,9 +6,11 @@ import PackageDescription
 let package = Package(
     name: "UID2",
     defaultLocalization: "en",
+    // NB: The UID2 framework code only runs on iOS 13 & tvOS 13, however this allows
+    // integration in apps supporting iOS 12.
     platforms: [
-        .iOS(.v13),
-        .tvOS(.v13)
+        .iOS(.v12),
+        .tvOS(.v12)
     ],
     products: [
         .library(

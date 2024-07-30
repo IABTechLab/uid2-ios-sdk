@@ -9,6 +9,7 @@ import CryptoKit
 import Foundation
 import SwiftASN1
 
+@available(iOS 13, tvOS 13, *)
 struct CryptoUtil: Sendable {
     // Parses a server's public key and returns a newly generated public key and symmetric key.
     var parseKey: @Sendable (_ string: String) throws -> (SymmetricKey, P256.KeyAgreement.PublicKey)
@@ -17,6 +18,7 @@ struct CryptoUtil: Sendable {
     var encrypt: @Sendable (_ data: Data, _ key: SymmetricKey, _ authenticatedData: Data) throws -> AES.GCM.SealedBox
 }
 
+@available(iOS 13, tvOS 13, *)
 extension CryptoUtil {
     private static let serverPublicKeyPrefixLength = 9
 

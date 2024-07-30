@@ -8,6 +8,7 @@
 import XCTest
 
 /// `XCTAssertThrowsError` doesn't support async expressions.
+@available(iOS 13, tvOS 13, *)
 public func assertThrowsError<T>(
     _ expression: @escaping @autoclosure () async throws -> T,
     _ message: @autoclosure () -> String = "",
