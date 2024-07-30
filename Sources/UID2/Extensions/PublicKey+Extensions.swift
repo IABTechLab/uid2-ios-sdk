@@ -9,6 +9,7 @@ import CryptoKit
 import Foundation
 import SwiftASN1
 
+@available(iOS 13, tvOS 13, *)
 extension P256.KeyAgreement.PublicKey {
     // CryptoKit's implementation is only available in iOS 14
     var derRepresentation: Data {

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, *)
 extension URLSession: NetworkSession {
 
     func loadData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {

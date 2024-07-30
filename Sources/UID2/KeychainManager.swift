@@ -6,6 +6,7 @@ import Foundation
 import Security
 
 /// Securely manages data in the Keychain
+@available(iOS 13, tvOS 13, *)
 actor KeychainManager {
 
     private let attrAccount = "uid2"

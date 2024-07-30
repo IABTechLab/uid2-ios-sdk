@@ -14,6 +14,7 @@ import Foundation
 #endif
 @preconcurrency import OSLog
 
+@available(iOS 13, tvOS 13, *)
 internal final class UID2Client: Sendable {
     private let clientVersion: String
     private let environment: Environment

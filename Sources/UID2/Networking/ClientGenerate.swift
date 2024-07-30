@@ -9,6 +9,8 @@ import CryptoKit
 import Foundation
 
 extension Request {
+
+    @available(iOS 13, tvOS 13, *)
     static func clientGenerate(
         payload: Data,
         initializationVector: Data,
@@ -54,6 +56,7 @@ struct ClientGeneratePayload: Encodable {
     }
 }
 
+@available(iOS 13, tvOS 13, *)
 extension ClientGeneratePayload {
     init(_ identity: IdentityType) {
         switch identity {
@@ -87,6 +90,7 @@ struct ClientGenerateRequestBody: Encodable {
     }
 }
 
+@available(iOS 13, tvOS 13, *)
 fileprivate extension String {
     func sha256hash() -> Data {
         let digest = SHA256.hash(data: Data(self.utf8))
