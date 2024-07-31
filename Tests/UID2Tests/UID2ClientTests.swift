@@ -7,6 +7,7 @@
 
 import CryptoKit
 import Foundation
+import TestHelpers
 @testable import UID2
 import XCTest
 

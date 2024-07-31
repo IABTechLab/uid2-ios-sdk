@@ -26,14 +26,20 @@ let package = Package(
                 .copy("PrivacyInfo.xcprivacy")
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency=complete")
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
             name: "UID2Tests",
+            dependencies: ["UID2", "TestHelpers"]
+        ),
+        .target(
+            name: "TestHelpers",
             dependencies: ["UID2"],
+            path: "Tests/TestHelpers",
             resources: [
                 .copy("TestData")
-            ]),
+            ]
+        )
     ]
 )

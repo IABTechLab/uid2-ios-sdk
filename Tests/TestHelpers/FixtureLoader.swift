@@ -8,13 +8,13 @@
 import Foundation
 @testable import UID2
 
-final class FixtureLoader {
+public final class FixtureLoader {
     enum Error: Swift.Error {
         case missingFixture(String)
     }
 
     /// Read `Data` from a Fixture.
-    static func data(
+    public static func data(
         fixture: String,
         withExtension fileExtension: String = "json",
         subdirectory: String = "TestData"
@@ -31,7 +31,7 @@ final class FixtureLoader {
 
     /// Decode a `Decodable` from a Fixture.
     /// Expects the fixture to use snake_case key encoding.
-    static func decode<T>(
+    public static func decode<T>(
         _ type: T.Type,
         fixture: String,
         withExtension fileExtension: String = "json",
