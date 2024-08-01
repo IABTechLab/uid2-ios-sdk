@@ -8,7 +8,7 @@
 import XCTest
 
 /// `XCTAssertThrowsError` doesn't support async expressions.
-internal func assertThrowsError<T>(
+public func assertThrowsError<T>(
     _ expression: @escaping @autoclosure () async throws -> T,
     _ message: @autoclosure () -> String = "",
     file: StaticString = #filePath,

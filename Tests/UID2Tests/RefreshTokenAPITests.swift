@@ -5,6 +5,7 @@
 //  Created by Brad Leege on 2/1/23.
 //
 
+import TestHelpers
 import XCTest
 @testable import UID2
 
@@ -13,7 +14,6 @@ final class RefreshTokenAPITests: XCTestCase {
     /// 🟩  `POST /v2/token/refresh` - HTTP 200 - Success
     /// uid2-iOS-sdk@test.com
     func testRefreshTokenSuccess() async throws {
-     
         // Load Generate Token
         let generateTokenResponse = try FixtureLoader.decode(RefreshTokenResponse.self, fixture: "generate-token-200-success")
         guard let generateToken = generateTokenResponse.toUID2Identity() else {

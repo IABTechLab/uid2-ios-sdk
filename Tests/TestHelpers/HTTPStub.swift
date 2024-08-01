@@ -7,8 +7,8 @@
 
 import Foundation
 
-internal final class HTTPStub {
-    static let shared: HTTPStub = {
+public final class HTTPStub {
+    public static let shared: HTTPStub = {
         let stub = HTTPStub()
         URLProtocol.registerClass(HTTPStubProtocol.self)
         return stub
@@ -17,7 +17,7 @@ internal final class HTTPStub {
     private init() {}
 
     // Provides stubs in response to requests
-    var stubs: ((URLRequest) -> Result<(data: Data, response: HTTPURLResponse), Error>)!
+    public var stubs: ((URLRequest) -> Result<(data: Data, response: HTTPURLResponse), Error>)!
 
     // Stub for the current request
     private var stub: Result<(data: Data, response: HTTPURLResponse), Error>!
