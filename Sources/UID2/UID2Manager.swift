@@ -25,7 +25,20 @@ public final actor UID2Manager {
     }
 
     // MARK: - Publishers
-            
+
+    /// Source of truth for both `identity` and `identityStatus` values.
+    public private(set) var state: State? {
+        didSet {
+            guard let state else {
+                identity = nil
+                identityStatus = .noIdentity
+                return
+            }
+            identity = state.identity
+            identityStatus = state.identityStatus
+        }
+    }
+
     /// Current Identity data for the user
     @Published public private(set) var identity: UID2Identity?
     
@@ -124,8 +137,7 @@ public final actor UID2Manager {
     /// Reset UID2 Identity state in UID2Manager
     public func resetIdentity() async {
         os_log("Resetting identity", log: log, type: .debug)
-        self.identity = nil
-        self.identityStatus = .noIdentity
+        self.state = nil
         await keychainManager.deleteIdentityFromKeychain()
         await checkIdentityExpiration()
         await checkIdentityRefresh()
@@ -134,7 +146,7 @@ public final actor UID2Manager {
     /// Manually Refresh UID2 Identity
     public func refreshIdentity() async {
         os_log("Refreshing identity", log: log, type: .debug)
-        guard let identity = identity else {
+        guard let identity = state?.identity else {
             return
         }
         await refreshToken(identity: identity)
@@ -144,12 +156,17 @@ public final actor UID2Manager {
     /// Get Advertising Token if Valid
     /// - Returns: Adversting Token if valid, nil if not valid
     public func getAdvertisingToken() -> String? {
-        
-        if identityStatus == .established || identityStatus == .refreshed {
-            return identity?.advertisingToken
+        switch state {
+        case .established(let identity),
+             .refreshed(let identity):
+            return identity.advertisingToken
+        case .none,
+             .optout,
+             .expired,
+             .refreshExpired,
+             .invalid:
+            return nil
         }
-        
-        return nil
     }
 
     /// Actor Safe way to toggle automaticRefreshEnabled property
@@ -190,31 +207,19 @@ public final actor UID2Manager {
     }
 
     // MARK: - Internal Identity Lifecycle
-    
-    private func setIdentityPackage(_ identity: IdentityPackage) async {
-        if let _ = await validateAndSetIdentity(identity: identity.identity,
-                                                status: identity.status,
-                                                statusText: identity.errorMessage) {
-            
-            // An identity's status can change based upon the current time and it's expiration. We will schedule some work
-            // to detect when it changes so that we can report it accordingly.
-            await checkIdentityExpiration()
 
-            // After a new identity has been set, we have to work out how we're going to potentially refresh it. If the
-            // identity is null, because it's been reset of the identity has opted out, we don't need to do anything.
-            await checkIdentityRefresh()
-        }
-    }
-    
     private func loadStateFromDisk() async {
-        if let identity = await keychainManager.getIdentityFromKeychain() {
-            // Has Opted Out?
-            //  - Handled by setIdentityPackage() validateAndSetIdentity()
-            // Has Identity Token Expired with valid RefreshToken?
-            //  - Handled by setIdentityPackage() triggerRefreshOrSetTimer()
-            os_log("Restoring previously persisted identity", log: log, type: .debug)
-            await setIdentityPackage(identity)
+        guard let identity = await keychainManager.getIdentityFromKeychain() else {
+            return
         }
+        os_log("Restoring previously persisted identity", log: log, type: .debug)
+
+        // Existing token optout and expiry are handled by validateAndSetIdentity()
+        await validateAndSetIdentity(
+            identity: identity.identity,
+            status: identity.status,
+            statusText: identity.errorMessage
+        )
     }
     
     private func hasExpired(expiry: Int64) -> Bool {
@@ -223,7 +228,7 @@ public final actor UID2Manager {
     
     private func getIdentityPackage(identity: UID2Identity?, newIdentity: Bool) -> IdentityPackage {
 
-        guard let identity = identity else {
+        guard let identity else {
             return IdentityPackage(valid: false, errorMessage: "Identity not available", identity: nil, status: .noIdentity)
         }
         
@@ -254,19 +259,15 @@ public final actor UID2Manager {
     private func validateAndSetIdentity(identity: UID2Identity?, status: IdentityStatus?, statusText: String?) async -> UID2Identity? {
 
         // Process Opt Out
-        if let status, status == .optOut {
+        if status == .optOut {
             os_log("User opt-out detected", log: log, type: .debug)
-            self.identity = nil
-            self.identityStatus = status
+            self.state = .optout
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
             await keychainManager.deleteIdentityFromKeychain()
             await keychainManager.saveIdentityToKeychain(identityPackageOptOut)
             return nil
-        }
-
-        if let status, status == .established {
-            self.identity = identity
-            self.identityStatus = status
+        } else if let identity, status == .established {
+            self.state = .established(identity)
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
             let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
             os_log("Updating storage (Status: %@)", log: log, status.debugDescription)
@@ -275,32 +276,22 @@ public final actor UID2Manager {
         }
         
         // Process Remaining IdentityStatus Options
-        let validatedIdentityPackage = getIdentityPackage(identity: identity, newIdentity: self.identity == nil)
+        let validatedIdentityPackage = getIdentityPackage(identity: identity, newIdentity: self.state == nil)
 
         os_log("Updating identity (Identity: %@, Status: %@)", log: log,
                validatedIdentityPackage.identity != nil ? "true" : "false",
                validatedIdentityPackage.status.debugDescription
         )
 
-        // Notify Subscribers
-        self.identityStatus = validatedIdentityPackage.status
-        
-        guard let validIdentity = validatedIdentityPackage.identity else {
-            return nil
-        }
-        
-        if validIdentity.advertisingToken == self.identity?.advertisingToken {
-            return validIdentity
-        }
+        self.state = State(validatedIdentityPackage)
 
         os_log("Updating storage (Status: %@)", log: log, validatedIdentityPackage.status.debugDescription)
-        self.identity = validIdentity
         await keychainManager.saveIdentityToKeychain(validatedIdentityPackage)
 
         await checkIdentityRefresh()
         await checkIdentityExpiration()
         
-        return validIdentity
+        return validatedIdentityPackage.identity
     }
 
     // MARK: - Refresh and Timer
@@ -313,7 +304,7 @@ public final actor UID2Manager {
             return
         }
         
-        if let identity = identity {
+        if let identity = state?.identity {
             // If the identity is already suitable for a refresh, we can do so immediately. Otherwise, we will work out
             // how long it is until a refresh is required and schedule it accordingly.
             if hasExpired(expiry: identity.refreshFrom) {
@@ -339,8 +330,8 @@ public final actor UID2Manager {
         checkIdentityExpiresJob?.cancel()
         checkIdentityExpiresJob = nil
                 
-        if let identity = identity {
-            
+        if let identity = state?.identity {
+
             // If the expiration time of being able to refresh is in the future, we will schedule a job to detect if we
             // pass it. This will allow us to reevaluate our state and update accordingly.
             if !hasExpired(expiry: identity.refreshExpires) {
