@@ -23,6 +23,8 @@ class RootViewModel: ObservableObject {
     
     private let apiClient = AppUID2Client()
     
+    /// `UID2Settings` must be configured prior to accessing the `UID2Manager` instance.
+    /// Configuring them here makes it less likely that an access occurs before configuration.
     private let manager: UID2Manager = {
         UID2Settings.shared.isLoggingEnabled = true
         // Only the development app should use the integration environment.
