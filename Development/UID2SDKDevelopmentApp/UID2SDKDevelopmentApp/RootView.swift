@@ -69,6 +69,11 @@ struct RootView: View {
         .autocorrectionDisabled()
         .imageScale(.large)
         .padding()
+        .onAppear {
+            Task {
+                await viewModel.onAppear()
+            }
+        }
     }
 }
 

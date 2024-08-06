@@ -45,7 +45,7 @@ class RootViewModel: ObservableObject {
             }
         }
     }
-    
+
     var advertisingToken: String {
         if let token = uid2Identity?.advertisingToken {
             return token
@@ -86,6 +86,11 @@ class RootViewModel: ObservableObject {
             return token
         }
         return NSLocalizedString("common.nil", comment: "")
+    }
+
+    func onAppear() async {
+        self.uid2Identity = await manager.state?.identity
+        self.identityStatus = await manager.state?.identityStatus
     }
 
     // MARK: - UX Handling Functions
