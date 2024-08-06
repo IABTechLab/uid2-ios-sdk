@@ -8,6 +8,15 @@
 import Foundation
 @testable import UID2
 
+#if !SWIFT_PACKAGE
+extension Bundle {
+    private final class BundleFinder {}
+    static var module: Bundle {
+        Bundle(for: BundleFinder.self)
+    }
+}
+#endif
+
 public final class FixtureLoader {
     enum Error: Swift.Error {
         case missingFixture(String)

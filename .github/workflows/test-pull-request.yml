@@ -24,18 +24,27 @@ jobs:
       - name: Select Xcode 15.3
         run: sudo xcode-select -s /Applications/Xcode_15.3.app
 
-      - name: Build for iOS
+      - name: Build UID2 for iOS
         run: xcodebuild -scheme UID2 -destination "generic/platform=iOS"
       
-      - name: Build for tvOS
+      - name: Build UID2 for tvOS
         run: xcodebuild -scheme UID2 -destination "generic/platform=tvOS"
 
-      - name: Run unit tests
+      - name: Run UID2 unit tests
         run: xcodebuild test -scheme UID2 -sdk iphonesimulator17.4 -destination "OS=17.4,name=iPhone 15"
       
-      - name: Run unit tests on tvOS
+      - name: Run UID2 unit tests on tvOS
         run: xcodebuild test -scheme UID2 -sdk appletvsimulator17.4 -destination "OS=17.4,name=Apple TV"
 
+      - name: Bootstrap Prebid Dependencies
+        run: cd UID2Prebid && ./bootstrap.sh && cd -
+
+      - name: Build UID2Prebid for iOS
+        run: xcodebuild -project UID2Prebid/UID2Prebid.xcodeproj -scheme UID2Prebid -destination "generic/platform=iOS"
+
+      - name: Run UID2Prebid unit tests
+        run: xcodebuild test -project UID2Prebid/UID2Prebid.xcodeproj -scheme UID2Prebid -sdk iphonesimulator17.4 -destination "OS=17.4,name=iPhone 15"
+      
       - name: Lint pod spec
         run: pod lib lint --verbose
 

@@ -1,0 +1,3 @@
+[submodule "Carthage/Checkouts/prebid-mobile-ios"]
+	path = UID2Prebid/Carthage/Checkouts/prebid-mobile-ios
+	url = https://github.com/prebid/prebid-mobile-ios.git
