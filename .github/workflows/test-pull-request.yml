@@ -45,8 +45,11 @@ jobs:
       - name: Run UID2Prebid unit tests
         run: xcodebuild test -project UID2Prebid/UID2Prebid.xcodeproj -scheme UID2Prebid -sdk iphonesimulator17.4 -destination "OS=17.4,name=iPhone 15"
       
-      - name: Lint pod spec
-        run: pod lib lint --verbose
+      - name: Lint UID2 pod spec
+        run: pod lib lint UID2.podspec.json --verbose
+
+      - name: Lint UID2Prebid pod spec
+        run: pod lib lint UID2Prebid.podspec.json --verbose
 
   vulnerability-scan:
     name: Vulnerability Scan
