@@ -85,7 +85,7 @@ public final actor UID2Manager {
     /// UID2Client for Network API  requests
     private let uid2Client: UID2Client
     
-    private let keychainManager = KeychainManager()
+    private let storage: Storage
 
     /// Background Task for Refreshing UID2 Identity
     private var refreshJob: Task<(), Error>?
@@ -128,6 +128,7 @@ public final actor UID2Manager {
                 isLoggingEnabled: isLoggingEnabled,
                 environment: environment
             ),
+            storage: .keychainStorage(),
             sdkVersion: sdkVersion,
             log: log
         )
@@ -135,11 +136,13 @@ public final actor UID2Manager {
 
     internal init(
         uid2Client: UID2Client,
+        storage: Storage,
         sdkVersion: (major: Int, minor: Int, patch: Int),
         log: OSLog,
         dateGenerator: DateGenerator = .init { Date() }
     ) {
         self.uid2Client = uid2Client
+        self.storage = storage
         self.sdkVersion = sdkVersion
         self.log = log
         self.dateGenerator = dateGenerator
@@ -171,7 +174,7 @@ public final actor UID2Manager {
     public func resetIdentity() async {
         os_log("Resetting identity", log: log, type: .debug)
         self.state = nil
-        await keychainManager.deleteIdentityFromKeychain()
+        await storage.clearIdentity()
         await checkIdentityExpiration()
         await checkIdentityRefresh()
     }
@@ -242,7 +245,7 @@ public final actor UID2Manager {
     // MARK: - Internal Identity Lifecycle
 
     private func loadStateFromDisk() async {
-        guard let identity = await keychainManager.getIdentityFromKeychain() else {
+        guard let identity = await storage.loadIdentity() else {
             return
         }
         os_log("Restoring previously persisted identity", log: log, type: .debug)
@@ -256,6 +259,7 @@ public final actor UID2Manager {
     }
     
     private func notifyInitializationListeners() async {
+        initializationState = .complete
         await withTaskGroup(of: Void.self) { taskGroup in
             initializationListeners.forEach { listener in
                 taskGroup.addTask {
@@ -263,7 +267,6 @@ public final actor UID2Manager {
                 }
             }
         }
-        initializationState = .complete
         initializationListeners = []
     }
 
@@ -308,15 +311,15 @@ public final actor UID2Manager {
             os_log("User opt-out detected", log: log, type: .debug)
             self.state = .optout
             let identityPackageOptOut = IdentityPackage(valid: false, errorMessage: "User Opted Out", identity: nil, status: .optOut)
-            await keychainManager.deleteIdentityFromKeychain()
-            await keychainManager.saveIdentityToKeychain(identityPackageOptOut)
+            await storage.clearIdentity()
+            await storage.saveIdentity(identityPackageOptOut)
             return nil
         } else if let identity, status == .established {
             self.state = .established(identity)
             // Not needed for loadFromDisk, but is needed for initial setting of Identity
             let identityPackage = IdentityPackage(valid: true, errorMessage: statusText, identity: identity, status: .established)
             os_log("Updating storage (Status: %@)", log: log, status.debugDescription)
-            await keychainManager.saveIdentityToKeychain(identityPackage)
+            await storage.saveIdentity(identityPackage)
             return identity
         }
         
@@ -331,7 +334,7 @@ public final actor UID2Manager {
         self.state = State(validatedIdentityPackage)
 
         os_log("Updating storage (Status: %@)", log: log, validatedIdentityPackage.status.debugDescription)
-        await keychainManager.saveIdentityToKeychain(validatedIdentityPackage)
+        await storage.saveIdentity(validatedIdentityPackage)
 
         await checkIdentityRefresh()
         await checkIdentityExpiration()

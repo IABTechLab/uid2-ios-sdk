@@ -32,6 +32,7 @@ final class UID2ManagerTests: XCTestCase {
             uid2Client: UID2Client(
                 sdkVersion: "1.0"
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -51,6 +52,7 @@ final class UID2ManagerTests: XCTestCase {
                 sdkVersion: "1.0",
                 cryptoUtil: testCrypto.cryptoUtil
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -87,6 +89,7 @@ final class UID2ManagerTests: XCTestCase {
                 sdkVersion: "1.0",
                 cryptoUtil: testCrypto.cryptoUtil
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -123,6 +126,7 @@ final class UID2ManagerTests: XCTestCase {
                 sdkVersion: "1.0",
                 cryptoUtil: testCrypto.cryptoUtil
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled,
             dateGenerator: .init({ Date(timeIntervalSince1970: 5) })
@@ -164,6 +168,75 @@ final class UID2ManagerTests: XCTestCase {
         XCTAssertEqual(identityStatus, .established)
     }
 
+    // MARK: Identity Restoration
+
+    func testNoneIdentityRestorationFromStorage() async throws {
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0"
+            ),
+            storage: .null,
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        let expectation = XCTestExpectation()
+        await manager.addInitializationListener {
+            let state = await manager.state
+            XCTAssertEqual(state, .none)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1)
+    }
+
+    func testOptoutIdentityRestorationFromStorage() async throws {
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0"
+            ),
+            storage: .init(
+                loadIdentity: {
+                    IdentityPackage(valid: true, errorMessage: nil, identity: nil, status: .optOut)
+                },
+                saveIdentity: { _ in },
+                clearIdentity: { }
+            ),
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        let expectation = XCTestExpectation()
+        await manager.addInitializationListener {
+            let state = await manager.state
+            XCTAssertEqual(state, .optout)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1)
+    }
+
+    func testEstablishedIdentityRestorationFromStorage() async throws {
+        let establishedIdentity = UID2Identity.established()
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0"
+            ),
+            storage: .init(
+                loadIdentity: {
+                    IdentityPackage(valid: true, errorMessage: nil, identity: establishedIdentity, status: .established)
+                },
+                saveIdentity: { _ in },
+                clearIdentity: { }
+            ),
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        let expectation = XCTestExpectation()
+        await manager.addInitializationListener {
+            let state = await manager.state
+            XCTAssertEqual(state, .established(establishedIdentity))
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1)
+    }
+
     // MARK: State Observation
 
     @MainActor
@@ -172,6 +245,7 @@ final class UID2ManagerTests: XCTestCase {
             uid2Client: UID2Client(
                 sdkVersion: "1.0"
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -216,6 +290,7 @@ final class UID2ManagerTests: XCTestCase {
             uid2Client: UID2Client(
                 sdkVersion: "1.0"
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -297,6 +372,15 @@ private extension UID2Identity {
             refreshFrom: Date().millisecondsSince1970 - 100000,
             refreshExpires: Date().millisecondsSince1970 - 100000,
             refreshResponseKey: ""
+        )
+    }
+}
+extension Storage {
+    static var null: Self {
+        Storage(
+            loadIdentity: { nil },
+            saveIdentity: { _ in },
+            clearIdentity: {}
         )
     }
 }

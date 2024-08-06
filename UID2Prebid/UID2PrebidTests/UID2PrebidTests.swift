@@ -31,6 +31,7 @@ final class UID2PrebidTests: XCTestCase {
             uid2Client: UID2Client(
                 sdkVersion: "1.0"
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -74,6 +75,7 @@ final class UID2PrebidTests: XCTestCase {
             uid2Client: UID2Client(
                 sdkVersion: "1.0"
             ),
+            storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
@@ -157,6 +159,16 @@ private extension UID2Identity {
             refreshFrom: Date().millisecondsSince1970 + 100000,
             refreshExpires: Date().millisecondsSince1970 + 100000,
             refreshResponseKey: ""
+        )
+    }
+}
+
+private extension Storage {
+    static var null: Self {
+        Storage(
+            loadIdentity: { nil },
+            saveIdentity: { _ in },
+            clearIdentity: {}
         )
     }
 }

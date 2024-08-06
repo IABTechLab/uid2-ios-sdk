@@ -5,6 +5,17 @@
 import Foundation
 import Security
 
+extension Storage {
+    static func keychainStorage() -> Storage {
+        let storage = KeychainManager()
+        return .init(
+            loadIdentity: { await storage.loadIdentity() },
+            saveIdentity: { await storage.saveIdentity($0) },
+            clearIdentity: { await storage.clearIdentity() }
+        )
+    }
+}
+
 /// Securely manages data in the Keychain
 actor KeychainManager {
 
@@ -12,7 +23,7 @@ actor KeychainManager {
 
     private static let attrService = "auth-state"
 
-    func getIdentityFromKeychain() -> IdentityPackage? {
+    func loadIdentity() -> IdentityPackage? {
         let query = query(with: [
             String(kSecReturnData): true
         ])
@@ -28,13 +39,13 @@ actor KeychainManager {
     }
     
     @discardableResult
-    func saveIdentityToKeychain(_ identityPackage: IdentityPackage) -> Bool {
+    func saveIdentity(_ identityPackage: IdentityPackage) -> Bool {
         
         guard let data = try? identityPackage.toData() else {
             return false
         }
 
-        if let _ = getIdentityFromKeychain() {
+        if let _ = loadIdentity() {
             let query = query()
 
             let attributesToUpdate = [String(kSecValueData): data] as CFDictionary
@@ -53,7 +64,7 @@ actor KeychainManager {
     }
     
     @discardableResult
-    func deleteIdentityFromKeychain() -> Bool {
+    func clearIdentity() -> Bool {
         let status: OSStatus = SecItemDelete(query())
 
         return status == errSecSuccess
