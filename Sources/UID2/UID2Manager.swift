@@ -60,8 +60,9 @@ public final actor UID2Manager {
                 identityStatus = .noIdentity
             }
 
-            queue.enqueue {
-                await self.broadcaster.send(self.state)
+            // Capture the current value in the queue operation
+            queue.enqueue { [state] in
+                await self.broadcaster.send(state)
             }
         }
     }
