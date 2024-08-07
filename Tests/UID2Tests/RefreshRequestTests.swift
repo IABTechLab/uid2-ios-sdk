@@ -12,7 +12,7 @@ final class RefreshRequestTests: XCTestCase {
 
     func testRequest() async throws {
         let request = Request.refresh(token: "im-a-refresh-token")
-        let client = UID2Client(
+        let client = UID2Client.test(
             sdkVersion: "1.2.3"
         )
         let urlRequest = client.urlRequest(request)

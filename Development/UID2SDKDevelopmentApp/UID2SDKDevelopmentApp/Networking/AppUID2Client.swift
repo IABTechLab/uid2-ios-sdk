@@ -173,6 +173,7 @@ internal final class AppUID2Client: Sendable {
     func decryptResponse(_ b64Secret: String, _ responseData: Data, _ isRefresh: Bool = false) -> Data? {
         
         // Confirm that responseData is Base64
+        // swiftlint:disable:next non_optional_string_data_conversion
         guard let base64String = String(data: responseData, encoding: .utf8),
               let decodedData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) else {
             return responseData
@@ -211,6 +212,7 @@ internal final class AppUID2Client: Sendable {
             payload = decryptedData.subdata(in: 16..<decryptedData.count)
         }
         
+        // swiftlint:disable:next non_optional_string_data_conversion
         guard let _ = String(data: payload, encoding: .utf8) else {
             return nil
         }

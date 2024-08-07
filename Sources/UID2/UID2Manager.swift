@@ -32,8 +32,13 @@ public final actor UID2Manager {
     }
 
     /// Singleton access point for UID2Manager
-    public static let shared = UID2Manager()
-    
+    public static let shared: UID2Manager = {
+        UID2Manager(
+            environment: Environment(UID2Settings.shared.uid2Environment),
+            account: .uid2
+        )
+    }()
+
     /// Enable or Disable Automatic Refresh via RepeatingTimer
     public var automaticRefreshEnabled = true {
         didSet {
@@ -103,15 +108,18 @@ public final actor UID2Manager {
 
     // MARK: - Defaults
     
-    internal init() {
+    init(
+        environment: Environment,
+        account: Account
+    ) {
         // App Supplied Properties
-        let environment: Environment
-        if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String, 
+        let clientEnvironment: Environment
+        if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String,
             !apiUrlOverride.isEmpty,
             let apiUrl = URL(string: apiUrlOverride) {
-            environment = Environment(endpoint: apiUrl)
+            clientEnvironment = Environment(endpoint: apiUrl, isProduction: false)
         } else {
-            environment = UID2Settings.shared.environment
+            clientEnvironment = environment
         }
 
         let sdkVersion = UID2SDKProperties.getUID2SDKVersion()
@@ -126,9 +134,9 @@ public final actor UID2Manager {
             uid2Client: UID2Client(
                 sdkVersion: clientVersion,
                 isLoggingEnabled: isLoggingEnabled,
-                environment: environment
+                environment: clientEnvironment
             ),
-            storage: .keychainStorage(),
+            storage: .keychainStorage(account: account),
             sdkVersion: sdkVersion,
             log: log
         )
@@ -453,4 +461,4 @@ internal struct DateGenerator {
             generate = { newValue }
         }
     }
-}
+} // swiftlint:disable:this file_length

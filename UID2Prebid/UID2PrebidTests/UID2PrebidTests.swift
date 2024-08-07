@@ -29,7 +29,8 @@ final class UID2PrebidTests: XCTestCase {
     func testObservation() async throws {
         let manager = UID2Manager(
             uid2Client: UID2Client(
-                sdkVersion: "1.0"
+                sdkVersion: "1.0",
+                environment: Environment(UID2.Environment.production)
             ),
             storage: .null,
             sdkVersion: (1, 0, 0),
@@ -73,7 +74,8 @@ final class UID2PrebidTests: XCTestCase {
     func testObservationWithThirdPartyUserIDs() async throws {
         let manager = UID2Manager(
             uid2Client: UID2Client(
-                sdkVersion: "1.0"
+                sdkVersion: "1.0",
+                environment: Environment(UID2.Environment.production)
             ),
             storage: .null,
             sdkVersion: (1, 0, 0),
