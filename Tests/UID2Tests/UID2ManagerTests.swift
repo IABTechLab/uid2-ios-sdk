@@ -29,9 +29,7 @@ final class UID2ManagerTests: XCTestCase {
 
     func testInitialState() async throws {
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
@@ -48,8 +46,7 @@ final class UID2ManagerTests: XCTestCase {
     func testClientGenerateServerOptout() async throws {
         let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-optout-decrypted")
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0",
+            uid2Client: UID2Client.test(
                 cryptoUtil: testCrypto.cryptoUtil
             ),
             storage: .null,
@@ -85,8 +82,7 @@ final class UID2ManagerTests: XCTestCase {
         let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-success-decrypted")
 
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0",
+            uid2Client: UID2Client.test(
                 cryptoUtil: testCrypto.cryptoUtil
             ),
             storage: .null,
@@ -122,8 +118,7 @@ final class UID2ManagerTests: XCTestCase {
         let testCrypto = stubEncrypted("/v2/token/client-generate", fixture: "refresh-token-200-success-decrypted")
 
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0",
+            uid2Client: UID2Client.test(
                 cryptoUtil: testCrypto.cryptoUtil
             ),
             storage: .null,
@@ -172,9 +167,7 @@ final class UID2ManagerTests: XCTestCase {
 
     func testNoneIdentityRestorationFromStorage() async throws {
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
@@ -190,9 +183,7 @@ final class UID2ManagerTests: XCTestCase {
 
     func testOptoutIdentityRestorationFromStorage() async throws {
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .init(
                 loadIdentity: {
                     IdentityPackage(valid: true, errorMessage: nil, identity: nil, status: .optOut)
@@ -215,9 +206,7 @@ final class UID2ManagerTests: XCTestCase {
     func testEstablishedIdentityRestorationFromStorage() async throws {
         let establishedIdentity = UID2Identity.established()
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .init(
                 loadIdentity: {
                     IdentityPackage(valid: true, errorMessage: nil, identity: establishedIdentity, status: .established)
@@ -242,9 +231,7 @@ final class UID2ManagerTests: XCTestCase {
     @MainActor
     func testStateValuesObservation() async throws {
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled
@@ -287,9 +274,7 @@ final class UID2ManagerTests: XCTestCase {
     @MainActor
     func testStateValuesMultipleObservers() async throws {
         let manager = UID2Manager(
-            uid2Client: UID2Client(
-                sdkVersion: "1.0"
-            ),
+            uid2Client: UID2Client.test(),
             storage: .null,
             sdkVersion: (1, 0, 0),
             log: .disabled

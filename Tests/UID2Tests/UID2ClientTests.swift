@@ -12,21 +12,11 @@ import TestHelpers
 import XCTest
 
 final class UID2ClientTests: XCTestCase {
-    func testDefaultEnvironment() async throws {
-        let client = UID2Client(
-            sdkVersion: "1.0"
-        )
-        let urlRequest = client.urlRequest(.init(path: "/path"))
-        XCTAssertEqual(
-            urlRequest.url,
-            URL(string: "https://prod.uidapi.com/path")!
-        )
-    }
-
+    
     func testOverridenEnvironment() async throws {
         let client = UID2Client(
             sdkVersion: "1.0",
-            environment: .singapore
+            environment: Environment(UID2.Environment.singapore)
         )
         let urlRequest = client.urlRequest(.init(path: "/path"))
         XCTAssertEqual(
@@ -38,7 +28,7 @@ final class UID2ClientTests: XCTestCase {
     func testCustomEnvironment() async throws {
         let client = UID2Client(
             sdkVersion: "1.0",
-            environment: .custom(url: URL(string: "http://localhost:8080/")!)
+            environment: Environment(UID2.Environment.custom(url: URL(string: "http://localhost:8080/")!))
         )
         let urlRequest = client.urlRequest(.init(path: "/path"))
         XCTAssertEqual(
@@ -48,8 +38,9 @@ final class UID2ClientTests: XCTestCase {
     }
 
     func testClientVersionHeader() throws {
-        let client = UID2Client(
-            sdkVersion: "1.2.3"
+        let client = UID2Client.test(
+            sdkVersion: "1.2.3",
+            session: URLSession.shared
         )
 
         let request = client.urlRequest(Request(path: "/test"))
@@ -76,8 +67,9 @@ final class UID2ClientTests: XCTestCase {
     private let serverPublicKeyString = "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw=="
 
     func testClientGenerateServerPublicKeyError() async throws {
-        let client = UID2Client(
-            sdkVersion: "1.0"
+        let client = UID2Client.test(
+            sdkVersion: "1.0",
+            session: URLSession.shared
         )
 
         await assertThrowsError(
@@ -104,8 +96,9 @@ final class UID2ClientTests: XCTestCase {
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return .success((data, response))
         }
-        let client = UID2Client(
-            sdkVersion: "1.0"
+        let client = UID2Client.test(
+            sdkVersion: "1.0",
+            session: URLSession.shared
         )
 
         await assertThrowsError(
@@ -131,8 +124,9 @@ final class UID2ClientTests: XCTestCase {
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return .success((data, response))
         }
-        let client = UID2Client(
-            sdkVersion: "1.0"
+        let client = UID2Client.test(
+            sdkVersion: "1.0",
+            session: URLSession.shared
         )
 
         await assertThrowsError(
@@ -160,8 +154,9 @@ final class UID2ClientTests: XCTestCase {
             let response = HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!
             return .success((data, response))
         }
-        let client = UID2Client(
-            sdkVersion: "1.0"
+        let client = UID2Client.test(
+            sdkVersion: "1.0",
+            session: URLSession.shared
         )
 
         await assertThrowsError(
@@ -191,8 +186,9 @@ final class UID2ClientTests: XCTestCase {
             return .success((data, response))
         }
 
-        let client = UID2Client(
+        let client = UID2Client.test(
             sdkVersion: "1.0",
+            session: URLSession.shared,
             cryptoUtil: testCrypto.cryptoUtil
         )
 
@@ -217,8 +213,9 @@ final class UID2ClientTests: XCTestCase {
             return .success((data, response))
         }
 
-        let client = UID2Client(
+        let client = UID2Client.test(
             sdkVersion: "1.0",
+            session: URLSession.shared,
             cryptoUtil: testCrypto.cryptoUtil
         )
 
