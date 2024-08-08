@@ -36,6 +36,7 @@
 		BF16EC4C2C5D8D7100B0CA03 /* UID2Manager.State.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF16EC2E2C5D8D7100B0CA03 /* UID2Manager.State.swift */; };
 		BF16EC4D2C5D8D7100B0CA03 /* UID2Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF16EC2F2C5D8D7100B0CA03 /* UID2Manager.swift */; };
 		BF16EC4E2C5D8D7100B0CA03 /* UID2Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF16EC302C5D8D7100B0CA03 /* UID2Settings.swift */; };
+		BF2AA21A2C650C8900634831 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF2AA2192C650C8900634831 /* Storage.swift */; };
 		BFE641292C5CDCB800E241CF /* UID2Prebid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFE641202C5CDCB800E241CF /* UID2Prebid.framework */; };
 		BFE641392C5CDD0600E241CF /* UID2PrebidTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE641382C5CDD0600E241CF /* UID2PrebidTests.swift */; };
 		BFE6413B2C5CDD0B00E241CF /* UID2Prebid.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE6413A2C5CDD0B00E241CF /* UID2Prebid.swift */; };
@@ -122,6 +123,7 @@
 		BF16EC2E2C5D8D7100B0CA03 /* UID2Manager.State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UID2Manager.State.swift; sourceTree = "<group>"; };
 		BF16EC2F2C5D8D7100B0CA03 /* UID2Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UID2Manager.swift; sourceTree = "<group>"; };
 		BF16EC302C5D8D7100B0CA03 /* UID2Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UID2Settings.swift; sourceTree = "<group>"; };
+		BF2AA2192C650C8900634831 /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		BFE641202C5CDCB800E241CF /* UID2Prebid.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UID2Prebid.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFE641282C5CDCB800E241CF /* UID2PrebidTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UID2PrebidTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFE641382C5CDD0600E241CF /* UID2PrebidTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UID2PrebidTests.swift; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 			children = (
 				BF16EC172C5D8D7100B0CA03 /* Broadcaster.swift */,
 				BF16EC182C5D8D7100B0CA03 /* Queue.swift */,
+				BF2AA2192C650C8900634831 /* Storage.swift */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
@@ -609,6 +612,7 @@
 				BF16EC4D2C5D8D7100B0CA03 /* UID2Manager.swift in Sources */,
 				BF16EC3A2C5D8D7100B0CA03 /* Queue.swift in Sources */,
 				BF16EC4A2C5D8D7100B0CA03 /* UID2Client.swift in Sources */,
+				BF2AA21A2C650C8900634831 /* Storage.swift in Sources */,
 				BF16EC352C5D8D7100B0CA03 /* UID2Identity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
