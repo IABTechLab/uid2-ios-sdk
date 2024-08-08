@@ -9,20 +9,17 @@ import Security
 actor KeychainManager {
 
     private let attrAccount = "uid2"
-    
-    private let attrService = "auth-state"
-    
+
+    private static let attrService = "auth-state"
+
     func getIdentityFromKeychain() -> IdentityPackage? {
-        let query = [
-            String(kSecClass): kSecClassGenericPassword,
-            String(kSecAttrAccount): attrAccount,
-            String(kSecAttrService): attrService,
+        let query = query(with: [
             String(kSecReturnData): true
-        ] as [String: Any] as CFDictionary
-            
+        ])
+
         var result: AnyObject?
         SecItemCopyMatching(query, &result)
-            
+
         if let data = result as? Data {
             return IdentityPackage.fromData(data)
         }
@@ -38,40 +35,42 @@ actor KeychainManager {
         }
 
         if let _ = getIdentityFromKeychain() {
-            let query = [
-                String(kSecClass): kSecClassGenericPassword,
-                String(kSecAttrService): attrService,
-                String(kSecAttrAccount): attrAccount
-            ] as [String: Any] as CFDictionary
+            let query = query()
 
             let attributesToUpdate = [String(kSecValueData): data] as CFDictionary
 
             let result = SecItemUpdate(query, attributesToUpdate)
             return result == errSecSuccess
         } else {
-            let keychainItem: [String: Any] = [
-                String(kSecClass): kSecClassGenericPassword,
-                String(kSecAttrAccount): attrAccount,
-                String(kSecAttrService): attrService,
+            let query = query(with: [
                 String(kSecUseDataProtectionKeychain): true,
                 String(kSecValueData): data
-            ]
+            ])
 
-            let result = SecItemAdd(keychainItem as CFDictionary, nil)
+            let result = SecItemAdd(query, nil)
             return result == errSecSuccess
         }
     }
     
     @discardableResult
     func deleteIdentityFromKeychain() -> Bool {
-        
-        let query: [String: Any] = [String(kSecClass): kSecClassGenericPassword,
-                                    String(kSecAttrAccount): attrAccount,
-                                    String(kSecAttrService): attrService]
+        let status: OSStatus = SecItemDelete(query())
 
-        let status: OSStatus = SecItemDelete(query as CFDictionary)
-        
         return status == errSecSuccess
     }
     
+    private func query() -> CFDictionary {
+        query(with: [:])
+    }
+
+    private func query(with queryElements: [String: Any]) -> CFDictionary {
+        let commonElements = [
+            String(kSecClass): kSecClassGenericPassword,
+            String(kSecAttrAccount): attrAccount,
+            String(kSecAttrService): Self.attrService
+        ] as [String: Any]
+
+        // Merge, preferring values from `commonElements`
+        return commonElements.merging(queryElements) { common, _ in common } as CFDictionary
+    }
 }
