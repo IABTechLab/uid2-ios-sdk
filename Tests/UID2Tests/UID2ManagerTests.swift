@@ -175,33 +175,39 @@ final class UID2ManagerTests: XCTestCase {
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
-        var values: [UID2Manager.State?] = []
-        let task = Task {
-            for await state in await manager.stateValues() {
-                values.append(state)
-            }
+
+        // test after initialization to observe after initial state configuration
+        let expectation = XCTestExpectation()
+        await manager.addInitializationListener {
+            // Initialize the streams now so that observers are attached
+            let stateValues = await manager.stateValues().prefix(3)
+
+            // Observe streams asynchronously
+            async let allStates = stateValues.reduce(into: []) { $0.append($1) }
+
+            let establishedIdentity = UID2Identity(
+                advertisingToken: "a",
+                refreshToken: "r",
+                identityExpires: Date().millisecondsSince1970 + 100000,
+                refreshFrom: Date().millisecondsSince1970 + 100000,
+                refreshExpires: Date().millisecondsSince1970 + 100000,
+                refreshResponseKey: ""
+            )
+
+            // Emit state changes
+            await manager.resetIdentity()
+            await manager.setIdentity(establishedIdentity)
+            await manager.resetIdentity()
+
+            let states = await allStates
+            XCTAssertEqual(states, [
+                nil,
+                .established(establishedIdentity),
+                nil,
+            ])
+            expectation.fulfill()
         }
-
-        let establishedIdentity = UID2Identity(
-            advertisingToken: "a",
-            refreshToken: "r",
-            identityExpires: Date().millisecondsSince1970 + 100000,
-            refreshFrom: Date().millisecondsSince1970 + 100000,
-            refreshExpires: Date().millisecondsSince1970 + 100000,
-            refreshResponseKey: ""
-        )
-
-        // Emit state changes
-        await manager.resetIdentity()
-        await manager.setIdentity(establishedIdentity)
-        await manager.resetIdentity()
-        task.cancel()
-
-        XCTAssertEqual(values, [
-            nil,
-            .established(establishedIdentity),
-            nil,
-        ])
+        await fulfillment(of: [expectation], timeout: 1)
     }
 
     @MainActor
@@ -213,43 +219,42 @@ final class UID2ManagerTests: XCTestCase {
             sdkVersion: (1, 0, 0),
             log: .disabled
         )
-        var values: [UID2Manager.State?] = []
-        let task = Task {
-            for await state in await manager.stateValues() {
-                values.append(state)
-            }
+
+        // test after initialization to observe after initial state configuration
+        let expectation = XCTestExpectation()
+        await manager.addInitializationListener {
+            // Initialize the streams now so that observers are attached
+            let stateValuesA = await manager.stateValues().prefix(4)
+            let stateValuesB = await manager.stateValues().prefix(4)
+
+            // Observe streams asynchronously
+            async let allStatesA = stateValuesA.reduce(into: []) { $0.append($1) }
+            async let allStatesB = stateValuesB.reduce(into: []) { $0.append($1) }
+
+            let establishedIdentity = UID2Identity.established()
+            let expiredIdentity = UID2Identity.expired()
+
+            // Emit state changes
+            await manager.resetIdentity()
+            await manager.setIdentity(establishedIdentity)
+            await manager.resetIdentity()
+            await manager.setIdentity(expiredIdentity)
+
+            let statesA = await allStatesA
+            let statesB = await allStatesB
+            XCTAssertEqual(statesA, statesB)
+            XCTAssertEqual(
+                statesA,
+                [
+                    nil,
+                    .established(establishedIdentity),
+                    nil,
+                    .refreshExpired
+                ]
+            )
+            expectation.fulfill()
         }
-
-        let establishedIdentity = UID2Identity.established()
-        let expiredIdentity = UID2Identity.expired()
-
-        // Emit a state change
-        await manager.resetIdentity()
-
-        // Start observing after one value emitted
-        var values1: [UID2Manager.State?] = []
-        let task1 = Task {
-            for await state in await manager.stateValues() {
-                values1.append(state)
-            }
-        }
-
-        // Emit three more state changes
-        await manager.setIdentity(establishedIdentity)
-        await manager.resetIdentity()
-        await manager.setIdentity(expiredIdentity)
-        task.cancel()
-        task1.cancel()
-
-        XCTAssertEqual(values, [
-            nil,
-            .established(establishedIdentity),
-            nil,
-            .refreshExpired
-        ])
-
-        // All observers see all values.
-        XCTAssertEqual(Array(values.dropFirst()), values1)
+        await fulfillment(of: [expectation], timeout: 1)
     }
 
     // MARK: Internal
