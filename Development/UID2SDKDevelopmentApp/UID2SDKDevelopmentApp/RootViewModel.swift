@@ -31,7 +31,7 @@ class RootViewModel: ObservableObject {
         // If you have copied the dev app for testing, you probably want to use the default
         // environment, which is production.
         if Bundle.main.bundleIdentifier == "com.uid2.UID2SDKDevelopmentApp" {
-            UID2Settings.shared.environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
+            UID2Settings.shared.uid2Environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
         }
 
         return UID2Manager.shared

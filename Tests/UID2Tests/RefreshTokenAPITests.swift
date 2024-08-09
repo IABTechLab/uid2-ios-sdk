@@ -9,6 +9,24 @@ import TestHelpers
 import XCTest
 @testable import UID2
 
+extension UID2Client {
+    static func test(
+        sdkVersion: String = "TEST",
+        session: any NetworkSession = URLSession.shared,
+        cryptoUtil: CryptoUtil = .liveValue
+    ) -> UID2Client {
+        .init(
+            sdkVersion: sdkVersion,
+            environment: .init(
+                endpoint: URL(string: "https://prod.uidapi.com")!,
+                isProduction: true
+            ),
+            session: session,
+            cryptoUtil: cryptoUtil
+        )
+    }
+}
+
 final class RefreshTokenAPITests: XCTestCase {
 
     /// 🟩  `POST /v2/token/refresh` - HTTP 200 - Success
@@ -21,8 +39,7 @@ final class RefreshTokenAPITests: XCTestCase {
         }
 
         // Load UID2Client Mocked
-        let client = UID2Client(
-            sdkVersion: "TEST",
+        let client = UID2Client.test(
             session: MockNetworkSession("refresh-token-200-success-encrypted", "txt")
         )
 
@@ -50,8 +67,7 @@ final class RefreshTokenAPITests: XCTestCase {
         }
 
         // Load UID2Client Mocked
-        let client = UID2Client(
-            sdkVersion: "TEST",
+        let client = UID2Client.test(
             session: MockNetworkSession("refresh-token-200-optout-encrypted", "txt")
         )
 
@@ -72,8 +88,7 @@ final class RefreshTokenAPITests: XCTestCase {
         
         do {
             // Load UID2Client Mocked
-            let client = UID2Client(
-                sdkVersion: "TEST",
+            let client = UID2Client.test(
                 session: MockNetworkSession("refresh-token-400-client-error", "json", 400)
             )
 
@@ -101,8 +116,7 @@ final class RefreshTokenAPITests: XCTestCase {
         
         do {
             // Load UID2Client Mocked
-            let client = UID2Client(
-                sdkVersion: "TEST",
+            let client = UID2Client.test(
                 session: MockNetworkSession("refresh-token-400-invalid-token", "json", 400)
             )
             
@@ -130,8 +144,7 @@ final class RefreshTokenAPITests: XCTestCase {
         
         do {
             // Load UID2Client Mocked
-            let client = UID2Client(
-                sdkVersion: "TEST",
+            let client = UID2Client.test(
                 session: MockNetworkSession("refresh-token-401-unauthorized", "json", 401)
             )
             

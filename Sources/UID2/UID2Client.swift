@@ -25,7 +25,7 @@ internal final class UID2Client: Sendable {
     init(
         sdkVersion: String,
         isLoggingEnabled: Bool = false,
-        environment: Environment = .production,
+        environment: Environment,
         session: NetworkSession = URLSession.shared,
         cryptoUtil: CryptoUtil = .liveValue
     ) {
@@ -122,7 +122,7 @@ internal final class UID2Client: Sendable {
             let statusCode = response.statusCode
             let responseText = String(data: data, encoding: .utf8) ?? "<none>"
             os_log("Request failure (%d) %@", log: log, type: .error, statusCode, responseText)
-            if environment != .production {
+            if !environment.isProduction {
                 os_log("Failed request is using non-production API endpoint %@, is this intentional?", log: log, type: .error, baseURL.description)
             }
             throw TokenGenerationError.requestFailure(

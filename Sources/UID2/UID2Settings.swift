@@ -32,18 +32,44 @@ public final class UID2Settings: @unchecked Sendable {
         }
     }
 
-    private var _environment = Environment.production
+    private var _uid2Environment = UID2.Environment.production
+    private var _euidEnvironment = EUID.Environment.production
 
-    /// API endpoint environment. The default value is `.production`.
-    public var environment: Environment {
+    /// UID2 API endpoint environment. The default value is `.production`.
+    @available(*, deprecated, renamed: "uid2Environment", message: "Use uid2Environment, or see also euid2Environment")
+    public var environment: UID2.Environment {
+        get {
+            uid2Environment
+        }
+        set {
+            uid2Environment = newValue
+        }
+    }
+
+    /// UID2 API endpoint environment. The default value is `.production`.
+    public var uid2Environment: UID2.Environment {
         get {
             queue.sync {
-                _environment
+                _uid2Environment
             }
         }
         set {
             queue.sync {
-                _environment = newValue
+                _uid2Environment = newValue
+            }
+        }
+    }
+
+    /// EUID API endpoint environment. The default value is `.production`.
+    public var euidEnvironment: EUID.Environment {
+        get {
+            queue.sync {
+                _euidEnvironment
+            }
+        }
+        set {
+            queue.sync {
+                _euidEnvironment = newValue
             }
         }
     }
