@@ -44,13 +44,11 @@ struct ClientGeneratePayload: Encodable {
     enum CodingKeys: CodingKey {
         case emailHash
         case phoneHash
-        case optoutCheck
     }
 
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: key)
-        try container.encode(1, forKey: .optoutCheck)
     }
 }
 
