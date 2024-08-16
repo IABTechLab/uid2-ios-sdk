@@ -3,13 +3,13 @@
   "summary": "A framework for integrating UID2 into iOS applications.",
   "homepage": "https://unifiedid.com/",
   "license": "Apache License, Version 2.0",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "authors": {
     "David Snabel-Caunt": "dave.snabel-caunt@thetradedesk.com"
   },
   "source": {
     "git": "https://github.com/IABTechLab/uid2-ios-sdk.git",
-    "tag": "v1.4.0"
+    "tag": "v1.5.0"
   },
   "platforms": {
     "ios": "13.0",
@@ -21,7 +21,9 @@
   "requires_arc": true,
   "frameworks": "Foundation",
   "resource_bundles": {
-    "UID2": ["Sources/UID2/PrivacyInfo.xcprivacy"]
+    "UID2": [
+      "Sources/UID2/PrivacyInfo.xcprivacy"
+    ]
   },
   "source_files": [
     "Sources/UID2/**/*"
