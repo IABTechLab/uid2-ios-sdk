@@ -16,8 +16,7 @@ final class ClientGeneratePayloadTests: XCTestCase {
             .email(email),
             """
             {
-              "email_hash" : "FsGNM28LJQ8OLZB0Us65ZYp07NrovJSGTCMSKnLMJ6U=",
-              "optout_check" : 1
+              "email_hash" : "FsGNM28LJQ8OLZB0Us65ZYp07NrovJSGTCMSKnLMJ6U="
             }
             """
         )
@@ -28,8 +27,7 @@ final class ClientGeneratePayloadTests: XCTestCase {
             .emailHash("im-a-hash"),
             """
             {
-              "email_hash" : "im-a-hash",
-              "optout_check" : 1
+              "email_hash" : "im-a-hash"
             }
             """
         )
@@ -41,7 +39,6 @@ final class ClientGeneratePayloadTests: XCTestCase {
             .phone(phone),
             """
             {
-              "optout_check" : 1,
               "phone_hash" : "EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4="
             }
             """
@@ -53,7 +50,6 @@ final class ClientGeneratePayloadTests: XCTestCase {
             .phoneHash("phone-hash"),
             """
             {
-              "optout_check" : 1,
               "phone_hash" : "phone-hash"
             }
             """
