@@ -29,7 +29,7 @@ extension RootViewModel {
         static func euid() -> Self {
             self.init(
                 subscriptionID: "w6yPQzN4dA",
-                appName: "13456789",
+                appName: Bundle.main.bundleIdentifier!,
                 // swiftlint:disable:next line_length
                 serverPublicKeyString: "EUID-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH/k7HYGuWhjhCo8nXgj/ypClo5kek7uRKvzCGwj04Y1eXOWmHDOLAQVCPquZdfVVezIpABNAl9zvsSEC7g+ZGg=="
             )
