@@ -25,7 +25,7 @@ struct RootView: View {
     var body: some View {
         
         VStack {            
-            Text("root.navigation.title")
+            Text(viewModel.isEUID ? "root.euid.navigation.title" : "root.uid2.navigation.title")
                 .font(Font.system(size: 28, weight: .bold))
             HStack {
                 TextField("Email Address", text: $email)
@@ -85,6 +85,7 @@ extension TokenGenerationError: LocalizedError {
             if let message,
                 let jsonObject = try? JSONSerialization.jsonObject(with: Data(message.utf8)),
                let jsonString = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted) {
+                // swiftlint:disable:next non_optional_string_data_conversion
                 formattedMessage = String(data: jsonString, encoding: .utf8)
             } else {
                 formattedMessage = message

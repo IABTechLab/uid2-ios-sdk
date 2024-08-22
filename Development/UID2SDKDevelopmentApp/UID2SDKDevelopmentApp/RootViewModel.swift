@@ -7,12 +7,41 @@
 
 import Combine
 import Foundation
+import OSLog
 import SwiftUI
 import UID2
 
+extension RootViewModel {
+    struct Configuration {
+        let subscriptionID: String
+        let appName: String
+        let serverPublicKeyString: String
+
+        static func uid2() -> Self {
+            self.init(
+                subscriptionID: "toPh8vgJgt",
+                appName: Bundle.main.bundleIdentifier!,
+                // swiftlint:disable:next line_length
+                serverPublicKeyString: "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw=="
+            )
+        }
+
+        static func euid() -> Self {
+            self.init(
+                subscriptionID: "w6yPQzN4dA",
+                appName: Bundle.main.bundleIdentifier!,
+                // swiftlint:disable:next line_length
+                serverPublicKeyString: "EUID-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH/k7HYGuWhjhCo8nXgj/ypClo5kek7uRKvzCGwj04Y1eXOWmHDOLAQVCPquZdfVVezIpABNAl9zvsSEC7g+ZGg=="
+            )
+        }
+    }
+}
+
 @MainActor
-class RootViewModel: ObservableObject {
-    
+final class RootViewModel: ObservableObject {
+
+    let isEUID: Bool
+
     @Published private(set) var uid2Identity: UID2Identity? {
         didSet {
             error = nil
@@ -25,19 +54,33 @@ class RootViewModel: ObservableObject {
     
     /// `UID2Settings` must be configured prior to accessing the `UID2Manager` instance.
     /// Configuring them here makes it less likely that an access occurs before configuration.
-    private let manager: UID2Manager = {
+    private let manager: UID2Manager
+
+    private let configuration: Configuration
+
+    private let log = OSLog(subsystem: "com.uid2.UID2SDKDevelopmentApp", category: "RootViewModel")
+
+    init() {
+        isEUID = Bundle.main.object(forInfoDictionaryKey: "UID2EnvironmentEUID") as? Bool ?? false
+
         UID2Settings.shared.isLoggingEnabled = true
         // Only the development app should use the integration environment.
         // If you have copied the dev app for testing, you probably want to use the default
         // environment, which is production.
         if Bundle.main.bundleIdentifier == "com.uid2.UID2SDKDevelopmentApp" {
-            UID2Settings.shared.environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
+            UID2Settings.shared.euidEnvironment = .custom(url: URL(string: "https://integ.euid.eu/v2")!)
+            UID2Settings.shared.uid2Environment = .custom(url: URL(string: "https://operator-integ.uidapi.com")!)
         }
 
-        return UID2Manager.shared
-    }()
-
-    init() {
+        if isEUID {
+            os_log("Configured for EUID", log: log, type: .info)
+            configuration = .euid()
+            manager = EUIDManager.shared
+        } else {
+            os_log("Configured for UID2", log: log, type: .info)
+            configuration = .uid2()
+            manager = UID2Manager.shared
+        }
         Task {
             for await state in await manager.stateValues() {
                 self.uid2Identity = state?.identity
@@ -130,17 +173,13 @@ class RootViewModel: ObservableObject {
     }
 
     func clientSideGenerate(identity: IdentityType) {
-        let subscriptionID = "toPh8vgJgt"
-        // swiftlint:disable:next line_length
-        let serverPublicKeyString = "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw=="
-        
         Task<Void, Never> {
             do {
                 try await manager.generateIdentity(
                     identity,
-                    subscriptionID: subscriptionID,
-                    serverPublicKey: serverPublicKeyString,
-                    appName: Bundle.main.bundleIdentifier!
+                    subscriptionID: configuration.subscriptionID,
+                    serverPublicKey: configuration.serverPublicKeyString,
+                    appName: configuration.appName
                 )
             } catch {
                 self.error = error

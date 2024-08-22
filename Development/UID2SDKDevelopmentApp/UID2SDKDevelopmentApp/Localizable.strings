@@ -8,7 +8,8 @@
 
 "common.nil" = "Nil";
 
-"root.navigation.title" = "UID2 SDK Dev App";
+"root.uid2.navigation.title" = "UID2 SDK Dev App";
+"root.euid.navigation.title" = "EUID SDK Dev App";
 "root.title.identitypackage" = "Current Identity";
 "root.label.error" = "Error Occurred";
 "root.button.reset" = "Reset";

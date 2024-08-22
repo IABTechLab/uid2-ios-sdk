@@ -6,8 +6,8 @@ import Foundation
 import Security
 
 extension Storage {
-    static func keychainStorage() -> Storage {
-        let storage = KeychainManager()
+    static func keychainStorage(account: Account) -> Storage {
+        let storage = KeychainManager(account: account)
         return .init(
             loadIdentity: { await storage.loadIdentity() },
             saveIdentity: { await storage.saveIdentity($0) },
@@ -16,12 +16,22 @@ extension Storage {
     }
 }
 
+/// These RawValue are used as persistence keys and must not be renamed
+enum Account: String {
+    case uid2 = "uid2" // swiftlint:disable:this redundant_string_enum_value
+    case euid = "euid" // swiftlint:disable:this redundant_string_enum_value
+}
+
 /// Securely manages data in the Keychain
 actor KeychainManager {
 
-    private let attrAccount = "uid2"
+    private let attrAccount: Account
 
     private static let attrService = "auth-state"
+
+    init(account: Account = .uid2) {
+        attrAccount = account
+    }
 
     func loadIdentity() -> IdentityPackage? {
         let query = query(with: [
@@ -77,7 +87,7 @@ actor KeychainManager {
     private func query(with queryElements: [String: Any]) -> CFDictionary {
         let commonElements = [
             String(kSecClass): kSecClassGenericPassword,
-            String(kSecAttrAccount): attrAccount,
+            String(kSecAttrAccount): attrAccount.rawValue,
             String(kSecAttrService): Self.attrService
         ] as [String: Any]
 
