@@ -5,6 +5,7 @@
 import Foundation
 import Security
 
+@available(iOS 13, tvOS 13, *)
 extension Storage {
     static func keychainStorage(account: Account) -> Storage {
         let storage = KeychainManager(account: account)
@@ -23,6 +24,7 @@ enum Account: String {
 }
 
 /// Securely manages data in the Keychain
+@available(iOS 13, tvOS 13, *)
 actor KeychainManager {
 
     private let attrAccount: Account

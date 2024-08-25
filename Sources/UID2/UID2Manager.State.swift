@@ -4,6 +4,7 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, *)
 extension UID2Manager {
     public enum State: Hashable, Sendable, Codable {
         case optout
@@ -15,6 +16,7 @@ extension UID2Manager {
     }
 }
 
+@available(iOS 13, tvOS 13, *)
 extension UID2Manager.State {
     /// A 'case path' returning the current `IdentityStatus`.
     public var identityStatus: IdentityStatus {
@@ -49,6 +51,7 @@ extension UID2Manager.State {
     }
 }
 
+@available(iOS 13, tvOS 13, *)
 extension UID2Manager.State {
     init?(_ package: IdentityPackage) {
         switch package.status {

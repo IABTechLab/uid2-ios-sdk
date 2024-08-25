@@ -36,6 +36,7 @@ private final class Atomic<Value: Sendable>: @unchecked Sendable {
 
 /// A test convenience which exposes the Symmetric Key it generates for the client.
 /// This key can then be used to encrypt stub responses for the client.
+@available(iOS 13, tvOS 13, *)
 public final class TestCryptoUtil {
     private let atomicSymmetricKey: Atomic<SymmetricKey?>
 
