@@ -4,6 +4,7 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, *)
 public final class EUIDManager {
 
     /// Singleton access point for EUID Manager
