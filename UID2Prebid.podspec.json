@@ -3,13 +3,13 @@
   "summary": "UID2 Prebid Mobile SDK Integration",
   "homepage": "https://unifiedid.com/",
   "license": "Apache License, Version 2.0",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "authors": {
     "David Snabel-Caunt": "dave.snabel-caunt@thetradedesk.com"
   },
   "source": {
     "git": "https://github.com/IABTechLab/uid2-ios-sdk.git",
-    "tag": "v1.6.0"
+    "tag": "v1.7.0"
   },
   "platforms": {
     "ios": "13.0"
