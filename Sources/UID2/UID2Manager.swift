@@ -9,8 +9,8 @@ import Combine
 import Foundation
 import OSLog
 
-// swiftlint:disable:next type_body_length
 @available(iOS 13, tvOS 13, *)
+// swiftlint:disable:next type_body_length
 public final actor UID2Manager {
     private enum InitializationState {
         case pending
