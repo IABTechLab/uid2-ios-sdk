@@ -121,8 +121,6 @@ internal final class UID2Client: Sendable {
         let decoder = JSONDecoder.apiDecoder()
         guard response.statusCode == 200 else {
             let statusCode = response.statusCode
-            // https://github.com/realm/SwiftLint/issues/5263#issuecomment-2115182747
-            // swiftlint:disable:next non_optional_string_data_conversion
             let responseText = String(data: data, encoding: .utf8) ?? "<none>"
             os_log("Request failure (%d) %@", log: log, type: .error, statusCode, responseText)
             if !environment.isProduction {

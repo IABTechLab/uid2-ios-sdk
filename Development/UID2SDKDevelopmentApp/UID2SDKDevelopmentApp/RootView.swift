@@ -85,7 +85,6 @@ extension TokenGenerationError: LocalizedError {
             if let message,
                 let jsonObject = try? JSONSerialization.jsonObject(with: Data(message.utf8)),
                let jsonString = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted) {
-                // swiftlint:disable:next non_optional_string_data_conversion
                 formattedMessage = String(data: jsonString, encoding: .utf8)
             } else {
                 formattedMessage = message
