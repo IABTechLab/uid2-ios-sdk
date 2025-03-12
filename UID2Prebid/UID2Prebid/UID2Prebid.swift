@@ -10,13 +10,17 @@ protocol UserIDUpdater: Sendable {
 struct PrebidUserIDUpdater: UserIDUpdater {
     /// Passes the observed IDs to Prebid
     func updateUserIDs(_ userIDs: [ExternalUserId]) {
-        Prebid.shared.externalUserIdArray = userIDs
+        Targeting.shared.setExternalUserIds(userIDs)
     }
 }
 
 public actor UID2Prebid: Sendable {
     let thirdPartyUserIDs: @Sendable () async -> [ExternalUserId]
     let userIDUpdater: UserIDUpdater
+
+    // https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list_agenttypes
+    // "A person-based ID, i.e., that is the same across devices."
+    private let agentType: NSNumber = 3
     private let source = "uidapi.com"
     private var task: Task<Void, Never>?
     
@@ -72,8 +76,10 @@ public actor UID2Prebid: Sendable {
     func updateExternalUserID(_ advertisingToken: String?) async {
         var userIDs = await self.thirdPartyUserIDs()
         if let advertisingToken {
-            let advertisingTokenUser = ExternalUserId(source: source, identifier: advertisingToken)
-            userIDs.append(advertisingTokenUser)
+            userIDs.append(ExternalUserId(
+                source: source,
+                uids: [.init(id: advertisingToken, aType: agentType)]
+            ))
         }
         await userIDUpdater.updateUserIDs(userIDs)
     }

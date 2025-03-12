@@ -51,7 +51,9 @@ final class UID2PrebidTests: XCTestCase {
             }
         )
         await observation(
-            of: [ExternalUserId(source: "uidapi.com", identifier: "cat")],
+            of: [
+                ExternalUserId(source: "uidapi.com", uids: [.init(id: "cat", aType: 1)])
+            ],
             by: updater
         )
 
@@ -65,7 +67,9 @@ final class UID2PrebidTests: XCTestCase {
             .established(.established(advertisingToken: "turtle"))
         )
         await observation(
-            of: [ExternalUserId(source: "uidapi.com", identifier: "turtle")],
+            of: [
+                ExternalUserId(source: "uidapi.com", uids: [.init(id: "turtle", aType: 1)])
+            ],
             by: updater
         )
     }
@@ -89,7 +93,7 @@ final class UID2PrebidTests: XCTestCase {
             manager: manager,
             thirdPartyUserIDs: {
                 [
-                    ExternalUserId(source: "example.com", identifier: "dog")
+                    ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 1)])
                 ]
             },
             userIDUpdater: updater,
@@ -102,8 +106,8 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "example.com", identifier: "dog"),
-                ExternalUserId(source: "uidapi.com", identifier: "cat"),
+                ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 1)]),
+                ExternalUserId(source: "uidapi.com", uids: [.init(id: "cat", aType: 1)]),
             ],
             by: updater
         )
@@ -111,7 +115,7 @@ final class UID2PrebidTests: XCTestCase {
         continuation.yield(.invalid)
         await observation(
             of: [
-                ExternalUserId(source: "example.com", identifier: "dog"),
+                ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 1)]),
             ],
             by: updater
         )
@@ -141,7 +145,7 @@ extension UID2PrebidTests {
     }
     struct ExternalUserIdEquatable: Equatable {
         var source: String
-        var identifier: String
+        var identifier: String?
         var atype: Int?
 
         init(_ userId: ExternalUserId) {
