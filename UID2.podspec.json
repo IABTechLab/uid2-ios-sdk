@@ -26,7 +26,7 @@
     ]
   },
   "source_files": [
-    "Sources/UID2/**/*"
+    "Sources/UID2/**/*.swift"
   ],
   "dependencies": {
     "SwiftASN1": [
