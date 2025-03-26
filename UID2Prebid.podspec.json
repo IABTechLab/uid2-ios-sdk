@@ -25,7 +25,7 @@
     ]
   },
   "source_files": [
-    "UID2Prebid/UID2Prebid/**/*"
+    "UID2Prebid/UID2Prebid/**/*.swift"
   ],
   "dependencies": {
     "UID2": [
