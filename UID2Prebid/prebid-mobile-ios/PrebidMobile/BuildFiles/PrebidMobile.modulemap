@@ -1,0 +1,180 @@
+/*   Copyright 2018-2021 Prebid.org, Inc.
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
+framework module PrebidMobile {
+    
+    // Versions
+    header "PrebidMobile.h"
+    
+    // Enums
+    header "PBMErrorCode.h"
+    header "PBMErrorType.h"
+    
+    // PBMCore
+    header "PBMBidRequester.h"
+    header "PBMBidRequesterProtocol.h"
+    
+    // PBMCacheRenderers
+    header "PBMDisplayView.h"
+    
+    // Integration GAM
+    
+    header "PBMPrimaryAdRequesterProtocol.h"
+    
+    header "PBMInterstitialEventHandler.h"
+    
+    // ===
+    //Temp. for converting
+    header "PBMJsonCodable.h"
+    header "PBMFunctions.h"
+    header "PBMFunctions+Private.h"
+    header "PBMFunctions+Testing.h"
+    header "PBMUIApplicationProtocol.h"
+
+    header "PBMViewControllerProvider.h"
+    header "PBMVoidBlock.h"
+    
+    header "PBMErrorFamily.h"
+    
+    header "PBMJsonDecodable.h"
+    header "PBMConstants.h"
+    
+    header "PBMAdViewManagerDelegate.h"
+    header "PBMAdDetails.h"
+    header "PBMTransaction.h"
+    header "PBMInterstitialLayout.h"
+    
+    header "PBMScheduledTimerFactory.h"
+    header "NSTimer+PBMScheduledTimerFactory.h"
+    header "NSTimer+PBMTimerInterface.h"
+    header "PBMTimerInterface.h"
+    
+    header "PBMTransactionFactory.h"
+    header "PBMVastTransactionFactory.h"
+    header "PBMTransactionFactoryCallback.h"
+    
+    header "PBMError.h"
+    header "PBMModalManagerDelegate.h"
+    header "PBMAdLoadManagerDelegate.h"
+    header "PBMCreativeViewDelegate.h"
+    header "PBMAbstractCreative.h"
+    header "PBMAdViewManager.h"
+    header "PBMViewExposure.h"
+    
+    header "PBMBidRequester.h"
+    header "Log+Extensions.h"
+    header "PBMAutoRefreshManager.h"
+    
+    
+    header "UIView+PBMExtensions.h"
+    header "NSNumber+PBMORTBNative.h"
+    
+    header "PBMJsonCodable.h"
+    header "PBMFunctions.h"
+    header "PBMFunctions+Private.h"
+    header "PBMUIApplicationProtocol.h"
+    
+    header "PBMAutoRefreshManager.h"
+    header "PBMAdLoadFlowController.h"
+    header "PBMAdLoaderProtocol.h"
+    header "PBMBannerAdLoader.h"
+    
+    
+    header "PBMBidRequesterFactoryBlock.h"
+    header "PBMWinNotifierBlock.h"
+    header "PBMAdMarkupStringHandler.h"
+    header "PBMBidRequesterFactory.h"
+    header "PBMWinNotifier.h"
+    header "PBMWinNotifierFactoryBlock.h"
+    
+    // OM tracking
+    header "PBMOpenMeasurementWrapper.h"
+    header "PBMOpenMeasurementSession.h"
+    header "PBMVideoVerificationParameters.h"
+    header "PBMEventTrackerProtocol.h"
+    header "PBMOpenMeasurementFriendlyObstructionPurpose.h"
+    header "PBMTrackingEvent.h"
+    
+    // Urls openers
+    header "PBMExternalURLOpeners.h"
+    header "PBMExternalURLOpenerBlock.h"
+    header "PBMURLOpenResultHandlerBlock.h"
+    header "PBMTrackingURLVisitors.h"
+    header "PBMTrackingURLVisitorBlock.h"
+    header "PBMExternalLinkHandler.h"
+    header "PBMURLOpenAttempterBlock.h"
+    header "PBMExternalURLOpenCallbacks.h"
+    header "PBMSafariVCOpener.h"
+    header "PBMDeepLinkPlusHelper.h"
+    header "PBMDeepLinkPlusHelper+PBMExternalLinkHandler.h"
+    
+    // ModalManager
+    header "PBMModalManager.h"
+    header "PBMModalState.h"
+    header "PBMModalViewControllerDelegate.h"
+    
+    // Interstitial
+    header "PBMInterstitialDisplayProperties.h"
+    header "PBMWeakTimerTargetBox.h"
+    
+    // Bid
+    header "PBMORTBAbstract.h"
+    header "PBMORTBAbstract+Protected.h"
+    header "PBMORTBAbstractResponse.h"
+    header "PBMORTBAbstractResponse+Protected.h"
+    header "PBMRawBidResponse.h"
+    header "PBMORTBBidResponse.h"
+    header "PBMORTBBidResponse+Internal.h"
+    header "PBMORTBBidResponseExt.h"
+    header "PBMORTBBid.h"
+    header "PBMORTBBidExt.h"
+    header "PBMORTBSeatBid.h"
+    header "PBMORTBBidExtPrebid.h"
+    header "PBMORTBBidResponseExtPrebid.h"
+    header "PBMORTBExtPrebidPassthrough.h"
+    header "PBMORTBAdConfiguration.h"
+    header "PBMORTBSDKConfiguration.h"
+    header "PBMORTBBidExtSkadn.h"
+    header "PBMORTBSkadnFidelity.h"
+    header "PBMORTBExtPrebidEvents.h"
+    header "PBMORTBMacrosHelper.h"
+    
+    header "PBMORTBAppContent.h"
+    header "PBMORTBContentProducer.h"
+    header "PBMORTBContentData.h"
+    header "PBMORTBContentSegment.h"
+    header "PBMORTBNative.h"
+    
+    // Rewarded
+    header "PBMORTBRewardedClose.h"
+    header "PBMORTBRewardedCompletion.h"
+    header "PBMORTBRewardedCompletionBanner.h"
+    header "PBMORTBRewardedCompletionVideo.h"
+    header "PBMORTBRewardedCompletionVideoEndcard.h"
+    header "PBMORTBRewardedConfiguration.h"
+    header "PBMORTBRewardedReward.h"
+    
+    header "NSDictionary+PBMExtensions.h"
+    header "NSMutableDictionary+PBMExtensions.h"
+    header "PBMLocationManager.h"
+    
+    header "PBMInterstitialAdLoader.h"
+    header "PBMInterstitialAdLoaderDelegate.h"
+    
+    header "PrebidMobileDisplayViewProtocol.h"
+    
+    header "OMSDKVersionProvider.h"
+    header "NSObject+PBMExtensions.h"
+}
