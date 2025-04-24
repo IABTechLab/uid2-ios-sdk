@@ -1,0 +1,13 @@
+platform :ios, '13.0'
+
+def pod_PrebidMobile
+    pod 'PrebidMobile', '~> 2.4.0'
+end
+
+target 'UID2Prebid' do
+    pod_PrebidMobile
+end
+
+target 'UID2PrebidTests' do
+    pod_PrebidMobile
+end

@@ -9,4 +9,4 @@ cd UID2Prebid
 ./bootstrap.sh
 ```
 
-To develop & test UID2Prebid, open `UID2Prebid.xcodeproj`.
+To develop & test UID2Prebid, open `UID2Prebid.xcworkspace`.
