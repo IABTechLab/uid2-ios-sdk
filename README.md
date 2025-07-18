@@ -41,7 +41,10 @@ This document includes:
 
 ## Install and Usage
 
-See the [UID2 SDK for iOS Reference Guide](https://unifiedid.com/docs/sdks/uid2-sdk-ref-ios).
+For installation and usage information, see the applicable guide:
+
+- For UID2: [SDK for iOS Reference Guide](https://unifiedid.com/docs/sdks/sdk-ref-ios)
+- For EUID: [SDK for iOS Reference Guide](https://euid.eu/docs/sdks/sdk-ref-ios)
 
 ## Development
 
