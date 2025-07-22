@@ -3,6 +3,7 @@ import Foundation
 @preconcurrency import PrebidMobile
 import UID2
 
+@available(iOS 13, tvOS 13, *)
 protocol UserIDUpdater: Sendable {
     func updateUserIDs(_ userIDs: [ExternalUserId]) async
 }
@@ -14,6 +15,7 @@ struct PrebidUserIDUpdater: UserIDUpdater {
     }
 }
 
+@available(iOS 13, tvOS 13, *)
 public actor UID2Prebid: Sendable {
     let thirdPartyUserIDs: @Sendable () async -> [ExternalUserId]
     let userIDUpdater: UserIDUpdater
