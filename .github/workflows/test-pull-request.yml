@@ -36,14 +36,11 @@ jobs:
       - name: Run UID2 unit tests on tvOS
         run: xcodebuild test -scheme UID2 -destination "OS=18.5,name=Apple TV"
 
-      - name: Bootstrap Prebid Dependencies
-        run: cd UID2Prebid && ./bootstrap.sh && cd -
-
       - name: Build UID2Prebid for iOS
-        run: xcodebuild -workspace UID2Prebid/UID2Prebid.xcworkspace -scheme UID2Prebid -destination "generic/platform=iOS"
+        run: xcodebuild -scheme UID2Prebid -destination "generic/platform=iOS"
 
       - name: Run UID2Prebid unit tests
-        run: xcodebuild test -workspace UID2Prebid/UID2Prebid.xcworkspace -scheme UID2Prebid -destination "OS=18.5,name=iPhone 16"
+        run: xcodebuild test -scheme UID2Prebid -destination "OS=18.5,name=iPhone 16"
       
       - name: Lint UID2 pod spec
         run: pod lib lint UID2.podspec.json --verbose
