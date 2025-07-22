@@ -21,18 +21,18 @@
   "frameworks": "Foundation",
   "resource_bundles": {
     "UID2Prebid": [
-      "UID2Prebid/UID2Prebid/PrivacyInfo.xcprivacy"
+      "Sources/UID2Prebid/PrivacyInfo.xcprivacy"
     ]
   },
   "source_files": [
-    "UID2Prebid/UID2Prebid/**/*.swift"
+    "Sources/UID2Prebid/**/*.swift"
   ],
   "dependencies": {
     "UID2": [
       "~> 1.3.0"
     ],
     "PrebidMobile": [
-      "~> 2.4"
+      "~> 3.1"
     ]
   }
 }
