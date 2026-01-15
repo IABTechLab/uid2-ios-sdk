@@ -23,7 +23,6 @@ public actor UID2Prebid {
     // https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list_agenttypes
     // "A person-based ID, i.e., that is the same across devices."
     private let agentType: NSNumber = 3
-    private let source = "uidapi.com"
     private var task: Task<Void, Never>?
     
     let stateStream: () async -> AsyncStream<UID2Manager.State?>
@@ -60,22 +59,23 @@ public actor UID2Prebid {
         Task {
             await manager.addInitializationListener { [weak self] in
                 guard let self else { return }
-                await self.updateExternalUserID(initialToken())
-                await self.observeIdentityChanges()
+                let source = await manager.isEuidEnvironment ? "euid.eu" : "uidapi.com"
+                await self.updateExternalUserID(initialToken(), source: source)
+                await self.observeIdentityChanges(source: source)
             }
         }
     }
 
-    func observeIdentityChanges() {
+    func observeIdentityChanges(source: String) {
         self.task = Task {
             let identities = await stateStream()
             for await advertisingToken in identities.map({ $0?.identity?.advertisingToken }) {
-                await updateExternalUserID(advertisingToken)
+                await updateExternalUserID(advertisingToken, source: source)
             }
         }
     }
 
-    func updateExternalUserID(_ advertisingToken: String?) async {
+    func updateExternalUserID(_ advertisingToken: String?, source: String) async {
         var userIDs = await self.thirdPartyUserIDs()
         if let advertisingToken {
             userIDs.append(ExternalUserId(

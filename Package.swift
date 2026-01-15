@@ -54,7 +54,7 @@ let package = Package(
         ),
         .testTarget(
             name: "UID2PrebidTests",
-            dependencies: ["UID2Prebid"]
+            dependencies: ["UID2Prebid", "TestHelpers"]
         ),
         .target(
             name: "TestHelpers",
