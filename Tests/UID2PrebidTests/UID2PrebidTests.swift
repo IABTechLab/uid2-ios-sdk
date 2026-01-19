@@ -122,6 +122,55 @@ final class UID2PrebidTests: XCTestCase {
     }
 
     @MainActor
+    func testObservationOfEUIDSource() async throws {
+        let manager = UID2Manager(
+            uid2Client: UID2Client(
+                sdkVersion: "1.0",
+                environment: Environment(EUID.Environment.production)
+            ),
+            storage: .null,
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        let updater = TestUserIDUpdater()
+
+        let (stream, continuation) = AsyncStream<UID2Manager.State?>.makeStream()
+
+        prebid = UID2Prebid(
+            manager: manager,
+            userIDUpdater: updater,
+            initialToken: {
+                "cat"
+            },
+            stateStream: {
+                stream
+            }
+        )
+        await observation(
+            of: [
+                ExternalUserId(source: "euid.eu", uids: [.init(id: "cat", aType: 3)])
+            ],
+            by: updater
+        )
+
+        continuation.yield(.optout)
+        await observation(
+            of: [],
+            by: updater
+        )
+
+        continuation.yield(
+            .established(.established(advertisingToken: "turtle"))
+        )
+        await observation(
+            of: [
+                ExternalUserId(source: "euid.eu", uids: [.init(id: "turtle", aType: 3)])
+            ],
+            by: updater
+        )
+    }
+
+    @MainActor
     func observation(of expectedUserIds: [ExternalUserId], by updater: TestUserIDUpdater) async {
         let expectation = XCTestExpectation(description: "Expected Test Updater to observe specific value")
         updater.observer = { userIds in

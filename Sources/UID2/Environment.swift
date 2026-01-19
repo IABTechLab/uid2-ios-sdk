@@ -13,17 +13,20 @@ struct Environment: Hashable, Sendable {
     /// API base URL
     let endpoint: URL
     let isProduction: Bool
+    let isEuid: Bool
 }
 
 extension Environment {
     init(_ environment: UID2.Environment) {
         endpoint = environment.endpoint
         isProduction = (environment == .production)
+        isEuid = false
     }
 
     init(_ environment: EUID.Environment) {
         endpoint = environment.endpoint
         isProduction = (environment == .production)
+        isEuid = true
     }
 }
 

@@ -107,6 +107,9 @@ public final actor UID2Manager {
 
     private let dateGenerator: DateGenerator
 
+    /// Returns `true` if this Manager is configured for the EUID environment. See also ``EUIDManager``.
+    public let isEuidEnvironment: Bool
+    
     // MARK: - Defaults
     
     init(
@@ -118,7 +121,7 @@ public final actor UID2Manager {
         if let apiUrlOverride = Bundle.main.object(forInfoDictionaryKey: "UID2ApiUrl") as? String,
             !apiUrlOverride.isEmpty,
             let apiUrl = URL(string: apiUrlOverride) {
-            clientEnvironment = Environment(endpoint: apiUrl, isProduction: false)
+            clientEnvironment = Environment(endpoint: apiUrl, isProduction: false, isEuid: false)
         } else {
             clientEnvironment = environment
         }
@@ -155,7 +158,8 @@ public final actor UID2Manager {
         self.sdkVersion = sdkVersion
         self.log = log
         self.dateGenerator = dateGenerator
-
+        self.isEuidEnvironment = uid2Client.environment.isEuid
+        
         // Try to load from Keychain if available
         // Use case for app manually stopped and re-opened
         Task {

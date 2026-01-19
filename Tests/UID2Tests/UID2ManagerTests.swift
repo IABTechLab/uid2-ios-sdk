@@ -26,6 +26,36 @@ final class UID2ManagerTests: XCTestCase {
             .failure(UnexpectedRequest(request: request))
         }
     }
+    
+    func testNonEUIDEnvironment() async {
+        let manager = UID2Manager(
+            uid2Client: UID2Client.test(),
+            storage: .null,
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        
+        let isEuidEnvironment = await manager.isEuidEnvironment
+        XCTAssertFalse(isEuidEnvironment)
+    }
+
+    func testEUIDEnvironment() async {
+        let manager = UID2Manager(
+            uid2Client: UID2Client.test(
+                environment: .init(
+                    endpoint: URL(string: "https://prod.euid.eu/v2")!,
+                    isProduction: true,
+                    isEuid: true
+                )
+            ),
+            storage: .null,
+            sdkVersion: (1, 0, 0),
+            log: .disabled
+        )
+        
+        let isEuidEnvironment = await manager.isEuidEnvironment
+        XCTAssertTrue(isEuidEnvironment)
+    }
 
     func testInitialState() async throws {
         let manager = UID2Manager(
