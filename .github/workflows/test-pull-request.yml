@@ -45,9 +45,6 @@ jobs:
       - name: Lint UID2 pod spec
         run: pod lib lint UID2.podspec.json --verbose
 
-      - name: Lint UID2Prebid pod spec
-        run: pod lib lint UID2Prebid.podspec.json --verbose
-
   vulnerability-scan:
     name: Vulnerability Scan
     runs-on: ubuntu-latest
