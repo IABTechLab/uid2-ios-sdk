@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         run: brew install swiftlint
@@ -21,8 +21,8 @@ jobs:
       - name: Lint code
         run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      - name: Select Xcode 26.2
+        run: sudo xcode-select -s /Applications/Xcode_26.2.app
 
       - name: Build UID2 for iOS
         run: xcodebuild -scheme UID2 -destination "generic/platform=iOS"
@@ -31,16 +31,16 @@ jobs:
         run: xcodebuild -scheme UID2 -destination "generic/platform=tvOS"
 
       - name: Run UID2 unit tests
-        run: xcodebuild test -scheme UID2 -destination "OS=18.5,name=iPhone 16"
+        run: xcodebuild test -scheme UID2 -destination "OS=26.2,name=iPhone 17"
       
       - name: Run UID2 unit tests on tvOS
-        run: xcodebuild test -scheme UID2 -destination "OS=18.5,name=Apple TV"
+        run: xcodebuild test -scheme UID2 -destination "OS=26.2,name=Apple TV"
 
       - name: Build UID2Prebid for iOS
         run: xcodebuild -scheme UID2Prebid -destination "generic/platform=iOS"
 
       - name: Run UID2Prebid unit tests
-        run: xcodebuild test -scheme UID2Prebid -destination "OS=18.5,name=iPhone 16"
+        run: xcodebuild test -scheme UID2Prebid -destination "OS=26.2,name=iPhone 17"
       
       - name: Lint UID2 pod spec
         run: pod lib lint UID2.podspec.json --verbose
