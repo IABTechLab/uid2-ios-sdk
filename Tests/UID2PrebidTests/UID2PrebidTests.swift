@@ -52,7 +52,7 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "uidapi.com", uids: [.init(id: "cat", aType: 3)])
+                ExternalUserId(source: "uidapi.com", uids: [.init(uniqueId: "cat", aType: 3)])
             ],
             by: updater
         )
@@ -68,7 +68,7 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "uidapi.com", uids: [.init(id: "turtle", aType: 3)])
+                ExternalUserId(source: "uidapi.com", uids: [.init(uniqueId: "turtle", aType: 3)])
             ],
             by: updater
         )
@@ -93,7 +93,7 @@ final class UID2PrebidTests: XCTestCase {
             manager: manager,
             thirdPartyUserIDs: {
                 [
-                    ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 3)])
+                    ExternalUserId(source: "example.com", uids: [.init(uniqueId: "dog", aType: 3)])
                 ]
             },
             userIDUpdater: updater,
@@ -106,8 +106,8 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 3)]),
-                ExternalUserId(source: "uidapi.com", uids: [.init(id: "cat", aType: 3)]),
+                ExternalUserId(source: "example.com", uids: [.init(uniqueId: "dog", aType: 3)]),
+                ExternalUserId(source: "uidapi.com", uids: [.init(uniqueId: "cat", aType: 3)]),
             ],
             by: updater
         )
@@ -115,7 +115,7 @@ final class UID2PrebidTests: XCTestCase {
         continuation.yield(.invalid)
         await observation(
             of: [
-                ExternalUserId(source: "example.com", uids: [.init(id: "dog", aType: 3)]),
+                ExternalUserId(source: "example.com", uids: [.init(uniqueId: "dog", aType: 3)]),
             ],
             by: updater
         )
@@ -148,7 +148,7 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "euid.eu", uids: [.init(id: "cat", aType: 3)])
+                ExternalUserId(source: "euid.eu", uids: [.init(uniqueId: "cat", aType: 3)])
             ],
             by: updater
         )
@@ -164,7 +164,7 @@ final class UID2PrebidTests: XCTestCase {
         )
         await observation(
             of: [
-                ExternalUserId(source: "euid.eu", uids: [.init(id: "turtle", aType: 3)])
+                ExternalUserId(source: "euid.eu", uids: [.init(uniqueId: "turtle", aType: 3)])
             ],
             by: updater
         )
@@ -205,7 +205,7 @@ extension UID2PrebidTests {
         var id: String
         var aType: Int
         init(_ userId: UserUniqueID) {
-            self.id = userId.id
+            self.id = userId.uniqueId
             self.aType = userId.aType.intValue
         }
     }

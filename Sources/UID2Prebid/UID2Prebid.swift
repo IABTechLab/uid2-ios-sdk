@@ -80,7 +80,7 @@ public actor UID2Prebid {
         if let advertisingToken {
             userIDs.append(ExternalUserId(
                 source: source,
-                uids: [.init(id: advertisingToken, aType: agentType)]
+                uids: [.init(uniqueId: advertisingToken, aType: agentType)]
             ))
         }
         await userIDUpdater.updateUserIDs(userIDs)

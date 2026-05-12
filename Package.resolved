@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/prebid/prebid-mobile-ios.git",
       "state" : {
-        "revision" : "e632be68c5f74261fa550374b41699b481824dd3",
-        "version" : "3.1.0"
+        "revision" : "4f96890f9f8b38db6abd92044a928a709d5458d2",
+        "version" : "3.3.1"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",
       "state" : {
-        "revision" : "d24a9f5ad472610598449dc669befa5b7ed50658",
-        "version" : "12.7.0"
+        "revision" : "e2b1c31cdf11cb4b57b4e70ae4c313d4e48c444a",
+        "version" : "13.3.0"
       }
     },
     {
