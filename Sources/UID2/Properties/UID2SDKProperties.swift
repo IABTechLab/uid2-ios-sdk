@@ -10,7 +10,7 @@ import Foundation
 public enum UID2SDKProperties {
 
     public static func getUID2SDKVersion() -> (major: Int, minor: Int, patch: Int) {
-        (2, 1, 0)
+        (3, 0, 0)
     }
     
 }
