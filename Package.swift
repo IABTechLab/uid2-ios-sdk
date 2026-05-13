@@ -20,7 +20,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-asn1.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/prebid/prebid-mobile-ios.git", .upToNextMajor(from: "3.1.0")),
+        .package(url: "https://github.com/prebid/prebid-mobile-ios.git", .upToNextMajor(from: "3.3.1")),
     ],
     targets: [
         .target(
