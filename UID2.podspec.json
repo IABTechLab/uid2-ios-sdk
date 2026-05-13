@@ -12,8 +12,8 @@
     "tag": "v3.0.0"
   },
   "platforms": {
-    "ios": "12.0",
-    "tvos": "12.0"
+    "ios": "13.0",
+    "tvos": "13.0"
   },
   "swift_versions": [
     "5"
