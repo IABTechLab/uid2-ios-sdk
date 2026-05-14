@@ -10,9 +10,17 @@ on:
         - Patch
         - Minor
         - Major
-jobs: 
+jobs:
+  approve-publish:
+      name: Approve publish
+      runs-on: ubuntu-latest
+      environment: sdk-publish-approval
+      steps:
+        - run: echo "Publish approved"
+
   build-and-publish:
       name: Build and publish iOS release
+      needs: approve-publish
       uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-ios-version.yaml@v3
       with:
         release_type: ${{ inputs.release_type }}
